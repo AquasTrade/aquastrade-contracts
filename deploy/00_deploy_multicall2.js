@@ -35,3 +35,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
 };
 module.exports.tags = ["Multicall2"];
+module.exports.dependencies = ["UniswapV2Router"];
