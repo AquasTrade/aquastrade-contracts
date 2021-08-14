@@ -5,7 +5,7 @@ require("@nomiclabs/hardhat-ethers");
 require('dotenv').config()
 
 
-const defaultNetwork = "skaleTestnet";
+const defaultNetwork = "rinkeby";
 
 module.exports = {
   defaultNetwork,
@@ -23,9 +23,15 @@ module.exports = {
       accounts: [process.env.ADMIN_PKEY_TESTNET]
     },
     mainnet: {
-      url: "https://mainnet.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad",
+      url: "https://mainnet.infura.io/v3/25fa1ace1a514064af1e74da27d00ff7",
       accounts: {
         mnemonic: process.env.MNEMONIC,
+      },
+    },
+    rinkeby: {
+      url: "https://rinkeby.infura.io/v3/25fa1ace1a514064af1e74da27d00ff7",
+      accounts: {
+        mnemonic: process.env.MNEMONIC
       },
     },
 

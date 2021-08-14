@@ -40,6 +40,7 @@
     "account": "hardhat account",
     "etherscan-verify": "hardhat etherscan-verify --api-key PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8",
     "debug": "node scripts/debug.js",
-    "generateInitCodeHash": "node scripts/generateInitCodeHash.js"
+    "generateInitCodeHash": "node scripts/generateInitCodeHash.js",
+    "bridge": "node scripts/bridging.js"
   }
 }

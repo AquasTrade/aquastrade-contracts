@@ -44,3 +44,6 @@ SKALE testnet:
 }
 
 ```
+
+#### ETH address on SKALE testchain:
+`0xD2Aaa00700000000000000000000000000000000`
