@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "@boringcrypto/boring-solidity": "boringcrypto/BoringSolidity#e06e943",
     "eslint": "^7.5.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-prettier": "^6.11.0",
@@ -11,7 +12,6 @@
     "eslint-plugin-prettier": "^3.4.0"
   },
   "dependencies": {
-    "@eth-optimism/hardhat-ovm": "^0.2.2",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@openzeppelin/contracts": "^3.2.0",

@@ -5,7 +5,7 @@ require("@nomiclabs/hardhat-ethers");
 require('dotenv').config()
 
 
-const defaultNetwork = "localhost";
+const defaultNetwork = "skaleTestnet";
 
 module.exports = {
   defaultNetwork,
@@ -46,10 +46,6 @@ module.exports = {
   namedAccounts: {
     deployer: {
       default: 0, // here this will by default take the first account as deployer
-    },
-    dev: {
-      default: 1,
-      1: '0x5B4442cAdE5aD6e58FE864B9a58125065D01A74d' //skaleTestnet dev acc
     }
   },
 };

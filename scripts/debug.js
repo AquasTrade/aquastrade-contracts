@@ -9,7 +9,7 @@ const {getAddresses} = require('../utils/addresses')
 const addresses = getAddresses();
 
 const createPair = async (token0, token1) => {
-
+  console.log("Creating pair...");
   const factory = await ethers.getContractAt('UniswapV2Factory', addresses.UniswapV2Factory)
   const res = await factory.createPair(token0, token1).catch(err => {
     console.log("error while creating pair")
@@ -18,13 +18,6 @@ const createPair = async (token0, token1) => {
   const recipe = await res.wait(1);
   console.log("recipe", recipe);
 
-
-}
-
-const abiDecode =  () => {
-  const data = "0xe8e337000000000000000000000000004058d058ff62ed347db8a69c43ae9c67268b50b0000000000000000000000000a270484784f043e159f74c03b691f80b6f6e3c240000000000000000000000000000000000000000000000056bc75e2d631000000000000000000000000000000000000000000000000000001bc16d674ec800000000000000000000000000000000000000000000000000056bc75e2d631000000000000000000000000000000000000000000000000000001bc16d674ec800000000000000000000000000005b4442cade5ad6e58fe864b9a58125065d01a74d000000000000000000000000000000000000000000000000000000000003619a"
-  const decoded = ethers.utils.defaultAbiCoder.decode(["address","address", "uint", "uint", "uint", "uint", "address", "uint"], data)
-  console.log("decoded", decoded);
 
 }
 
@@ -75,31 +68,42 @@ const debugPairs = async () => {
 }
 
 
+const approveDummyTokens = async (tokenAddrs) => {
+  console.log("Approving tokens...");
+  const amount = utils.parseUnits('1000000', 18)
+
+  for(let tokenAddr of tokenAddrs) {
+    console.log(`Approving token ${tokenAddr}...`);
+    const tokenContract = await ethers.getContractAt('MockERC20', tokenAddr)
+    await tokenContract.approve(addresses.UniswapV2Router, amount);
+    console.log(`Token ${tokenAddr} approved...`);
+  }
+
+}
+
 const main = async () => {
 
-    const router = await ethers.getContractAt('UniswapV2Router02', "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0")
-  const quote = await router.quote(utils.parseEther("5"), utils.parseEther("100"), utils.parseEther("100"));
-    console.log("quote", quote.toString());
-    console.log("router factory", await router.factory())
+
     const fUNI = addresses.fUNI;
     const fDAI = addresses.fDAI;
-  //
-  //   const factory = await ethers.getContractAt('UniswapV2Factory', "0x5FbDB2315678afecb367f032d93F642f64180aa3")
-  //   const pair = await factory.getPair(fUNI, fDAI)
-  //   console.log("pair", pair)
-
-  await debugPairs();
+    await debugPairs();
   // await createPair(fUNI, fDAI);
+
+
+
+  await approveDummyTokens([fDAI, fUNI]);
+
   const blockNumber = await ethers.provider.getBlockNumber();
   console.log("block number", blockNumber);
   const blockData = await ethers.provider.getBlock(blockNumber);
-  console.log("block timestamp", blockData.timestamp);
+  console.log("block data", blockData);
   const deadline = ethers.BigNumber.from(blockData.timestamp  + 23600);
   console.log("deadline", deadline.toString());
-  await addLiquidity(fDAI, fUNI, utils.parseUnits("100", 18), utils.parseUnits("2", 18),utils.parseUnits("100", 18), utils.parseUnits("2", 18), "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",deadline)
+
+
+  await addLiquidity(fDAI, fUNI, utils.parseUnits("100", 18), utils.parseUnits("2", 18),utils.parseUnits("100", 18), utils.parseUnits("2", 18), addresses.deployer, deadline)
 
   // abiDecode();
-
 };
 
 

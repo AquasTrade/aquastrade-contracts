@@ -9,7 +9,6 @@ import './interfaces/IUniswapV2Router02.sol';
 import './interfaces/IUniswapV2Factory.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
-import "hardhat/console.sol";
 
 contract UniswapV2Router02 is IUniswapV2Router02 {
     using SafeMathUniswap for uint;
@@ -43,32 +42,22 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         // create the pair if it doesn't exist yet
         if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
             IUniswapV2Factory(factory).createPair(tokenA, tokenB);
-            console.log("pair created!");
         }
         (uint reserveA, uint reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
-        console.log("reserve A %s", reserveA );
-        console.log("reserve B %s", reserveB );
         if (reserveA == 0 && reserveB == 0) {
             (amountA, amountB) = (amountADesired, amountBDesired);
-            console.log("case 1");
         } else {
             uint amountBOptimal = UniswapV2Library.quote(amountADesired, reserveA, reserveB);
             if (amountBOptimal <= amountBDesired) {
                 require(amountBOptimal >= amountBMin, 'UniswapV2Router: INSUFFICIENT_B_AMOUNT');
                 (amountA, amountB) = (amountADesired, amountBOptimal);
-            console.log("case 2");
-
-} else {
+            } else {
                 uint amountAOptimal = UniswapV2Library.quote(amountBDesired, reserveB, reserveA);
                 assert(amountAOptimal <= amountADesired);
                 require(amountAOptimal >= amountAMin, 'UniswapV2Router: INSUFFICIENT_A_AMOUNT');
                 (amountA, amountB) = (amountAOptimal, amountBDesired);
-console.log("case 3");
-
             }
         }
-        console.log("amount A %s", amountA );
-        console.log("amount B %s", amountB );
     }
     function addLiquidity(
         address tokenA,
@@ -80,17 +69,11 @@ console.log("case 3");
         address to,
         uint deadline
     ) external virtual override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
-        console.log("adding liquidity");
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
-        console.log("liquidity added!");
         address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
-        console.log("pair %s", pair);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
-        console.log("amount a transfered from sender %s to pair", msg.sender);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
-        console.log("amount b transfered from sender %s to pair", msg.sender);
         liquidity = IUniswapV2Pair(pair).mint(to);
-        console.log("liquidity %s", liquidity);
     }
     function addLiquidityETH(
         address token,
