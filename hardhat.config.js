@@ -30,9 +30,11 @@ module.exports = {
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/25fa1ace1a514064af1e74da27d00ff7",
-      accounts: {
-        mnemonic: process.env.MNEMONIC
-      },
+      accounts: [process.env.ADMIN_PKEY_TESTNET]
+
+      // accounts: {
+      //   mnemonic: process.env.MNEMONIC
+      // },
     },
 
   },

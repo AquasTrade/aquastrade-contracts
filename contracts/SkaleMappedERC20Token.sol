@@ -1,9 +1,9 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract TestnetERC20Token is ERC20, AccessControl  {
+contract SkaleMappedERC20Token is ERC20, AccessControl  {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
@@ -17,7 +17,7 @@ contract TestnetERC20Token is ERC20, AccessControl  {
         _mint(_to, _amount);
     }
 
-    function burn(address from, uint256 amount) public onlyRole(BURNER_ROLE) {
+    function burn(address from, uint256 amount) public {
         require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
         _burn(from, amount);
     }

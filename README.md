@@ -14,6 +14,7 @@
 7. `yarn deploy --tags SushiBar`
 8. `yarn deploy --tags SushiMaker`
 9. `yarn deploy --tags Multicall2`
+9. `yarn deploy --tags rubyUSDC`
 
 #### Debug:
 
