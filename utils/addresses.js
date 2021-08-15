@@ -35,6 +35,10 @@ const addresses = {
     rubyUSDC: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
     rinkebyUSDC: '0xeb8f08a975Ab53E34D8a0330E0D34de942C95926',
     deployer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+  },
+  rinkeby: {
+    rubyUSDC: '0x87d61e9f346330d5F8Bb5D3fCc30f8E35d01df33',
+    rinkebyUSDC: '0xeb8f08a975Ab53E34D8a0330E0D34de942C95926',
   }
 }
 
