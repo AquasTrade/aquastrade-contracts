@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@tenderly/hardhat-tenderly");
 require("hardhat-deploy");
 require("@nomiclabs/hardhat-ethers");
+require("@nomiclabs/hardhat-etherscan");
 require('dotenv').config()
 
 
@@ -56,4 +57,7 @@ module.exports = {
       default: 0, // here this will by default take the first account as deployer
     }
   },
+  etherscan: {
+    apiKey: 'ZG3GNW27H3216I9X5JGRXIJWX25CZDABFZ'
+  }
 };
