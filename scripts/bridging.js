@@ -6,6 +6,7 @@ const { utils } = require("ethers");
 const R = require("ramda");
 const imaRinkebyArtifacts = require('../ima_bridge/rinkeby/rinkebyABI.json')
 const rinkebyUSDCArtifacts = require('../ima_bridge/rinkeby/rinkebyUSDC.json')
+const rinkebytERC20Artifacts = require('../ima_bridge/rinkeby/rinkebyTERC20.json')
 const rinkebyT721Artifacts = require('../ima_bridge/rinkeby/rinkebyT721.json')
 require('dotenv').config()
 
@@ -74,9 +75,13 @@ const main = async () => {
 
   // const usdcAmount = utils.parseUnits("100", 6);
   // await bridgeERC20fromEthereumToSkale(imaRinkebyArtifacts, rinkebyUSDCArtifacts, signer, usdcAmount, process.env.TESTNET_CHAINNAME);
+  //
+  // const tokenId = ethers.BigNumber.from(1);
+  // await bridgeERC721fromEthereumToSkale(imaRinkebyArtifacts, rinkebyT721Artifacts, signer, tokenId, process.env.TESTNET_CHAINNAME);
 
-  const tokenId = ethers.BigNumber.from(1);
-  await bridgeERC721fromEthereumToSkale(imaRinkebyArtifacts, rinkebyT721Artifacts, signer, tokenId, process.env.TESTNET_CHAINNAME);
+  const terc20Amount = utils.parseUnits("100", 18);
+  await bridgeERC20fromEthereumToSkale(imaRinkebyArtifacts, rinkebytERC20Artifacts, signer, terc20Amount, process.env.TESTNET_CHAINNAME);
+
 
 };
 

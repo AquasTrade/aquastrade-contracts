@@ -44,6 +44,7 @@
     "generateInitCodeHash": "node scripts/generateInitCodeHash.js",
     "bridge": "node scripts/bridging.js",
     "setupMappedERC20s": "node scripts/setupMappedERC20tokens.js",
-    "setupMappedERC721s": "node scripts/setupMappedERC721tokens.js"
+    "setupMappedERC721s": "node scripts/setupMappedERC721tokens.js",
+    "skaleDebug": "node scripts/skaleDebug.js"
   }
 }

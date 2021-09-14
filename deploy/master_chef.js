@@ -3,19 +3,19 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
 
   const { deployer } = await getNamedAccounts()
 
-  const sushi = await ethers.getContract("SushiToken")
+  const ruby = await ethers.getContract("RubyToken")
 
   const { address } = await deploy("MasterChef", {
     from: deployer,
-    args: [sushi.address, deployer, "1000000000000000000000", "0", "1000000000000000000000"],
+    args: [ruby.address, deployer, "10000000000000000000", "0", "1000000000000000000000"],
     log: true,
     deterministicDeployment: false
   })
 
-  if (await sushi.owner() !== address) {
-    // Transfer Sushi Ownership to Chef
-    console.log("Transfer Sushi Ownership to Chef")
-    await (await sushi.transferOwnership(address)).wait()
+  if (await ruby.owner() !== address) {
+    // Transfer Ruby Ownership to Chef
+    console.log("Transfer Ruby Ownership to Chef")
+    await (await ruby.transferOwnership(address)).wait()
   }
 
   const masterChef = await ethers.getContract("MasterChef")
@@ -27,4 +27,4 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
 }
 
   module.exports.tags = ["MasterChef"]
-module.exports.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "SushiToken"]
+module.exports.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "RubyToken"]

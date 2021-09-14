@@ -4,11 +4,11 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
   const { deployer } = await getNamedAccounts()
 
 
-  let sushiAddress = (await deployments.get("SushiToken")).address;
+  let rubyAddress = (await deployments.get("RubyToken")).address;
 
   await deploy("MiniChefV2", {
     from: deployer,
-    args: [sushiAddress],
+    args: [rubyAddress],
     log: true,
     deterministicDeployment: false
   })
@@ -21,4 +21,4 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
 }
 
 module.exports.tags = ["MiniChefV2"]
-module.exports.dependencies = ["UniswapV2Factory", "UniswapV2Router02"]
+module.exports.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "RubyToken"]

@@ -16,7 +16,8 @@
 9. `yarn deploy --tags Multicall2`
 10. `yarn deploy --tags rubyUSDC`
 11. `yarn deploy --tags t721`
-11. `yarn deploy --tags rubyT721`
+12. `yarn deploy --tags rubyT721`
+13. `yarn deploy --tags tERC20`
 
 #### Debug:
 
