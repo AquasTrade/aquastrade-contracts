@@ -43,6 +43,8 @@
     "debug": "node scripts/debug.js",
     "generateInitCodeHash": "node scripts/generateInitCodeHash.js",
     "bridge": "node scripts/bridging.js",
+    "createLps": "node scripts/createLps.js",
+    "seedMasterChef": "node scripts/seedMasterChef.js",
     "setupMappedERC20s": "node scripts/setupMappedERC20tokens.js",
     "setupMappedERC721s": "node scripts/setupMappedERC721tokens.js",
     "skaleDebug": "node scripts/skaleDebug.js"

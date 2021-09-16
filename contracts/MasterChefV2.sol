@@ -62,7 +62,7 @@ contract MasterChefV2 is BoringOwnable, BoringBatchable {
     uint256 public totalAllocPoint;
 
     uint256 private constant MASTERCHEF_RUBY_PER_BLOCK = 1e20;
-    uint256 private constant ACC_SUSHI_PRECISION = 1e12;
+    uint256 private constant ACC_RUBY_PRECISION = 1e12;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
@@ -114,7 +114,7 @@ contract MasterChefV2 is BoringOwnable, BoringBatchable {
         poolInfo.push(PoolInfo({
             allocPoint: allocPoint.to64(),
             lastRewardBlock: lastRewardBlock.to64(),
-            accSushiPerShare: 0
+            accRubyPerShare: 0
         }));
         emit LogPoolAddition(lpToken.length.sub(1), allocPoint, _lpToken, _rewarder);
     }
@@ -195,7 +195,7 @@ contract MasterChefV2 is BoringOwnable, BoringBatchable {
             }
             pool.lastRewardBlock = block.number.to64();
             poolInfo[pid] = pool;
-            emit LogUpdatePool(pid, pool.lastRewardBlock, lpSupply, pool.accRubyPreShare);
+            emit LogUpdatePool(pid, pool.lastRewardBlock, lpSupply, pool.accRubyPerShare);
         }
     }
 

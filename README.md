@@ -8,11 +8,11 @@
 1. `yarn deploy --tags UniswapV2Factory`
 2. `yarn deploy --tags UniswapV2Router02`
 3. `yarn deploy --tags DummyTokens`
-4. `yarn deploy --tags SushiToken`
-5. `yarn deploy --tags MasterChef` // TODO: should we deploy minichef only?
-6. `yarn deploy --tags MiniChefV2`
-7. `yarn deploy --tags SushiBar`
-8. `yarn deploy --tags SushiMaker`
+4. `yarn deploy --tags RubyToken`
+5. `yarn deploy --tags MasterChef` 
+6. `yarn deploy --tags MasterChefV2`
+7. `yarn deploy --tags RubyBar`
+8. `yarn deploy --tags RubyMaker`
 9. `yarn deploy --tags Multicall2`
 10. `yarn deploy --tags rubyUSDC`
 11. `yarn deploy --tags t721`
