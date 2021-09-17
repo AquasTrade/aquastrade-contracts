@@ -8,8 +8,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 // RubyToken with Governance.
 contract RubyToken is ERC20("RubyToken", "RUBY"), Ownable {
+
+    /// @notice Total number of tokens
+    uint256 public maxSupply = 200_000_000e18; // 200 million Ruby
+
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (MasterChef).
     function mint(address _to, uint256 _amount) public onlyOwner {
+        require(
+            totalSupply().add(_amount) <= maxSupply,
+            "RUBY::mint: Cannot exceed max supply."
+        );
         _mint(_to, _amount);
         _moveDelegates(address(0), _delegates[_to], _amount);
     }
@@ -116,9 +124,9 @@ contract RubyToken is ERC20("RubyToken", "RUBY"), Ownable {
         );
 
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "SUSHI::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "SUSHI::delegateBySig: invalid nonce");
-        require(now <= expiry, "SUSHI::delegateBySig: signature expired");
+        require(signatory != address(0), "RUBY::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "RUBY::delegateBySig: invalid nonce");
+        require(now <= expiry, "RUBY::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
