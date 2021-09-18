@@ -10,9 +10,8 @@ import "./uniswapv2/interfaces/IUniswapV2Factory.sol";
 
 import "./Ownable.sol";
 
-// RubyMaker is fork of SushiMaker
-// TODO: Remove bridges and unnecessary stuff
-contract RubyMaker is Ownable {
+// RubyDigger is fork of SushiMaker
+contract RubyDigger is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -56,7 +55,7 @@ contract RubyMaker is Ownable {
         // Checks
         require(
             token != ruby && token != weth && token != bridge,
-            "RubyMaker: Invalid bridge"
+            "RubyDigger: Invalid bridge"
         );
 
         // Effects
@@ -64,21 +63,20 @@ contract RubyMaker is Ownable {
         emit LogBridgeSet(token, bridge);
     }
 
-
     modifier onlyEOA() {
         // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
-        require(msg.sender == tx.origin, "RubyMaker: must use EOA");
+        require(msg.sender == tx.origin, "RubyDigger: must use EOA");
         _;
     }
 
-    function convert(address token0, address token1) external onlyEOA() {
+    function convert(address token0, address token1) external onlyEOA {
         _convert(token0, token1);
     }
 
     function convertMultiple(
         address[] calldata token0,
         address[] calldata token1
-    ) external onlyEOA() {
+    ) external onlyEOA {
         // TODO: This can be optimized a fair bit, but this is safer and simpler for now
         uint256 len = token0.length;
         for (uint256 i = 0; i < len; i++) {
@@ -89,7 +87,7 @@ contract RubyMaker is Ownable {
     function _convert(address token0, address token1) internal {
         // Interactions
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token0, token1));
-        require(address(pair) != address(0), "RubyMaker: Invalid pair");
+        require(address(pair) != address(0), "RubyDigger: Invalid pair");
 
         IERC20(address(pair)).safeTransfer(
             address(pair),
@@ -109,7 +107,6 @@ contract RubyMaker is Ownable {
             _convertStep(token0, token1, amount0, amount1)
         );
     }
-
 
     function _convertStep(
         address token0,
@@ -187,11 +184,10 @@ contract RubyMaker is Ownable {
         uint256 amountIn,
         address to
     ) internal returns (uint256 amountOut) {
-
-
-        IUniswapV2Pair pair =
-            IUniswapV2Pair(factory.getPair(fromToken, toToken));
-        require(address(pair) != address(0), "RubyMaker: Cannot convert");
+        IUniswapV2Pair pair = IUniswapV2Pair(
+            factory.getPair(fromToken, toToken)
+        );
+        require(address(pair) != address(0), "RubyDigger: Cannot convert");
 
         // Interactions
         // X1 - X5: OK

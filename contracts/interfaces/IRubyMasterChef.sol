@@ -2,10 +2,9 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../libraries/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IRubyMasterChef {
-    using SafeERC20 for IERC20;
 
     struct UserInfo {
         uint256 amount; // How many LP tokens the user has provided.

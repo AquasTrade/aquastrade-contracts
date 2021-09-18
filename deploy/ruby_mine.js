@@ -1,11 +1,11 @@
-module.exports = async function ({ getNamedAccounts, deployments }) {
+module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
   const { deploy } = deployments
 
   const { deployer } = await getNamedAccounts()
 
-  const ruby = await deployments.get("RubyToken")
+  const ruby = await ethers.getContract("RubyToken")
 
-  await deploy("RubyBar", {
+  await deploy("RubyMine", {
     from: deployer,
     args: [ruby.address],
     log: true,
@@ -13,5 +13,5 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
   })
 }
 
-module.exports.tags = ["RubyBar"]
+module.exports.tags = ["RubyMine"]
 module.exports.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "RubyToken"]

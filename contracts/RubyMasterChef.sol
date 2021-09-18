@@ -8,10 +8,13 @@ import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
-import "./RubyToken.sol";
 import "./interfaces/IRubyMasterChefRewarder.sol";
+import "./RubyToken.sol";
+import "./libraries/BoringERC20.sol";
+
 import "hardhat/console.sol";
+
+
 
 // MasterChef copied from https://github.com/traderjoe-xyz/joe-core/blob/main/contracts/MasterChefJoeV2.sol
 // Combines single and double rewards
@@ -84,7 +87,7 @@ contract RubyMasterChef is Ownable {
         address _treasuryAddr,
         uint256 _rubyPerSec,
         uint256 _startTimestamp,
-        uint256 _treasuryPercent,
+        uint256 _treasuryPercent
     ) public {
         require(0 <= _treasuryPercent && _treasuryPercent <= 1000, "Constructor: invalid treasury percent value");
         ruby = _ruby;
@@ -160,7 +163,7 @@ contract RubyMasterChef is Ownable {
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.timestamp > pool.lastRewardTimestamp && lpSupply != 0) {
             uint256 multiplier = block.timestamp.sub(pool.lastRewardTimestamp);
-            uint256 lpPercent = 1000 - devPercent - treasuryPercent - investorPercent;
+            uint256 lpPercent = 1000 - treasuryPercent;
             uint256 rubyReward = multiplier.mul(rubyPerSec).mul(pool.allocPoint).div(totalAllocPoint).mul(lpPercent).div(1000);
             accRubyPerShare = accRubyPerShare.add(rubyReward.mul(1e12).div(lpSupply));
         }

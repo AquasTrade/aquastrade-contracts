@@ -5,9 +5,9 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
-import "../libraries/SafeERC20.sol";
 import "../interfaces/IRubyMasterChefRewarder.sol";
 import "../interfaces/IRubyMasterChef.sol";
+import "../libraries/SafeERC20.sol";
 
 /**
  * This is a sample contract to be used in the RubyMasterChef contract for partners to reward
@@ -22,7 +22,7 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IERC20 public immutable rewardToken;
+    IERC20 public immutable override rewardToken;
     IERC20 public immutable lpToken;
     IRubyMasterChef public immutable rubyMasterChef;
 
@@ -53,8 +53,11 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
     event OnReward(address indexed user, uint256 amount);
     event RewardRateUpdated(uint256 oldRate, uint256 newRate);
 
-    modifier onlyRubyMasterChef {
-        require(msg.sender == address(rubyMasterChef), "onlyRubyMasterChef: only RubyMasterChef can call this function");
+    modifier onlyRubyMasterChef() {
+        require(
+            msg.sender == address(rubyMasterChef),
+            "onlyRubyMasterChef: only RubyMasterChef can call this function"
+        );
         _;
     }
 
@@ -64,15 +67,27 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
         uint256 _tokenPerSec,
         IRubyMasterChef _rubyMasterChef
     ) public {
-        require(Address.isContract(address(_rewardToken)), "constructor: reward token must be a valid contract");
-        require(Address.isContract(address(_lpToken)), "constructor: LP token must be a valid contract");
-        require(Address.isContract(address(_rubyMasterChef)), "constructor: RubyMasterChef must be a valid contract");
+        require(
+            Address.isContract(address(_rewardToken)),
+            "constructor: reward token must be a valid contract"
+        );
+        require(
+            Address.isContract(address(_lpToken)),
+            "constructor: LP token must be a valid contract"
+        );
+        require(
+            Address.isContract(address(_rubyMasterChef)),
+            "constructor: RubyMasterChef must be a valid contract"
+        );
 
         rewardToken = _rewardToken;
         lpToken = _lpToken;
         tokenPerSec = _tokenPerSec;
         rubyMasterChef = _rubyMasterChef;
-        poolInfo = PoolInfo({lastRewardTimestamp: block.timestamp, accTokenPerShare: 0});
+        poolInfo = PoolInfo({
+            lastRewardTimestamp: block.timestamp,
+            accTokenPerShare: 0
+        });
     }
 
     /// @notice Update reward variables of the given poolInfo.
@@ -84,9 +99,13 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
             uint256 lpSupply = lpToken.balanceOf(address(rubyMasterChef));
 
             if (lpSupply > 0) {
-                uint256 timeElapsed = block.timestamp.sub(pool.lastRewardTimestamp);
+                uint256 timeElapsed = block.timestamp.sub(
+                    pool.lastRewardTimestamp
+                );
                 uint256 tokenReward = timeElapsed.mul(tokenPerSec);
-                pool.accTokenPerShare = pool.accTokenPerShare.add((tokenReward.mul(ACC_TOKEN_PRECISION) / lpSupply));
+                pool.accTokenPerShare = pool.accTokenPerShare.add(
+                    (tokenReward.mul(ACC_TOKEN_PRECISION) / lpSupply)
+                );
             }
 
             pool.lastRewardTimestamp = block.timestamp;
@@ -108,14 +127,19 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
     /// @notice Function called by MasterChefJoeV2 whenever staker claims JOE harvest. Allows staker to also receive a 2nd reward token.
     /// @param _user Address of user
     /// @param _lpAmount Number of LP tokens the user has
-    function onJoeReward(address _user, uint256 _lpAmount) external override onlyMCV2 {
+    function onRubyReward(address _user, uint256 _lpAmount)
+        external
+        override
+        onlyRubyMasterChef
+    {
         updatePool();
         PoolInfo memory pool = poolInfo;
         UserInfo storage user = userInfo[_user];
         uint256 pending;
         // if user had deposited
         if (user.amount > 0) {
-            pending = (user.amount.mul(pool.accTokenPerShare) / ACC_TOKEN_PRECISION).sub(user.rewardDebt);
+            pending = (user.amount.mul(pool.accTokenPerShare) /
+                ACC_TOKEN_PRECISION).sub(user.rewardDebt);
             uint256 balance = rewardToken.balanceOf(address(this));
             if (pending > balance) {
                 rewardToken.safeTransfer(_user, balance);
@@ -125,7 +149,9 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
         }
 
         user.amount = _lpAmount;
-        user.rewardDebt = user.amount.mul(pool.accTokenPerShare) / ACC_TOKEN_PRECISION;
+        user.rewardDebt =
+            user.amount.mul(pool.accTokenPerShare) /
+            ACC_TOKEN_PRECISION;
 
         emit OnReward(_user, pending);
     }
@@ -133,25 +159,38 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
     /// @notice View function to see pending tokens
     /// @param _user Address of user.
     /// @return pending reward for a given user.
-    function pendingTokens(address _user) external view override returns (uint256 pending) {
-        PoolInfo memory pool = poolInfo;
+    function pendingTokens(address _user)
+        external
+        view
+        override
+        returns (uint256 pending)
+    {
         UserInfo storage user = userInfo[_user];
 
         uint256 accTokenPerShare = poolInfo.accTokenPerShare;
         uint256 lpSupply = lpToken.balanceOf(address(rubyMasterChef));
 
         if (block.timestamp > poolInfo.lastRewardTimestamp && lpSupply != 0) {
-            uint256 timeElapsed = block.timestamp.sub(poolInfo.lastRewardTimestamp);
+            uint256 timeElapsed = block.timestamp.sub(
+                poolInfo.lastRewardTimestamp
+            );
             uint256 tokenReward = timeElapsed.mul(tokenPerSec);
-            accTokenPerShare = accTokenPerShare.add(tokenReward.mul(ACC_TOKEN_PRECISION) / lpSupply);
+            accTokenPerShare = accTokenPerShare.add(
+                tokenReward.mul(ACC_TOKEN_PRECISION) / lpSupply
+            );
         }
 
-        pending = (user.amount.mul(accTokenPerShare) / ACC_TOKEN_PRECISION).sub(user.rewardDebt);
+        pending = (user.amount.mul(accTokenPerShare) / ACC_TOKEN_PRECISION).sub(
+                user.rewardDebt
+            );
     }
 
     /// @notice In case rewarder is stopped before emissions finished, this function allows
     /// withdrawal of remaining tokens.
     function emergencyWithdraw() public onlyOwner {
-        rewardToken.safeTransfer(address(msg.sender), rewardToken.balanceOf(address(this)));
+        rewardToken.safeTransfer(
+            address(msg.sender),
+            rewardToken.balanceOf(address(this))
+        );
     }
 }

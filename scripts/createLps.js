@@ -10,7 +10,7 @@ const addresses = getAddresses();
 
 const addLiquidity = async (tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin, to, deadline) => {
 
-  const router = await ethers.getContractAt('UniswapV2Router02', addresses.UniswapV2Router)
+  const router = await ethers.getContract('UniswapV2Router02');
   const res = await router.addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin, to, deadline).catch(err => {
     console.log("error while adding liquidity", err);
   });
@@ -27,7 +27,7 @@ const addLiquidity = async (tokenA, tokenB, amountADesired, amountBDesired, amou
 }
 
 const debugPairs = async () => {
-  const factory = await ethers.getContractAt('UniswapV2Factory', addresses.UniswapV2Factory)
+  const factory = await ethers.getContract('UniswapV2Factory');
 
   const pairLength = await factory.allPairsLength();
 

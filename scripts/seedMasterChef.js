@@ -7,15 +7,16 @@ const {getAddresses} = require('../utils/addresses');
 const { add } = require("ramda");
 
 
-const addLpToPool = async (masterChef, lpTokenAddr, allocPoints) => {
+const addSingleRewardFarms = async (masterChef, lpTokenAddr, allocPoints) => {
 
-    const res = await masterChef.add(allocPoints, lpTokenAddr, true);
+    const zeroAddress = "0x0000000000000000000000000000000000000000"
+    const res = await masterChef.add(allocPoints, lpTokenAddr, zeroAddress);
     const receipt = await res.wait(1);
 
     if(receipt.status) {
-      console.log(`Adding to MasterChef successful, LP: ${lpTokenAddr}`);
+      console.log(`Adding to RubyMasterChef successful, LP: ${lpTokenAddr}`);
     } else {
-      console.log(`Adding to MasterChef failed, LP: ${lpTokenAddr}`);
+      console.log(`Adding to RubyMasterChef failed, LP: ${lpTokenAddr}`);
     }
 
     
@@ -34,23 +35,23 @@ const debug = async (masterChef) => {
     console.log(`Pool info ${i}: `, pool)
 
   }
-  const totalAllocPoint = await masterChef.totalAllocPoint();
-  const rubyPerBlock = await masterChef.rubyPerBlock();
+  const totalAllocPoint = (await masterChef.totalAllocPoint()).toNumber();
+  const rubyPerSec = utils.formatUnits((await masterChef.rubyPerSec()));
   
   console.log("Total alloc points ", totalAllocPoint);
-  console.log("Ruby per block ", rubyPerBlock);
+  console.log("Ruby per second ", rubyPerSec);
 
 };
 
 const main = async () => {
     
     const addresses = getAddresses();
-    const masterChef =  await ethers.getContractAt('MasterChef', addresses.MasterChef);
+    const masterChef =  await ethers.getContract('RubyMasterChef');
 
     const dummyLps =  addresses.dummyLps;
 
     for (let i = 0; i < dummyLps.length; i++ ) {
-      await addLpToPool(masterChef, dummyLps[i], 100);
+      await addSingleRewardFarms(masterChef, dummyLps[i], 100);
     }
 
     await debug(masterChef);
