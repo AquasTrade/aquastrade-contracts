@@ -10,8 +10,9 @@
 3. `yarn deploy --tags DummyTokens`
 4. `yarn deploy --tags RubyToken`
 5. `yarn deploy --tags RubyMasterChef` 
-7. `yarn deploy --tags RubyBar`
-8. `yarn deploy --tags RubyMaker`
+6. `yarn deploy --tags Timelock` 
+7. `yarn deploy --tags RubyMine`
+8. `yarn deploy --tags RubyDigger`
 9. `yarn deploy --tags Multicall2`
 10. `yarn deploy --tags rubyUSDC`
 11. `yarn deploy --tags t721`

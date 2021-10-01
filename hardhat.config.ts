@@ -14,7 +14,7 @@ import "solidity-coverage"
 
 import { HardhatUserConfig } from "hardhat/types"
 import { removeConsoleLog } from "hardhat-preprocessor"
-const defaultNetwork = "hardhat";
+const defaultNetwork = "localhost";
 
 const config: HardhatUserConfig = {
   defaultNetwork,
