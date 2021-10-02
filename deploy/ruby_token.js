@@ -1,3 +1,5 @@
+const { ethers } = require("hardhat")
+
 module.exports = async function ({ getNamedAccounts, deployments }) {
   const { deploy } = deployments
 
@@ -8,6 +10,12 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     log: true,
     deterministicDeployment: false
   })
+
+
+const ruby = await ethers.getContract('RubyToken');
+await ruby.mint(deployer, ethers.utils.parseUnits("100000000"));
+const balance = await ruby.balanceOf(deployer);
+console.log(`ruby balance ${ethers.utils.formatUnits(balance)}`)
 }
 
 module.exports.tags = ["RubyToken"]

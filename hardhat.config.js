@@ -3,10 +3,11 @@ require("@tenderly/hardhat-tenderly");
 require("hardhat-deploy");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
+
 require('dotenv').config()
 
 
-const defaultNetwork = "skaleTestnet";
+const defaultNetwork = "localhost";
 
 module.exports = {
   defaultNetwork,

@@ -55,6 +55,7 @@
     "generateInitCodeHash": "node scripts/generateInitCodeHash.js",
     "bridge": "node scripts/bridging.js",
     "createLps": "node scripts/createLps.js",
+    "createRubyStablePools": "node scripts/createRubyAndStablePools.js",
     "seedMasterChef": "node scripts/seedMasterChef.js",
     "setupMappedERC20s": "node scripts/setupMappedERC20tokens.js",
     "setupMappedERC721s": "node scripts/setupMappedERC721tokens.js",

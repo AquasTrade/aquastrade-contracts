@@ -79,6 +79,8 @@ contract RubyMasterChef is Ownable {
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event SetDevAddress(address indexed oldAddress, address indexed newAddress);
+    event SetTreasuryAddress(address indexed oldAddress, address indexed newAddress);
+    event SetTreasuryPercent(uint256 newPercent);
     event UpdateEmissionRate(address indexed user, uint256 _rubyPerSec);
 
     constructor(
@@ -293,11 +295,13 @@ contract RubyMasterChef is Ownable {
     function setTreasuryAddr(address _treasuryAddr) public {
         require(msg.sender == treasuryAddr, "setTreasuryAddr: wut?");
         treasuryAddr = _treasuryAddr;
+        emit SetTreasuryAddress(msg.sender, _treasuryAddr);
     }
 
     function setTreasuryPercent(uint256 _newTreasuryPercent) public onlyOwner {
         require(0 <= _newTreasuryPercent && _newTreasuryPercent <= 1000, "setTreasuryPercent: invalid percent value");
         treasuryPercent = _newTreasuryPercent;
+        emit SetTreasuryPercent(_newTreasuryPercent);
     }
 
     // Pancake has to add hidden dummy pools inorder to alter the emission,

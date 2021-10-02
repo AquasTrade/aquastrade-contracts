@@ -1,4 +1,4 @@
-module.exports = async ({ getNamedAccounts, deployments }) => {
+module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
   const { deploy } = deployments
 
   const { deployer } = await getNamedAccounts()
@@ -7,7 +7,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     from: deployer,
     log: true,
   })
-
 
 };
 

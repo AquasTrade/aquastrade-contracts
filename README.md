@@ -7,17 +7,20 @@
 #### Deployment:
 1. `yarn deploy --tags UniswapV2Factory`
 2. `yarn deploy --tags UniswapV2Router02`
-3. `yarn deploy --tags DummyTokens`
-4. `yarn deploy --tags RubyToken`
-5. `yarn deploy --tags RubyMasterChef` 
-6. `yarn deploy --tags Timelock` 
-7. `yarn deploy --tags RubyMine`
-8. `yarn deploy --tags RubyDigger`
-9. `yarn deploy --tags Multicall2`
-10. `yarn deploy --tags rubyUSDC`
-11. `yarn deploy --tags t721`
-12. `yarn deploy --tags rubyT721`
-13. `yarn deploy --tags tERC20`
+3. `yarn deploy --tags WETH`
+3. `yarn deploy --tags USDC`
+3. `yarn deploy --tags USDT`
+4. `yarn deploy --tags DummyTokens`
+5. `yarn deploy --tags RubyToken`
+6. `yarn deploy --tags RubyMasterChef` 
+7. `yarn deploy --tags Timelock` 
+8. `yarn deploy --tags RubyMine`
+9. `yarn deploy --tags RubyDigger`
+10. `yarn deploy --tags Multicall2`
+11. `yarn deploy --tags rubyUSDC`
+12. `yarn deploy --tags t721`
+13. `yarn deploy --tags rubyT721`
+14. `yarn deploy --tags tERC20`
 
 #### Debug:
 

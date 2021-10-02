@@ -34,6 +34,10 @@ contract WETH {
     mapping (address => uint)                       public  balanceOf;
     mapping (address => mapping (address => uint))  public  allowance;
 
+    constructor () public {
+      balanceOf[msg.sender] = 1_000_000_000 * 10**18;
+    }
+
     receive() external payable {
         deposit();
     }
