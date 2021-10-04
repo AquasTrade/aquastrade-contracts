@@ -14,8 +14,6 @@ import "./libraries/BoringERC20.sol";
 
 import "hardhat/console.sol";
 
-
-
 // MasterChef copied from https://github.com/traderjoe-xyz/joe-core/blob/main/contracts/MasterChefJoeV2.sol
 // Combines single and double rewards
 contract RubyMasterChef is Ownable {
@@ -71,7 +69,12 @@ contract RubyMasterChef is Ownable {
     // The timestamp when RUBY mining starts.
     uint256 public startTimestamp;
 
-    event Add(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken, IRubyMasterChefRewarder indexed rewarder);
+    event Add(
+        uint256 indexed pid,
+        uint256 allocPoint,
+        IERC20 indexed lpToken,
+        IRubyMasterChefRewarder indexed rewarder
+    );
     event Set(uint256 indexed pid, uint256 allocPoint, IRubyMasterChefRewarder indexed rewarder, bool overwrite);
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -113,7 +116,10 @@ contract RubyMasterChef is Ownable {
         IRubyMasterChefRewarder _rewarder
     ) public onlyOwner {
         require(Address.isContract(address(_lpToken)), "add: LP token must be a valid contract");
-        require(Address.isContract(address(_rewarder)) || address(_rewarder) == address(0), "add: rewarder must be contract or zero");
+        require(
+            Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
+            "add: rewarder must be contract or zero"
+        );
         require(!lpTokens.contains(address(_lpToken)), "add: LP already added");
         massUpdatePools();
         uint256 lastRewardTimestamp = block.timestamp > startTimestamp ? block.timestamp : startTimestamp;
@@ -138,7 +144,10 @@ contract RubyMasterChef is Ownable {
         IRubyMasterChefRewarder _rewarder,
         bool overwrite
     ) public onlyOwner {
-        require(Address.isContract(address(_rewarder)) || address(_rewarder) == address(0), "set: rewarder must be contract or zero");
+        require(
+            Address.isContract(address(_rewarder)) || address(_rewarder) == address(0),
+            "set: rewarder must be contract or zero"
+        );
         massUpdatePools();
         totalAllocPoint = totalAllocPoint.sub(poolInfo[_pid].allocPoint).add(_allocPoint);
         poolInfo[_pid].allocPoint = _allocPoint;
@@ -166,7 +175,12 @@ contract RubyMasterChef is Ownable {
         if (block.timestamp > pool.lastRewardTimestamp && lpSupply != 0) {
             uint256 multiplier = block.timestamp.sub(pool.lastRewardTimestamp);
             uint256 lpPercent = 1000 - treasuryPercent;
-            uint256 rubyReward = multiplier.mul(rubyPerSec).mul(pool.allocPoint).div(totalAllocPoint).mul(lpPercent).div(1000);
+            uint256 rubyReward = multiplier
+                .mul(rubyPerSec)
+                .mul(pool.allocPoint)
+                .div(totalAllocPoint)
+                .mul(lpPercent)
+                .div(1000);
             accRubyPerShare = accRubyPerShare.add(rubyReward.mul(1e12).div(lpSupply));
         }
         pendingRuby = user.amount.mul(accRubyPerShare).div(1e12).sub(user.rewardDebt);
@@ -179,7 +193,11 @@ contract RubyMasterChef is Ownable {
     }
 
     // Get bonus token info from the rewarder contract for a given pool, if it is a double reward farm
-    function rewarderBonusTokenInfo(uint256 _pid) public view returns (address bonusTokenAddress, string memory bonusTokenSymbol) {
+    function rewarderBonusTokenInfo(uint256 _pid)
+        public
+        view
+        returns (address bonusTokenAddress, string memory bonusTokenSymbol)
+    {
         PoolInfo storage pool = poolInfo[_pid];
         if (address(pool.rewarder) != address(0)) {
             bonusTokenAddress = address(pool.rewarder.rewardToken());

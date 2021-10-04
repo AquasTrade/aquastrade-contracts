@@ -1,37 +1,38 @@
 ## Usage guide
 
-#### Install: 
+#### Install:
 
 `yarn`
 
 #### Deployment:
+
 1. `yarn deploy --tags UniswapV2Factory`
 2. `yarn deploy --tags UniswapV2Router02`
 3. `yarn deploy --tags WETH`
-3. `yarn deploy --tags USDC`
-3. `yarn deploy --tags USDT`
-4. `yarn deploy --tags DummyTokens`
-5. `yarn deploy --tags RubyToken`
-6. `yarn deploy --tags RubyMasterChef` 
-7. `yarn deploy --tags Timelock` 
-8. `yarn deploy --tags RubyMine`
-9. `yarn deploy --tags RubyDigger`
-10. `yarn deploy --tags Multicall2`
-11. `yarn deploy --tags rubyUSDC`
-12. `yarn deploy --tags t721`
-13. `yarn deploy --tags rubyT721`
-14. `yarn deploy --tags tERC20`
+4. `yarn deploy --tags USDC`
+5. `yarn deploy --tags USDT`
+6. `yarn deploy --tags MockERC20s`
+7. `yarn deploy --tags RubyToken`
+8. `yarn deploy --tags RubyMasterChef`
+9. `yarn deploy --tags Timelock`
+10. `yarn deploy --tags RubyMine`
+11. `yarn deploy --tags RubyDigger`
+12. `yarn deploy --tags Multicall2`
+13. `yarn deploy --tags rubyUSDC`
+14. `yarn deploy --tags t721`
+15. `yarn deploy --tags rubyT721`
+16. `yarn deploy --tags tERC20`
 
 #### Debug:
 
 Modify the `scripts/debug.js` scripts and run `yarn debug`.
 TODO: Add yargs and run debug commands from command line.
 
-
 #### Init code hash:
-`0x8a1861e3cef8b973c5cfa3a2fb2e737ecf0ffd9dbf7c0acedd82a54ebeb01c94`
 
-#### Deployment addresses: 
+`0x6fe8e87a28fb716b3653927f8a6b2ad33dddb1b9c53ed3d5428dc4572f8b42bc`
+
+#### Deployment addresses:
 
 ```
 SKALE testnet:

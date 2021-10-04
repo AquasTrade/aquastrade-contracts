@@ -405,12 +405,7 @@
           },
           "t_enum(KillProcess)3855": {
             "label": "enum Linker.KillProcess",
-            "members": [
-              "NotKilled",
-              "PartiallyKilledBySchainOwner",
-              "PartiallyKilledByContractOwner",
-              "Killed"
-            ]
+            "members": ["NotKilled", "PartiallyKilledBySchainOwner", "PartiallyKilledByContractOwner", "Killed"]
           },
           "t_contract(MessageProxyForMainnet)4745": {
             "label": "contract MessageProxyForMainnet"

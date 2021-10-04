@@ -1,20 +1,27 @@
-import "dotenv/config"
-import "@nomiclabs/hardhat-etherscan"
-import "@nomiclabs/hardhat-solhint"
-import "@tenderly/hardhat-tenderly"
-import "@nomiclabs/hardhat-waffle"
-import "hardhat-abi-exporter"
-import "hardhat-deploy"
-import "hardhat-deploy-ethers"
-import "hardhat-gas-reporter"
-import "hardhat-spdx-license-identifier"
-import "hardhat-typechain"
-import "hardhat-watcher"
-import "solidity-coverage"
+import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-ethers";
 
-import { HardhatUserConfig } from "hardhat/types"
-import { removeConsoleLog } from "hardhat-preprocessor"
+import "hardhat-abi-exporter";
+
+import "hardhat-deploy";
+import "hardhat-deploy-ethers";
+import "hardhat-gas-reporter";
+import "hardhat-spdx-license-identifier";
+import "hardhat-watcher";
+import "solidity-coverage";
+import "@typechain/hardhat";
+
+import { resolve } from "path";
+import { config as dotenvConfig } from "dotenv";
+
+import { HardhatUserConfig } from "hardhat/types";
+import { removeConsoleLog } from "hardhat-preprocessor";
 const defaultNetwork = "localhost";
+
+dotenvConfig({ path: resolve(__dirname, "./.env") });
+
+const ADMIN_PKEY_TESTNET = process.env.ADMIN_PKEY_TESTNET || "";
 
 const config: HardhatUserConfig = {
   defaultNetwork,
@@ -27,14 +34,14 @@ const config: HardhatUserConfig = {
       default: 0, // here this will by default take the first account as deployer
     },
     treasury: {
-      default: 0
-    }
+      default: 0,
+    },
   },
   etherscan: {
-    apiKey: 'ZG3GNW27H3216I9X5JGRXIJWX25CZDABFZ'
+    apiKey: "ZG3GNW27H3216I9X5JGRXIJWX25CZDABFZ",
   },
   paths: {
-    tests: "test"
+    tests: "test",
   },
   networks: {
     localhost: {
@@ -46,7 +53,7 @@ const config: HardhatUserConfig = {
     },
     skaleTestnet: {
       url: "https://dappnet-api.skalenodes.com/v1/melodic-murzim",
-      accounts: [process.env.ADMIN_PKEY_TESTNET]
+      accounts: [ADMIN_PKEY_TESTNET],
     },
     mainnet: {
       url: "https://mainnet.infura.io/v3/25fa1ace1a514064af1e74da27d00ff7",
@@ -59,10 +66,9 @@ const config: HardhatUserConfig = {
       // accounts: [process.env.ADMIN_PKEY_TESTNET]
       //
       accounts: {
-        mnemonic: process.env.MNEMONIC
+        mnemonic: process.env.MNEMONIC,
       },
     },
-
   },
   solidity: {
     compilers: [
@@ -82,10 +88,10 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
   },
   preprocess: {
-    eachLine: removeConsoleLog((bre) => bre.network.name !== "hardhat" && bre.network.name !== "localhost"),
+    eachLine: removeConsoleLog(bre => bre.network.name !== "hardhat" && bre.network.name !== "localhost"),
   },
   typechain: {
-    outDir: "types",
+    outDir: "typechain",
     target: "ethers-v5",
   },
   watcher: {
@@ -97,4 +103,4 @@ const config: HardhatUserConfig = {
   },
 };
 
-export default config
+export default config;

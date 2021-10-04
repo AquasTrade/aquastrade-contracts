@@ -45,13 +45,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
 
     // events replicated from SwapUtils to make the ABI easier for dumb
     // clients
-    event TokenSwap(
-        address indexed buyer,
-        uint256 tokensSold,
-        uint256 tokensBought,
-        uint128 soldId,
-        uint128 boughtId
-    );
+    event TokenSwap(address indexed buyer, uint256 tokensSold, uint256 tokensBought, uint128 soldId, uint128 boughtId);
     event AddLiquidity(
         address indexed provider,
         uint256[] tokenAmounts,
@@ -59,11 +53,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 invariant,
         uint256 lpTokenSupply
     );
-    event RemoveLiquidity(
-        address indexed provider,
-        uint256[] tokenAmounts,
-        uint256 lpTokenSupply
-    );
+    event RemoveLiquidity(address indexed provider, uint256[] tokenAmounts, uint256 lpTokenSupply);
     event RemoveLiquidityOne(
         address indexed provider,
         uint256 lpTokenAmount,
@@ -81,12 +71,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     event NewAdminFee(uint256 newAdminFee);
     event NewSwapFee(uint256 newSwapFee);
     event NewWithdrawFee(uint256 newWithdrawFee);
-    event RampA(
-        uint256 oldA,
-        uint256 newA,
-        uint256 initialTime,
-        uint256 futureTime
-    );
+    event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
     event StopRampA(uint256 currentA, uint256 time);
 
     /**
@@ -121,10 +106,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         // Check _pooledTokens and precisions parameter
         require(_pooledTokens.length > 1, "_pooledTokens.length <= 1");
         require(_pooledTokens.length <= 32, "_pooledTokens.length > 32");
-        require(
-            _pooledTokens.length == decimals.length,
-            "_pooledTokens decimals mismatch"
-        );
+        require(_pooledTokens.length == decimals.length, "_pooledTokens decimals mismatch");
 
         uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
@@ -132,41 +114,24 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
             if (i > 0) {
                 // Check if index is already used. Check if 0th element is a duplicate.
                 require(
-                    tokenIndexes[address(_pooledTokens[i])] == 0 &&
-                        _pooledTokens[0] != _pooledTokens[i],
+                    tokenIndexes[address(_pooledTokens[i])] == 0 && _pooledTokens[0] != _pooledTokens[i],
                     "Duplicate tokens"
                 );
             }
-            require(
-                address(_pooledTokens[i]) != address(0),
-                "The 0 address isn't an ERC-20"
-            );
-            require(
-                decimals[i] <= SwapUtils.POOL_PRECISION_DECIMALS,
-                "Token decimals exceeds max"
-            );
-            precisionMultipliers[i] =
-                10 **
-                    uint256(SwapUtils.POOL_PRECISION_DECIMALS).sub(
-                        uint256(decimals[i])
-                    );
+            require(address(_pooledTokens[i]) != address(0), "The 0 address isn't an ERC-20");
+            require(decimals[i] <= SwapUtils.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
+            precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS).sub(uint256(decimals[i]));
             tokenIndexes[address(_pooledTokens[i])] = i;
         }
 
         // Check _a, _fee, _adminFee, _withdrawFee parameters
         require(_a < AmplificationUtils.MAX_A, "_a exceeds maximum");
         require(_fee < SwapUtils.MAX_SWAP_FEE, "_fee exceeds maximum");
-        require(
-            _adminFee < SwapUtils.MAX_ADMIN_FEE,
-            "_adminFee exceeds maximum"
-        );
+        require(_adminFee < SwapUtils.MAX_ADMIN_FEE, "_adminFee exceeds maximum");
 
         // Clone and initialize a LPToken contract
         LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
-        require(
-            lpToken.initialize(lpTokenName, lpTokenSymbol),
-            "could not init lpToken clone"
-        );
+        require(lpToken.initialize(lpTokenName, lpTokenSymbol), "could not init lpToken clone");
 
         // Initialize swapStorage struct
         swapStorage.lpToken = lpToken;
@@ -228,17 +193,9 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
      * @param tokenAddress address of the token
      * @return the index of the given token address
      */
-    function getTokenIndex(address tokenAddress)
-        public
-        view
-        virtual
-        returns (uint8)
-    {
+    function getTokenIndex(address tokenAddress) public view virtual returns (uint8) {
         uint8 index = tokenIndexes[tokenAddress];
-        require(
-            address(getToken(index)) == tokenAddress,
-            "Token does not exist"
-        );
+        require(address(getToken(index)) == tokenAddress, "Token does not exist");
         return index;
     }
 
@@ -247,12 +204,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
      * @param index the index of the token
      * @return current balance of the pooled token at given index with token's native precision
      */
-    function getTokenBalance(uint8 index)
-        external
-        view
-        virtual
-        returns (uint256)
-    {
+    function getTokenBalance(uint8 index) external view virtual returns (uint256) {
         require(index < swapStorage.pooledTokens.length, "Index out of range");
         return swapStorage.balances[index];
     }
@@ -296,12 +248,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
      * @param deposit whether this is a deposit or a withdrawal
      * @return token amount the user will receive
      */
-    function calculateTokenAmount(uint256[] calldata amounts, bool deposit)
-        external
-        view
-        virtual
-        returns (uint256)
-    {
+    function calculateTokenAmount(uint256[] calldata amounts, bool deposit) external view virtual returns (uint256) {
         return swapStorage.calculateTokenAmount(amounts, deposit);
     }
 
@@ -311,12 +258,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
      * @param amount the amount of LP tokens that would be burned on withdrawal
      * @return array of token balances that the user will receive
      */
-    function calculateRemoveLiquidity(uint256 amount)
-        external
-        view
-        virtual
-        returns (uint256[] memory)
-    {
+    function calculateRemoveLiquidity(uint256 amount) external view virtual returns (uint256[] memory) {
         return swapStorage.calculateRemoveLiquidity(amount);
     }
 
@@ -328,10 +270,12 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
      * @return availableTokenAmount calculated amount of underlying token
      * available to withdraw
      */
-    function calculateRemoveLiquidityOneToken(
-        uint256 tokenAmount,
-        uint8 tokenIndex
-    ) external view virtual returns (uint256 availableTokenAmount) {
+    function calculateRemoveLiquidityOneToken(uint256 tokenAmount, uint8 tokenIndex)
+        external
+        view
+        virtual
+        returns (uint256 availableTokenAmount)
+    {
         return swapStorage.calculateWithdrawOneToken(tokenAmount, tokenIndex);
     }
 
@@ -340,12 +284,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
      * @param index Index of the pooled token
      * @return admin's token balance in the token's precision
      */
-    function getAdminBalance(uint256 index)
-        external
-        view
-        virtual
-        returns (uint256)
-    {
+    function getAdminBalance(uint256 index) external view virtual returns (uint256) {
         return swapStorage.getAdminBalance(index);
     }
 
@@ -365,14 +304,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 dx,
         uint256 minDy,
         uint256 deadline
-    )
-        external
-        virtual
-        nonReentrant
-        whenNotPaused
-        deadlineCheck(deadline)
-        returns (uint256)
-    {
+    ) external virtual nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256) {
         return swapStorage.swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
     }
 
@@ -388,14 +320,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint256[] calldata amounts,
         uint256 minToMint,
         uint256 deadline
-    )
-        external
-        virtual
-        nonReentrant
-        whenNotPaused
-        deadlineCheck(deadline)
-        returns (uint256)
-    {
+    ) external virtual nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256) {
         return swapStorage.addLiquidity(amounts, minToMint);
     }
 
@@ -413,13 +338,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 amount,
         uint256[] calldata minAmounts,
         uint256 deadline
-    )
-        external
-        virtual
-        nonReentrant
-        deadlineCheck(deadline)
-        returns (uint256[] memory)
-    {
+    ) external virtual nonReentrant deadlineCheck(deadline) returns (uint256[] memory) {
         return swapStorage.removeLiquidity(amount, minAmounts);
     }
 
@@ -437,20 +356,8 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint8 tokenIndex,
         uint256 minAmount,
         uint256 deadline
-    )
-        external
-        virtual
-        nonReentrant
-        whenNotPaused
-        deadlineCheck(deadline)
-        returns (uint256)
-    {
-        return
-            swapStorage.removeLiquidityOneToken(
-                tokenAmount,
-                tokenIndex,
-                minAmount
-            );
+    ) external virtual nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256) {
+        return swapStorage.removeLiquidityOneToken(tokenAmount, tokenIndex, minAmount);
     }
 
     /**
@@ -467,14 +374,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint256[] calldata amounts,
         uint256 maxBurnAmount,
         uint256 deadline
-    )
-        external
-        virtual
-        nonReentrant
-        whenNotPaused
-        deadlineCheck(deadline)
-        returns (uint256)
-    {
+    ) external virtual nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256) {
         return swapStorage.removeLiquidityImbalance(amounts, maxBurnAmount);
     }
 

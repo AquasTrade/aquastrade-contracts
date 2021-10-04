@@ -2,19 +2,18 @@
 const fs = require("fs");
 const chalk = require("chalk");
 const { config, ethers, tenderly, run } = require("hardhat");
-const { utils, } = require("ethers");
+const { utils } = require("ethers");
 const R = require("ramda");
-const imaAbiRinkeby = require('../ima_bridge/rinkeby/rinkebyABI.json')
-const imaAbiSchain = require('../ima_bridge/rinkeby/sChainABI.json')
+const imaAbiRinkeby = require("../ima_bridge/rinkeby/rinkebyABI.json");
+const imaAbiSchain = require("../ima_bridge/rinkeby/sChainABI.json");
 
-const {getAddresses} = require('../utils/addresses')
+const { getAddresses } = require("../utils/addresses");
 
 const addresses = getAddresses();
 //
 const setMinterRoleForToken = async (tokenAddr, minterAddr) => {
-
-  const token = await ethers.getContractAt('SkaleMappedERC20Token', tokenAddr);
-  const MINTER_ROLE = utils.id("MINTER_ROLE")
+  const token = await ethers.getContractAt("SkaleMappedERC20Token", tokenAddr);
+  const MINTER_ROLE = utils.id("MINTER_ROLE");
 
   let res = await token.grantRole(utils.arrayify(MINTER_ROLE), minterAddr);
   const recipe = await res.wait(1);
@@ -39,7 +38,6 @@ const registerEthereumTokenToIMA = async (artifacts, signer, tokenAddr, schainNa
   console.log("recipe", recipe);
 };
 
-
 const registerSkaleTokenToIma = async (artifacts, signer, ethTokenAddr, skaleTokenAddr) => {
   const tokenManagerAddress = artifacts.token_manager_erc20_address;
   const tokenManagerAbi = artifacts.token_manager_erc20_abi;
@@ -50,30 +48,33 @@ const registerSkaleTokenToIma = async (artifacts, signer, ethTokenAddr, skaleTok
   console.log("recipe", recipe);
 };
 
-
 const setupUSDC = async (ethArtifacts, skaleArtifacts, tokenEthAddr, tokenSkaleAddr, chainName) => {
   const minterAddr = skaleArtifacts.token_manager_erc20_address;
 
   // TODO: This needs to be split up, because network change is required for the second step
-  console.log("Adding minter role...")
+  console.log("Adding minter role...");
   await setMinterRoleForToken(tokenSkaleAddr, minterAddr);
   const signer = (await ethers.getSigners())[0];
-  console.log("Registering ETH token to IMA...")
-  await registerEthereumTokenToIMA(ethArtifacts, signer, tokenEthAddr, chainName)
-  console.log("Registering Skale token to IMA...")
+  console.log("Registering ETH token to IMA...");
+  await registerEthereumTokenToIMA(ethArtifacts, signer, tokenEthAddr, chainName);
+  console.log("Registering Skale token to IMA...");
   await registerSkaleTokenToIma(skaleArtifacts, signer, tokenEthAddr, tokenSkaleAddr);
-}
-
-
-const main = async () => {
-  console.log("Setting up USDC")
-  await setupUSDC(imaAbiRinkeby, imaAbiSchain, addresses.rinkebyUSDC, addresses.rubyUSDC, process.env.TESTNET_CHAINNAME)
 };
 
+const main = async () => {
+  console.log("Setting up USDC");
+  await setupUSDC(
+    imaAbiRinkeby,
+    imaAbiSchain,
+    addresses.rinkebyUSDC,
+    addresses.rubyUSDC,
+    process.env.TESTNET_CHAINNAME,
+  );
+};
 
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
   });

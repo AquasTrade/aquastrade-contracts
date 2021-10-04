@@ -8,15 +8,9 @@ contract MockERC721Token is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    constructor(
-        string memory _name,
-        string memory _symbol
-    ) public ERC721(_name, _symbol) {}
+    constructor(string memory _name, string memory _symbol) public ERC721(_name, _symbol) {}
 
-    function mint(address to, string memory tokenURI)
-    public
-    returns (uint256)
-    {
+    function mint(address to, string memory tokenURI) public returns (uint256) {
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();

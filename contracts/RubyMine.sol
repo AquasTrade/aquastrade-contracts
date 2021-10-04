@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 // RubyMine is fork of SushiBar
-contract RubyMine is ERC20("RubyMine", "xRUBY"){
+contract RubyMine is ERC20("RubyMine", "xRUBY") {
     using SafeMath for uint256;
     IERC20 public ruby;
 
@@ -26,7 +26,7 @@ contract RubyMine is ERC20("RubyMine", "xRUBY"){
         // If no xRUBY exists, mint it 1:1 to the amount put in
         if (totalShares == 0 || totalRuby == 0) {
             _mint(msg.sender, _amount);
-        } 
+        }
         // Calculate and mint the amount of xRUBY the RUBY is worth. The ratio will change overtime, as xRUBY is burned/minted and RUBY deposited + gained from fees / withdrawn.
         else {
             uint256 what = _amount.mul(totalShares).div(totalRuby);

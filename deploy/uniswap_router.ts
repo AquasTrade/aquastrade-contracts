@@ -1,11 +1,11 @@
+import type { HardhatRuntimeEnvironment } from "hardhat/types";
+import type { DeployFunction } from "hardhat-deploy/types";
 
+const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
-
-module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
+  const { ethers, deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-
   const { deployer } = await getNamedAccounts();
-
 
   const wethAddress = (await ethers.getContract("WETH")).address;
   const factoryAddress = (await ethers.getContract("UniswapV2Factory")).address;
@@ -18,5 +18,7 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
   });
 };
 
-module.exports.tags = ["UniswapV2Router02", "AMM"];
-module.exports.dependencies = ["UniswapV2Factory", "WETH"];
+func.tags = ["UniswapV2Router02", "AMM"];
+func.dependencies = ["UniswapV2Factory", "WETH"];
+
+export default func

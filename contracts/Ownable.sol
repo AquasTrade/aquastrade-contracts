@@ -20,14 +20,18 @@ contract Ownable is OwnableData {
     // E1: OK
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-    constructor () internal {
+    constructor() internal {
         owner = msg.sender;
         emit OwnershipTransferred(address(0), msg.sender);
     }
 
     // F1 - F9: OK
     // C1 - C21: OK
-    function transferOwnership(address newOwner, bool direct, bool renounce) public onlyOwner {
+    function transferOwnership(
+        address newOwner,
+        bool direct,
+        bool renounce
+    ) public onlyOwner {
         if (direct) {
             // Checks
             require(newOwner != address(0) || renounce, "Ownable: zero address");

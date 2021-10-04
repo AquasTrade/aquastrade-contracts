@@ -6,7 +6,5 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./MockERC20.sol";
 
 contract MockUSDT is MockERC20 {
-    constructor (
-    ) public MockERC20("Tether USD", "USDT", 1_000_000_000 * 10**6, 6) {
-    }
+    constructor() public MockERC20("Tether USD", "USDT", 1_000_000_000 * 10**6, 6) {}
 }

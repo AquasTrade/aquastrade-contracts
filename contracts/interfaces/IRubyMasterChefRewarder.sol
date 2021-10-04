@@ -3,9 +3,7 @@
 pragma solidity 0.6.12;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 interface IRubyMasterChefRewarder {
-
     function onRubyReward(address user, uint256 newLpAmount) external;
 
     function pendingTokens(address user) external view returns (uint256 pending);
