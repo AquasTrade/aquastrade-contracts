@@ -2,7 +2,6 @@ import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-
   const { ethers, deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
@@ -25,10 +24,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     console.log("Transfer RubyMasterChef Ownership to timelock");
     await (await chef.transferOwnership(address)).wait();
   }
-
 };
 
 func.tags = ["Timelock"];
 func.dependencies = ["RubyMasterChef"];
 
-export default func
+export default func;

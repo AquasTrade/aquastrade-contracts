@@ -53,3 +53,20 @@ SKALE testnet:
 }
 
 ```
+
+### Quick deployment and seeding (for testing)
+
+#### Exchange:
+
+1. `yarn deploy --tags RubyToken`
+2. `yarn premint`
+3. `yarn createRubyStablePools`
+
+or `./automation_scripts/deploy_and_seed_exchange.sh`
+
+#### MasterChef:
+
+1. `yarn deploy --tags RubyMasterChef`
+2. `yarn seedMasterChef`
+
+or `./automation_scripts/deploy_and_seed_masterchef.sh`

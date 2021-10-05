@@ -2,7 +2,6 @@ import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-
   const { ethers, deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
@@ -15,10 +14,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
     deterministicDeployment: false,
   });
-
 };
 
 func.tags = ["RubyMine"];
 func.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "RubyToken"];
 
-export default func
+export default func;

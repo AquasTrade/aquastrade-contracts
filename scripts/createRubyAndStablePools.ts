@@ -13,11 +13,25 @@ const wethAddr = require(`../deployments/${network.name}/WETH.json`).address;
 const routerAddr = require(`../deployments/${network.name}/UniswapV2Router02.json`).address;
 const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.json`).address;
 
-const addLiquidity = async (tokenA: string, tokenB: string, amountTokenA: BigNumber, amountTokenB: BigNumber, to: string, deadline: BigNumber) => {
-
+const addLiquidity = async (
+  tokenA: string,
+  tokenB: string,
+  amountTokenA: BigNumber,
+  amountTokenB: BigNumber,
+  to: string,
+  deadline: BigNumber,
+) => {
   const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
-  const res = await router
-    .addLiquidity(tokenA, tokenB, amountTokenA, amountTokenB, amountTokenA, amountTokenB, to, deadline)
+  const res = await router.addLiquidity(
+    tokenA,
+    tokenB,
+    amountTokenA,
+    amountTokenB,
+    amountTokenA,
+    amountTokenB,
+    to,
+    deadline,
+  );
 
   const receipt = await res.wait(1);
 
@@ -28,8 +42,26 @@ const addLiquidity = async (tokenA: string, tokenB: string, amountTokenA: BigNum
   }
 };
 
-const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
+const addLiquidityETH = async (
+  token: string,
+  amountToken: BigNumber,
+  amountETH: BigNumber,
+  to: string,
+  deadline: BigNumber,
+) => {
+  const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
+  const res = await router.addLiquidityETH(token, amountToken, amountToken, amountETH, to, deadline);
 
+  const receipt = await res.wait(1);
+
+  if (receipt.status) {
+    console.log(`Liquidity added successfully for token: ${token}, WETH.`);
+  } else {
+    console.log(`Could not add liquidity for tokens: ${token}, WETH.`);
+  }
+};
+
+const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
   const pairLength = (await factory.allPairsLength()).toNumber();
 
   for (let i = 0; i < pairLength; i++) {
@@ -56,8 +88,7 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
 };
 
 const writeRubyPoolAddrs = async (factory: UniswapV2Factory) => {
-
-  const rubyPoolAddrs: Record<string, string> = {}
+  const rubyPoolAddrs: Record<string, string> = {};
 
   rubyPoolAddrs.rubyUsdc = await factory.getPair(rubyAddr, usdcAddr);
   rubyPoolAddrs.rubyUsdt = await factory.getPair(rubyAddr, usdtAddr);
@@ -66,12 +97,10 @@ const writeRubyPoolAddrs = async (factory: UniswapV2Factory) => {
   rubyPoolAddrs.usdtWeth = await factory.getPair(usdtAddr, wethAddr);
   rubyPoolAddrs.rubyWeth = await factory.getPair(rubyAddr, wethAddr);
 
-  fs.writeFileSync('./utils/ruby_pool_addr.json', JSON.stringify(rubyPoolAddrs));
-
+  fs.writeFileSync("./utils/ruby_pool_addr.json", JSON.stringify(rubyPoolAddrs));
 };
 
 const approveTokens = async (tokenAddrs: string[]) => {
-
   console.log("Approving tokens...");
   const amount = ethers.utils.parseUnits("100000000000", 18);
 
@@ -85,8 +114,7 @@ const approveTokens = async (tokenAddrs: string[]) => {
 
 const main = async () => {
   // const network = "localhost";
-  console.log(network.name)
-
+  console.log(network.name);
 
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
@@ -121,12 +149,6 @@ const main = async () => {
 
   const amountUsdcUsdtLP = ethers.utils.parseUnits("10000000", 6); // 10 mil
 
-  // // RUBY-USDC
-  await addLiquidity(rubyAddr, usdcAddr, amountRubyUsdcLPruby, amountRubyUsdcLPusdc, deployer.address, deadline);
-
-  // // RUBY-USDT
-  await addLiquidity(rubyAddr, usdtAddr, amountRubyUsdtLPruby, amountRubyUsdtLPusdt, deployer.address, deadline);
-
   // // USDC-WETH
   await addLiquidity(usdcAddr, wethAddr, amountUsdcWethLPusdc, amountUsdcWethLPweth, deployer.address, deadline);
 
@@ -135,6 +157,12 @@ const main = async () => {
 
   // // RUBY-WETH
   await addLiquidity(rubyAddr, wethAddr, amountRubyWethLPruby, amountRubyWethLPweth, deployer.address, deadline);
+
+  // // RUBY-USDC
+  await addLiquidity(rubyAddr, usdcAddr, amountRubyUsdcLPruby, amountRubyUsdcLPusdc, deployer.address, deadline);
+
+  // // RUBY-USDT
+  await addLiquidity(rubyAddr, usdtAddr, amountRubyUsdtLPruby, amountRubyUsdtLPusdt, deployer.address, deadline);
 
   // // USDC-USDT
   await addLiquidity(usdtAddr, usdcAddr, amountUsdcUsdtLP, amountUsdcUsdtLP, deployer.address, deadline);

@@ -77,7 +77,6 @@
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
-
     "debug": "node scripts/debug.js",
     "generateInitCodeHash": "hardhat run scripts/generateInitCodeHash.ts",
     "bridge": "node scripts/bridging.js",
