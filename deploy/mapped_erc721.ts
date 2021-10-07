@@ -13,6 +13,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 };
 
-func.tags = ["MockERC20s"];
+func.tags = ["Mapped721"];
 
 export default func;

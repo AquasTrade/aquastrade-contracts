@@ -17,7 +17,7 @@ import { config as dotenvConfig } from "dotenv";
 
 import { HardhatUserConfig } from "hardhat/types";
 import { removeConsoleLog } from "hardhat-preprocessor";
-const defaultNetwork = "localhost";
+const defaultNetwork = "skaleTestnet";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
