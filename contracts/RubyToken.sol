@@ -2,11 +2,11 @@
 
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 // RubyToken with Governance.
-contract RubyToken is ERC20("RubyToken", "RUBY"), Ownable {
+contract RubyToken is ERC20("RubyToken", "RUBY"), ERC20Burnable, Ownable {
     /// @notice Total number of tokens
     uint256 public maxSupply = 200_000_000e18; // 200 million Ruby
 
@@ -217,5 +217,17 @@ contract RubyToken is ERC20("RubyToken", "RUBY"), Ownable {
             chainId := chainid()
         }
         return chainId;
+    }
+
+    function burn(uint256 amount) public override {
+        _burn(_msgSender(), amount);
+    }
+
+    function burnFrom(address account, uint256 amount) public override {
+        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(
+            amount, "ERC20: burn amount exceeds allowance");
+
+        _approve(account, _msgSender(), decreasedAllowance);
+        _burn(account, amount);
     }
 }

@@ -1,24 +1,29 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.12;
-import "./libraries/SafeMath.sol";
+import "./RubyToken.sol";
+
+// import "./libraries/SafeMath.sol";
 import "./libraries/SafeERC20.sol";
+
 
 import "./uniswapv2/interfaces/IUniswapV2ERC20.sol";
 import "./uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "./uniswapv2/interfaces/IUniswapV2Factory.sol";
 
-import "./Ownable.sol";
-
-// RubyDigger is fork of SushiMaker
-contract RubyDigger is Ownable {
+// import "./Ownable.sol";
+// 
+// RubyMaker is fork of SushiMaker
+contract RubyMaker is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
+    using SafeERC20 for RubyToken;
 
     IUniswapV2Factory public immutable factory;
     address public immutable bar;
     address private immutable ruby;
     address private immutable weth;
+    uint256 private burnPercent;
 
     mapping(address => address) internal _bridges;
 
@@ -29,20 +34,44 @@ contract RubyDigger is Ownable {
         address indexed token1,
         uint256 amount0,
         uint256 amount1,
-        uint256 amountRuby
+        uint256 amountRubyDistributed,
+        uint256 amountRubyBurned
     );
+
+    event BurnPercentChanged(uint256 newBurnPercent);
 
     constructor(
         address _factory,
         address _bar,
         address _ruby,
-        address _weth
+        address _weth,
+        uint256 _burnPercent
     ) public {
+
+        require(_factory != address(0), "RubyMaker: Invalid factory address.");
+        require(_bar != address(0), "RubyMaker: Invalid bar address.");
+        require(_ruby != address(0), "RubyMaker: Invalid ruby address.");
+        require(_weth != address(0), "RubyMaker: Invalid weth address.");
+        require(_burnPercent >= 0 && _burnPercent <= 100, "RubyMaker: Invalid burn percent.");
+
         factory = IUniswapV2Factory(_factory);
         bar = _bar;
         ruby = _ruby;
         weth = _weth;
+
+        // initially to be set to 20 (0.01% of the total trade)
+        // 0.05% (1/6th) of the total fees (0.30%) are sent to the RubyMaker
+        // 0.04% of these fees (80%) are converted to Ruby and sent to the RubyBar (xRUBY)
+        // 0.01% of these fees (20%) are burned
+        burnPercent = _burnPercent;
     }
+
+    function setBurnPercent(uint256 newBurnPercent) external onlyOwner {
+        require(newBurnPercent >= 0 && newBurnPercent <= 100, "RubyMaker: Invalid burn percent.");
+        burnPercent = newBurnPercent;
+        emit BurnPercentChanged(newBurnPercent);
+    }
+
 
     function bridgeFor(address token) public view returns (address bridge) {
         bridge = _bridges[token];
@@ -53,7 +82,7 @@ contract RubyDigger is Ownable {
 
     function setBridge(address token, address bridge) external onlyOwner {
         // Checks
-        require(token != ruby && token != weth && token != bridge, "RubyDigger: Invalid bridge");
+        require(token != address(ruby) && token != weth && token != bridge, "RubyMaker: Invalid bridge");
 
         // Effects
         _bridges[token] = bridge;
@@ -62,7 +91,7 @@ contract RubyDigger is Ownable {
 
     modifier onlyEOA() {
         // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
-        require(msg.sender == tx.origin, "RubyDigger: must use EOA");
+        require(msg.sender == tx.origin, "RubyMaker: must use EOA");
         _;
     }
 
@@ -89,7 +118,14 @@ contract RubyDigger is Ownable {
         if (token0 != pair.token0()) {
             (amount0, amount1) = (amount1, amount0);
         }
-        emit LogConvert(msg.sender, token0, token1, amount0, amount1, _convertStep(token0, token1, amount0, amount1));
+
+        uint256 convertedRuby = _convertStep(token0, token1, amount0, amount1);
+        uint256 rubyBurned = convertedRuby.mul(burnPercent/100);
+        convertedRuby = convertedRuby - rubyBurned;
+        
+        RubyToken(ruby).burnFrom(bar, rubyBurned);
+
+        emit LogConvert(msg.sender, token0, token1, amount0, amount1, convertedRuby, rubyBurned);
     }
 
     function _convertStep(
@@ -153,7 +189,7 @@ contract RubyDigger is Ownable {
         address to
     ) internal returns (uint256 amountOut) {
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(fromToken, toToken));
-        require(address(pair) != address(0), "RubyDigger: Cannot convert");
+        require(address(pair) != address(0), "RubyMaker: Cannot convert");
 
         // Interactions
         // X1 - X5: OK
