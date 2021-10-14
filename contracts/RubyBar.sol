@@ -6,14 +6,27 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-// RubyMine is fork of SushiBar
-contract RubyMine is ERC20("RubyMine", "xRUBY") {
+import "./Ownable.sol";
+
+
+// RubyBar is fork of SushiBar
+contract RubyBar is ERC20("RubyBar", "xRUBY"), Ownable {
     using SafeMath for uint256;
     IERC20 public ruby;
+
+    event RubyMakerAllowanceSet(address indexed rubyMakerAddress, uint256 amount);
 
     // Define the Ruby token contract
     constructor(IERC20 _ruby) public {
         ruby = _ruby;
+    }
+
+    // Set allowance for the RubyMaker, in order for it to be able to burn RubyTokens from the RubyBar
+    function setMakerAllowance(address rubyMakerAddress, uint256 amount) public onlyOwner {
+        require(rubyMakerAddress != address(0), "RubyBar: Invalid RubyMaker address");
+        bool approved = ruby.approve(rubyMakerAddress, amount);
+        require(approved == true, "RubyBar: RubyMaker allowance error");
+        emit RubyMakerAllowanceSet(rubyMakerAddress, amount);
     }
 
     // Enter the mine. Pay some RUBYs. Earn some shares.

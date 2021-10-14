@@ -16,8 +16,8 @@
 7. `yarn deploy --tags RubyToken`
 8. `yarn deploy --tags RubyMasterChef`
 9. `yarn deploy --tags Timelock`
-10. `yarn deploy --tags RubyMine`
-11. `yarn deploy --tags RubyDigger`
+10. `yarn deploy --tags RubyBar`
+11. `yarn deploy --tags RubyMaker`
 12. `yarn deploy --tags Multicall2`
 13. `yarn deploy --tags MappedERC20`
 14. `yarn deploy --tags Mapped721`
@@ -25,7 +25,7 @@
 
 #### Init code hash:
 
-`0xe14a5d38633264eaf4ed6f00cb96aa46e94bc6c69875cfe6d6ae2d1f76eb4452`
+`0x6fe8e87a28fb716b3653927f8a6b2ad33dddb1b9c53ed3d5428dc4572f8b42bc`
 
 #### Deployment addresses:
 
@@ -42,8 +42,8 @@ Contracts:
     USDT: '0x88A4cAD35B4d8acf8c5FdFA082079592E5d24eb2',
     RubyToken: '0x2D76E3E55bB9E573af26043fb0c76cbbfAC95a2c',
     RubyMasterChef: '0x2090EbdE28485c67D4Fe69c47740d91144A14203',
-    RubyMine: '0x0',
-    RubyDigger: '0x0',
+    RubyBar: '0x0',
+    RubyMaker: '0x0',
     Multicall2: '0x74a5cb6b214a8311BA3a682b3d129D0d4cD1fdC8',
     rubyUSDC: '0x0', // bridged USDC
     ETHC: '0xD2Aaa00700000000000000000000000000000000' // bridged ETH
@@ -78,3 +78,11 @@ or `./automation_scripts/deploy_and_seed_exchange.sh`
 2. `yarn seedMasterChef`
 
 or `./automation_scripts/deploy_and_seed_masterchef.sh`
+
+### Staking:
+
+1. `yarn deploy --tags RubyMaker`
+2. `yarn setTradingFee` # sets the RubyMaker to be the fee receiver from the exchange trades (UniswapV2Factory)
+3. `yarn setMakerAllowance` # sets allowance for the RubyMaker to be able to burn Ruby tokens
+
+or `./automation_scripts/deploy_and_seed_staking.sh`

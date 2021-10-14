@@ -8,15 +8,21 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const ruby = await ethers.getContract("RubyToken");
 
-  await deploy("RubyMine", {
+  await deploy("RubyBar", {
     from: deployer,
     args: [ruby.address],
     log: true,
     deterministicDeployment: false,
   });
+
+  const bar = await ethers.getContract("RubyBar");
+  if ((await bar.owner()) !== deployer) {
+    console.log("Setting bar owner");
+    await (await bar.transferOwnership(deployer, true, false)).wait();
+  }
 };
 
-func.tags = ["RubyMine"];
+func.tags = ["RubyBar"];
 func.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "RubyToken"];
 
 export default func;
