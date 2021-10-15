@@ -12,7 +12,7 @@
         "type": "address"
       },
       {
-        "internalType": "address",
+        "internalType": "contract RubyToken",
         "name": "_ruby",
         "type": "address"
       },

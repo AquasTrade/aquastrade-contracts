@@ -126,17 +126,17 @@ describe("RubyMasterChef", function () {
 
   context("With ERC/LP token added to the field and using SimpleRewarderPerSec", function () {
     beforeEach(async function () {
-      this.lp = await this.MockERC20.deploy("LPToken", "LP", "10000000000");
+      this.lp = await this.MockERC20.deploy("LPToken", "LP", "10000000000", 18);
       await this.lp.transfer(this.alice.address, "1000");
       await this.lp.transfer(this.bob.address, "1000");
       await this.lp.transfer(this.carol.address, "1000");
 
-      this.lp2 = await this.MockERC20.deploy("LPToken2", "LP2", "10000000000");
+      this.lp2 = await this.MockERC20.deploy("LPToken2", "LP2", "10000000000", 18);
       await this.lp2.transfer(this.alice.address, "1000");
       await this.lp2.transfer(this.bob.address, "1000");
       await this.lp2.transfer(this.carol.address, "1000");
 
-      this.dummyToken = await this.MockERC20.deploy("DummyToken", "DUMMY", "1");
+      this.dummyToken = await this.MockERC20.deploy("DummyToken", "DUMMY", "1", 18);
       await this.dummyToken.transfer(this.partnerDev.address, "1");
     });
 

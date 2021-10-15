@@ -1,15 +1,16 @@
-const { ethers } = require("hardhat");
+import { ethers } from "hardhat";
+
 const { BigNumber } = require("ethers");
 
 export const BASE_TEN = 10;
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-export function encodeParameters(types, values) {
+export function encodeParameters(types: any, values: any) {
   const abi = new ethers.utils.AbiCoder();
   return abi.encode(types, values);
 }
 
-export async function prepare(thisObject, contracts) {
+export async function prepare(thisObject: any, contracts: any) {
   for (let i in contracts) {
     let contract = contracts[i];
     thisObject[contract] = await ethers.getContractFactory(contract);
@@ -24,7 +25,7 @@ export async function prepare(thisObject, contracts) {
   thisObject.carolPrivateKey = "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a";
 }
 
-export async function deploy(thisObject, contracts) {
+export async function deploy(thisObject: any, contracts: any) {
   for (let i in contracts) {
     let contract = contracts[i];
     thisObject[contract[0]] = await contract[1].deploy(...(contract[2] || []));
@@ -32,7 +33,7 @@ export async function deploy(thisObject, contracts) {
   }
 }
 
-export async function createSLP(thisObject, name, tokenA, tokenB, amount) {
+export async function createSLP(thisObject: any, name: any, tokenA: any, tokenB: any, amount: any) {
   const createPairTx = await thisObject.factory.createPair(tokenA.address, tokenB.address);
 
   const _pair = (await createPairTx.wait()).events[0].args.pair;
@@ -45,7 +46,7 @@ export async function createSLP(thisObject, name, tokenA, tokenB, amount) {
   await thisObject[name].mint(thisObject.alice.address);
 }
 // Defaults to e18 using amount * 10^18
-export function getBigNumber(amount, decimals = 18) {
+export function getBigNumber(amount: any, decimals = 18) {
   return BigNumber.from(amount).mul(BigNumber.from(BASE_TEN).pow(decimals));
 }
 

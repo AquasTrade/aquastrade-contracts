@@ -17,11 +17,10 @@ import "./uniswapv2/interfaces/IUniswapV2Factory.sol";
 contract RubyMaker is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
-    using SafeERC20 for RubyToken;
 
     IUniswapV2Factory public immutable factory;
     address public immutable bar;
-    address private immutable ruby;
+    RubyToken private immutable ruby;
     address private immutable weth;
     uint256 private burnPercent;
 
@@ -43,14 +42,14 @@ contract RubyMaker is Ownable {
     constructor(
         address _factory,
         address _bar,
-        address _ruby,
+        RubyToken _ruby,
         address _weth,
         uint256 _burnPercent
     ) public {
 
         require(_factory != address(0), "RubyMaker: Invalid factory address.");
         require(_bar != address(0), "RubyMaker: Invalid bar address.");
-        require(_ruby != address(0), "RubyMaker: Invalid ruby address.");
+        require(address(_ruby) != address(0), "RubyMaker: Invalid ruby address.");
         require(_weth != address(0), "RubyMaker: Invalid weth address.");
         require(_burnPercent >= 0 && _burnPercent <= 100, "RubyMaker: Invalid burn percent.");
 
@@ -110,7 +109,7 @@ contract RubyMaker is Ownable {
     function _convert(address token0, address token1) internal {
         // Interactions
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token0, token1));
-        require(address(pair) != address(0), "RubyDigger: Invalid pair");
+        require(address(pair) != address(0), "RubyMaker: Invalid pair");
 
         IERC20(address(pair)).safeTransfer(address(pair), pair.balanceOf(address(this)));
 
@@ -123,7 +122,7 @@ contract RubyMaker is Ownable {
         uint256 rubyBurned = convertedRuby.mul(burnPercent/100);
         convertedRuby = convertedRuby - rubyBurned;
         
-        RubyToken(ruby).burnFrom(bar, rubyBurned);
+        ruby.burnFrom(bar, rubyBurned);
 
         emit LogConvert(msg.sender, token0, token1, amount0, amount1, convertedRuby, rubyBurned);
     }
@@ -137,8 +136,8 @@ contract RubyMaker is Ownable {
         // Interactions
         if (token0 == token1) {
             uint256 amount = amount0.add(amount1);
-            if (token0 == ruby) {
-                IERC20(ruby).safeTransfer(bar, amount);
+            if (token0 == address(ruby)) {
+                ruby.transfer(bar, amount);
                 rubyOut = amount;
             } else if (token0 == weth) {
                 rubyOut = _toRUBY(weth, amount);
@@ -147,13 +146,13 @@ contract RubyMaker is Ownable {
                 amount = _swap(token0, bridge, amount, address(this));
                 rubyOut = _convertStep(bridge, bridge, amount, 0);
             }
-        } else if (token0 == ruby) {
+        } else if (token0 == address(ruby)) {
             // eg. RUBY - ETH
-            IERC20(ruby).safeTransfer(bar, amount0);
+            ruby.transfer(bar, amount0);
             rubyOut = _toRUBY(token1, amount1).add(amount0);
-        } else if (token1 == ruby) {
+        } else if (token1 == address(ruby)) {
             // eg. USDT - RUBY
-            IERC20(ruby).safeTransfer(bar, amount1);
+            ruby.transfer(bar, amount1);
             rubyOut = _toRUBY(token0, amount0).add(amount1);
         } else if (token0 == weth) {
             // eg. ETH - USDC
@@ -209,6 +208,6 @@ contract RubyMaker is Ownable {
     }
 
     function _toRUBY(address token, uint256 amountIn) internal returns (uint256 amountOut) {
-        amountOut = _swap(token, ruby, amountIn, bar);
+        amountOut = _swap(token, address(ruby), amountIn, bar);
     }
 }
