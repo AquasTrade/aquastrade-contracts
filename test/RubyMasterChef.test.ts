@@ -8,9 +8,8 @@ describe("RubyMasterChef", function () {
     this.alice = this.signers[0];
     this.bob = this.signers[1];
     this.carol = this.signers[2];
-    this.dev = this.signers[3];
-    this.treasury = this.signers[4];
-    this.minter = this.signers[5];
+    this.treasury = this.signers[3];
+    this.minter = this.signers[4];
 
     this.rubyMasterChef = await ethers.getContractFactory("RubyMasterChef");
     this.SimpleRewarderPerSec = await ethers.getContractFactory("SimpleRewarderPerSec");
@@ -47,7 +46,7 @@ describe("RubyMasterChef", function () {
     const startTime = (await latest()).add(60);
     // Invalid treasury percent failure
     await expect(
-      this.rubyMasterChef.deploy(this.ruby.address, this.dev.address, this.treasury.address, "10", startTime, "1100"),
+      this.rubyMasterChef.deploy(this.ruby.address, this.treasury.address, "10", startTime, "1100"),
     ).to.be.revertedWith("Constructor: invalid treasury percent value");
   });
 
@@ -56,7 +55,6 @@ describe("RubyMasterChef", function () {
     const startTime = (await latest()).add(60);
     this.chef = await this.rubyMasterChef.deploy(
       this.ruby.address,
-      this.dev.address,
       this.treasury.address,
       this.rubyPerSec,
       startTime,
@@ -67,23 +65,20 @@ describe("RubyMasterChef", function () {
     await this.ruby.transferOwnership(this.chef.address);
 
     const ruby = await this.chef.ruby();
-    const devAddr = await this.chef.devAddr();
     const treasuryAddr = await this.chef.treasuryAddr();
     const owner = await this.ruby.owner();
     const treasuryPercent = await this.chef.treasuryPercent();
 
     expect(ruby).to.equal(this.ruby.address);
-    expect(devAddr).to.equal(this.dev.address);
     expect(treasuryAddr).to.equal(this.treasury.address);
     expect(owner).to.equal(this.chef.address);
     expect(treasuryPercent).to.equal(this.treasuryPercent);
   });
 
-  it("should allow dev and treasury to update themselves", async function () {
+  it("should allow treasury to update themselves", async function () {
     const startTime = (await latest()).add(60);
     this.chef = await this.rubyMasterChef.deploy(
       this.ruby.address,
-      this.dev.address,
       this.treasury.address,
       this.rubyPerSec,
       startTime,
@@ -91,17 +86,10 @@ describe("RubyMasterChef", function () {
     );
     await this.chef.deployed();
 
-    expect(await this.chef.devAddr()).to.equal(this.dev.address);
-
-    await expect(this.chef.connect(this.bob).dev(this.bob.address, { from: this.bob.address })).to.be.revertedWith(
-      "dev: wut?",
-    );
-    await this.chef.connect(this.dev).dev(this.bob.address, { from: this.dev.address });
-    expect(await this.chef.devAddr()).to.equal(this.bob.address);
-
     await expect(
       this.chef.connect(this.bob).setTreasuryAddr(this.bob.address, { from: this.bob.address }),
     ).to.be.revertedWith("setTreasuryAddr: wut?");
+    
     await this.chef.connect(this.treasury).setTreasuryAddr(this.bob.address, { from: this.treasury.address });
     expect(await this.chef.treasuryAddr()).to.equal(this.bob.address);
   });
@@ -110,7 +98,6 @@ describe("RubyMasterChef", function () {
     const startTime = (await latest()).add(60);
     this.chef = await this.rubyMasterChef.deploy(
       this.ruby.address,
-      this.dev.address,
       this.treasury.address,
       this.rubyPerSec,
       startTime,
@@ -168,7 +155,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -185,14 +171,14 @@ describe("RubyMasterChef", function () {
       await this.rewarder.deployed();
 
       // Try to add rewarder that is neither zero address or contract address
-      await expect(this.chef.add("100", this.lp.address, this.dev.address)).to.be.revertedWith(
+      await expect(this.chef.add("100", this.lp.address, this.treasury.address)).to.be.revertedWith(
         "add: rewarder must be contract or zero",
       );
 
       await this.chef.add("100", this.lp.address, this.rewarder.address);
 
       // Try to set rewarder that is neither zero address or contract address
-      await expect(this.chef.set("0", "200", this.dev.address, true)).to.be.revertedWith(
+      await expect(this.chef.set("0", "200", this.treasury.address, true)).to.be.revertedWith(
         "set: rewarder must be contract or zero",
       );
 
@@ -204,7 +190,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -247,7 +232,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -295,7 +279,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -336,7 +319,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -440,7 +422,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -503,7 +484,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -537,7 +517,6 @@ describe("RubyMasterChef", function () {
       expect(await this.ruby.totalSupply()).to.equal("0");
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
-      expect(await this.ruby.balanceOf(this.dev.address)).to.equal("0");
       expect(await this.lp.balanceOf(this.bob.address)).to.equal("990");
       await advanceTimeAndBlock(10); // t+75
       // Revert if Bob withdraws more than he deposited
@@ -562,7 +541,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -718,7 +696,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
@@ -815,7 +792,6 @@ describe("RubyMasterChef", function () {
       const startTime = (await latest()).add(60);
       this.chef = await this.rubyMasterChef.deploy(
         this.ruby.address,
-        this.dev.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,

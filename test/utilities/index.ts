@@ -1,6 +1,8 @@
 import { ethers } from "hardhat";
+import { RubyToken, UniswapV2Pair } from "../../typechain";
+import { expect } from "chai";
+import { BigNumber } from "ethers";
 
-const { BigNumber } = require("ethers");
 
 export const BASE_TEN = 10;
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -48,6 +50,23 @@ export async function createSLP(thisObject: any, name: any, tokenA: any, tokenB:
 // Defaults to e18 using amount * 10^18
 export function getBigNumber(amount: any, decimals = 18) {
   return BigNumber.from(amount).mul(BigNumber.from(BASE_TEN).pow(decimals));
+}
+
+export const assertRubyConversion = async (testState: any, burnPercent: number, lpToken: UniswapV2Pair, rubyConvertedAmount: BigNumber, rubyTotalSupplyBefore: BigNumber, rubyTotalSupplyAfter: BigNumber) => {
+  const makerBalanceRuby = await testState.ruby.balanceOf(testState.rubyMaker.address)
+  const makerBalanceLP = await lpToken.balanceOf(testState.rubyMaker.address)
+  const barBalance = await testState.ruby.balanceOf(testState.bar.address);
+  const totalSupplyDifference = rubyTotalSupplyBefore.sub(rubyTotalSupplyAfter);
+  
+  const burned = rubyConvertedAmount.mul((BigNumber.from(burnPercent))).div(BigNumber.from(1000));
+  const distributed = rubyConvertedAmount.sub(burned);
+
+  expect(makerBalanceRuby).to.equal(0);
+  expect(makerBalanceLP).to.equal(0);
+  expect(barBalance).to.equal(distributed);
+
+  expect(rubyConvertedAmount).to.equal(distributed.add(burned));
+  expect(totalSupplyDifference).to.equal(burned);
 }
 
 export * from "./time";

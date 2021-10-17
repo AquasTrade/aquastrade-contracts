@@ -9,7 +9,6 @@ const routerAddr = require(`../deployments/${network.name}/UniswapV2Router02.jso
 const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.json`).address;
 
 
-
 const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
   const pair = (await factory.allPairs(1))
   console.log("pair", pair)

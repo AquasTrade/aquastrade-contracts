@@ -81,14 +81,12 @@ contract RubyMasterChef is Ownable {
     event UpdatePool(uint256 indexed pid, uint256 lastRewardTimestamp, uint256 lpSupply, uint256 accRubyPerShare);
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
-    event SetDevAddress(address indexed oldAddress, address indexed newAddress);
     event SetTreasuryAddress(address indexed oldAddress, address indexed newAddress);
     event SetTreasuryPercent(uint256 newPercent);
     event UpdateEmissionRate(address indexed user, uint256 _rubyPerSec);
 
     constructor(
         RubyToken _ruby,
-        address _devAddr,
         address _treasuryAddr,
         uint256 _rubyPerSec,
         uint256 _startTimestamp,
@@ -96,7 +94,6 @@ contract RubyMasterChef is Ownable {
     ) public {
         require(0 <= _treasuryPercent && _treasuryPercent <= 1000, "Constructor: invalid treasury percent value");
         ruby = _ruby;
-        devAddr = _devAddr;
         treasuryAddr = _treasuryAddr;
         rubyPerSec = _rubyPerSec;
         startTimestamp = _startTimestamp;
@@ -300,13 +297,6 @@ contract RubyMasterChef is Ownable {
         } else {
             ruby.transfer(_to, _amount);
         }
-    }
-
-    // Update dev address by the previous dev.
-    function dev(address _devAddr) public {
-        require(msg.sender == devAddr, "dev: wut?");
-        devAddr = _devAddr;
-        emit SetDevAddress(msg.sender, _devAddr);
     }
 
     // Update treasury address by the previous treasury.

@@ -12,7 +12,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     from: deployer,
     args: [
       ruby.address,
-      deployer,
       treasury,
       "10000000000000000000", // 10 RUBY per sec
       "1631948400", // Sat Sep 18 09:00
