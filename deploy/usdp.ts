@@ -6,14 +6,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("RubyToken", {
+  await deploy("MockUSDP", {
     from: deployer,
     log: true,
-    deterministicDeployment: false,
   });
 };
 
-func.tags = ["RubyToken"];
-func.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "USDT", "USDC", "USDP", "WETH"];
+func.tags = ["USDP"];
 
 export default func;

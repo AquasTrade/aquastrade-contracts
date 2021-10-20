@@ -9,6 +9,7 @@ const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.jso
 const rubyAddr = require(`../deployments/${network.name}/RubyToken.json`).address;
 const usdcAddr = require(`../deployments/${network.name}/MockUSDC.json`).address;
 const usdtAddr = require(`../deployments/${network.name}/MockUSDT.json`).address;
+const usdpAddr = require(`../deployments/${network.name}/MockUSDP.json`).address;
 const wethAddr = require(`../deployments/${network.name}/WETH.json`).address;
 
 const addSingleRewardFarms = async (masterChef: RubyMasterChef, lpTokenAddr: string, allocPoints: number) => {
@@ -48,6 +49,7 @@ const getLpAddrs = async (factory: UniswapV2Factory) => {
   lpAddrs.push(await factory.getPair(usdcAddr, wethAddr));
   lpAddrs.push(await factory.getPair(usdtAddr, wethAddr));
   lpAddrs.push(await factory.getPair(rubyAddr, wethAddr));
+  lpAddrs.push(await factory.getPair(rubyAddr, usdpAddr));
 
   return lpAddrs;
 };

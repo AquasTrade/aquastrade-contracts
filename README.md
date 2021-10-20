@@ -21,6 +21,7 @@
 12. `yarn deploy --tags Multicall2`
 13. `yarn deploy --tags MappedERC20`
 14. `yarn deploy --tags Mapped721`
+15. `yarn deploy --tags USDP`
 
 
 #### Init code hash:
@@ -40,6 +41,7 @@ Contracts:
     WETH: '0xf6dFABa1C203f403D6e1116d246e3139654C315E',
     USDC: '0xD4Ff3876DaBEA93Eef3Dffb5660E746Ac7f3bDBf',
     USDT: '0x88A4cAD35B4d8acf8c5FdFA082079592E5d24eb2',
+    USDP: '0x1b1Bd64d00b7e54e90Eb96D8233B32DD6eF690a1',
     RubyToken: '0x2D76E3E55bB9E573af26043fb0c76cbbfAC95a2c',
     RubyMasterChef: '0x2090EbdE28485c67D4Fe69c47740d91144A14203',
     RubyBar: '0x0',
@@ -57,7 +59,8 @@ LPs:
     usdtUsdc: '0x16e7f40cD9b0d41D80798d31d6DC45224Af26c69',
     usdcWeth: '0x44343e87C42b55A99F866d971eb47736FB7CBB18',
     usdtWeth: '0x3ea1892c000B9932AfCDa2c584061B6811e98576',
-    rubyWeth: '0xa7676Fff6250046EF557B7c4Adc45567b73eAe56'
+    rubyWeth: '0xa7676Fff6250046EF557B7c4Adc45567b73eAe56',
+    rubyUsdp: '0x9f007f39Cd56790ad5b89aF0eaBf8CD8C4a4f160'
 }
 
 ```

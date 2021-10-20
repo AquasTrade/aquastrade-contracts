@@ -44,7 +44,6 @@ const main = async () => {
 const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
 const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
 
-
 const weth = await router.WETH();
 
 console.log("weth", weth)
@@ -61,7 +60,6 @@ console.log("deployer network", await deployer.provider?.getNetwork());
   console.log("factory network", factoryNetwork);
 
 await debugPairs(factory, deployer.address);
-  // await debugPairs(factory, deployer.address);
 };
 
 

@@ -89,6 +89,7 @@
     "premint": "hardhat run scripts/premintRuby.ts",
     "swap": "hardhat run scripts/swapSimulations.ts",
     "debugLps": "hardhat run scripts/debugLps.ts",
+    "debugEthCall": "hardhat run scripts/debugEthCallAndSnapshots.ts",
     "setTradingFee": "hardhat run scripts/setUniswapV2FactoryFeeTaker.ts",
     "setMakerAllowance": "hardhat run scripts/setRubyBarMakerAllowance.ts"
   },

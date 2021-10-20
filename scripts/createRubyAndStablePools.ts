@@ -8,6 +8,7 @@ import fs from "fs";
 const rubyAddr = require(`../deployments/${network.name}/RubyToken.json`).address;
 const usdcAddr = require(`../deployments/${network.name}/MockUSDC.json`).address;
 const usdtAddr = require(`../deployments/${network.name}/MockUSDT.json`).address;
+const usdpAddr = require(`../deployments/${network.name}/MockUSDP.json`).address;
 const wethAddr = require(`../deployments/${network.name}/WETH.json`).address;
 
 const routerAddr = require(`../deployments/${network.name}/UniswapV2Router02.json`).address;
@@ -96,6 +97,7 @@ const writeRubyPoolAddrs = async (factory: UniswapV2Factory) => {
   rubyPoolAddrs.usdcWeth = await factory.getPair(usdcAddr, wethAddr);
   rubyPoolAddrs.usdtWeth = await factory.getPair(usdtAddr, wethAddr);
   rubyPoolAddrs.rubyWeth = await factory.getPair(rubyAddr, wethAddr);
+  rubyPoolAddrs.rubyUsdp = await factory.getPair(rubyAddr, usdpAddr);
 
   fs.writeFileSync("./utils/ruby_pool_addr.json", JSON.stringify(rubyPoolAddrs));
 };
@@ -119,7 +121,7 @@ const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
   // // // approve tokens
-  await approveTokens([rubyAddr, usdcAddr, usdtAddr, wethAddr]);
+  await approveTokens([usdpAddr, usdcAddr, usdtAddr, wethAddr, usdpAddr]);
 
   const blockNumber = await ethers.provider.getBlockNumber();
   const blockData = await ethers.provider.getBlock(blockNumber);
@@ -138,6 +140,9 @@ const main = async () => {
   const amountRubyUsdtLPruby = ethers.utils.parseUnits("10000000", 18); // 10 mil
   const amountRubyUsdtLPusdt = ethers.utils.parseUnits("50000000", 6); // 50 mil
 
+  const amountRubyUsdpLPruby = ethers.utils.parseUnits("10000000", 18); // 10 mil
+  const amountRubyUsdpLPusdp = ethers.utils.parseUnits("50000000", 18); // 50 mil
+
   const amountUsdcWethLPusdc = ethers.utils.parseUnits("90000000", 6); // 90 mil
   const amountUsdcWethLPweth = ethers.utils.parseUnits("30000", 18); // 30k
 
@@ -149,20 +154,23 @@ const main = async () => {
 
   const amountUsdcUsdtLP = ethers.utils.parseUnits("10000000", 6); // 10 mil
 
-  // // USDC-WETH
+  // USDC-WETH
   await addLiquidity(usdcAddr, wethAddr, amountUsdcWethLPusdc, amountUsdcWethLPweth, deployer.address, deadline);
 
-  // // USDT-WETH
+  // USDT-WETH
   await addLiquidity(usdtAddr, wethAddr, amountUsdtWethLPusdt, amountUsdtWethLPweth, deployer.address, deadline);
 
-  // // RUBY-WETH
+  // RUBY-WETH
   await addLiquidity(rubyAddr, wethAddr, amountRubyWethLPruby, amountRubyWethLPweth, deployer.address, deadline);
 
-  // // RUBY-USDC
+  // RUBY-USDC
   await addLiquidity(rubyAddr, usdcAddr, amountRubyUsdcLPruby, amountRubyUsdcLPusdc, deployer.address, deadline);
 
-  // // RUBY-USDT
+  // RUBY-USDT
   await addLiquidity(rubyAddr, usdtAddr, amountRubyUsdtLPruby, amountRubyUsdtLPusdt, deployer.address, deadline);
+
+  // // RUBY-USDP
+  await addLiquidity(rubyAddr, usdpAddr, amountRubyUsdpLPruby, amountRubyUsdpLPusdp, deployer.address, deadline);
 
   // // USDC-USDT
   await addLiquidity(usdtAddr, usdcAddr, amountUsdcUsdtLP, amountUsdcUsdtLP, deployer.address, deadline);
