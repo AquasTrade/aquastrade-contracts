@@ -54,6 +54,9 @@ const config: HardhatUserConfig = {
     skaleTestnet: {
       url: "https://dappnet-api.skalenodes.com/v1/melodic-murzim",
       accounts: [ADMIN_PKEY_TESTNET],
+      // accounts: {
+      //   mnemonic: process.env.MNEMONIC,
+      // },
     },
     mainnet: {
       url: "https://mainnet.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
@@ -63,11 +66,11 @@ const config: HardhatUserConfig = {
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
-      // accounts: [process.env.ADMIN_PKEY_TESTNET]
+      accounts: [ADMIN_PKEY_TESTNET]
       //
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
-      },
+      // accounts: {
+      //   mnemonic: process.env.MNEMONIC,
+      // },
     },
   },
   solidity: {
