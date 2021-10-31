@@ -1,7 +1,7 @@
 import fs from "fs";
 import { ethers, network } from "hardhat";
 import { utils } from "ethers";
-import { RubyMasterChef, UniswapV2Factory } from "../typechain";
+import { RubyMasterChef, UniswapV2Factory } from "../../typechain";
 
 const masterChefAddr = require(`../deployments/${network.name}/RubyMasterChef.json`).address;
 const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.json`).address;

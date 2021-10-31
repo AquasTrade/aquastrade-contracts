@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import { RubyToken } from "../typechain";
+import { RubyToken } from "../../typechain";
 
 const rubyAddr = require(`../deployments/${network.name}/RubyToken.json`).address;
 

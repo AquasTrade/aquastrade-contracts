@@ -94,7 +94,11 @@
     "setTradingFee": "hardhat run scripts/setUniswapV2FactoryFeeTaker.ts",
     "setMakerAllowance": "hardhat run scripts/setRubyBarMakerAllowance.ts",
     "testImaBridgingToSkale": "hardhat run scripts/imaBridging.ts --network rinkeby",
-    "testImaBridgingFromSkale": "hardhat run scripts/imaBridging.ts --network skaleTestnet"
+    "testImaBridgingFromSkale": "hardhat run scripts/imaBridging.ts --network skaleTestnet",
+    "registerL1ERC20sToIMA": "hardhat run scripts/bridging/registerERC20sToIMA.ts --network rinkeby",
+    "registerL2ERC20sToIMA": "hardhat run scripts/bridging/registerERC20sToIMA.ts --network skaleTestnet",
+    "bridgeL1tokens": "hardhat run scripts/bridging/bridgeERC20s.ts --network rinkeby",
+    "bridgeL2tokens": "hardhat run scripts/bridging/bridgeERC20s.ts --network skaleTestnet"
   },
   "files": [
     "/contracts"

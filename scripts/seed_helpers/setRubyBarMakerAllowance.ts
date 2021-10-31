@@ -3,7 +3,7 @@
 import fs from "fs";
 import { ethers, network } from "hardhat";
 
-import { RubyBar, RubyToken} from "../typechain";
+import { RubyBar, RubyToken} from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { assert } from "console";
 import { BigNumber } from "ethers";

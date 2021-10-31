@@ -1,7 +1,7 @@
 import fs from "fs";
 import { ethers, network } from "hardhat";
 import { utils, BigNumber } from "ethers";
-import { RubyMasterChef, UniswapV2Factory, UniswapV2Router02 } from "../typechain";
+import { RubyMasterChef, UniswapV2Factory, UniswapV2Router02 } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 const routerAddr = require(`../deployments/${network.name}/UniswapV2Router02.json`).address;

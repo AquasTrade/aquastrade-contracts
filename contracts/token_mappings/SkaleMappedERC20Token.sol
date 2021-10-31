@@ -18,12 +18,12 @@ contract SkaleMappedERC20Token is ERC20, AccessControl {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function mint(address _to, uint256 _amount) public {
+    function mint(address to, uint256 amount) public virtual {
         require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
-        _mint(_to, _amount);
+        _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) public {
+    function burn(address from, uint256 amount) public virtual {
         require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
         _burn(from, amount);
     }

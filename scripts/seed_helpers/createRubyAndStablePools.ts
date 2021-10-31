@@ -1,7 +1,7 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair } from "../typechain";
+import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import fs from "fs";
 

@@ -3,8 +3,8 @@ import fs from "fs";
 import chalk from "chalk";
 import { config, ethers, run, network } from "hardhat";
 import { BigNumber, utils } from "ethers";
-import l1Artifacts from "../ima_bridge/l1_artifacts.json";
-import l2Artifacts from "../ima_bridge/l2_artifacts.json";
+import l1Artifacts from "../../ima_bridge/l1_artifacts.json";
+import l2Artifacts from "../../ima_bridge/l2_artifacts.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 require("dotenv").config();
@@ -39,7 +39,8 @@ const testEthErc20 = async (signer: SignerWithAddress) => {
 
 
 }
-
+// Todo continue debugging on messages, maybe the mesage encoding is the issue:
+// https://github.com/skalenetwork/IMA/blob/develop/proxy/contracts/Messages.sol#L207
 const testMessageProxy = async (signer: SignerWithAddress) => {
   const messageProxyAddress = l2Artifacts.message_proxy_chain_address;
   const messageProxyAbi = l2Artifacts.message_proxy_chain_abi;
@@ -47,9 +48,16 @@ const testMessageProxy = async (signer: SignerWithAddress) => {
   const tokenManagerAddress = l2Artifacts.token_manager_eth_address;
 
   const messageProxyContract = new ethers.Contract(messageProxyAddress, messageProxyAbi, signer);
+
+  const connectedChain = await messageProxyContract.connectedChains("0x8d646f556e5d9d6f1edcf7a39b77f5ac253776eb34efcfd688aacbee518efc26");
+  console.log("isConnectedSchain", connectedChain);
+
+  const registryContract = await messageProxyContract.registryContracts(ethers.utils.formatBytes32String(""), tokenManagerAddress);
+  console.log("registryContract", registryContract);
+
   // const mainnetHash = "0x8d646f556e5d9d6f1edcf7a39b77f5ac253776eb34efcfd688aacbee518efc26"
-  const events = messageProxyContract.filters.PostMessageError(null, null);
-  console.log("events", events);
+  // const events = messageProxyContract.filters.PostMessageError(null, null);
+  // console.log("events", events);
 };
 
 const setMessageProxyContractEventListeners = async (signer: SignerWithAddress) => {
@@ -144,10 +152,10 @@ const testTokenManager = async (signer:SignerWithAddress) => {
 }
 
 const testCalls = async (signer: SignerWithAddress) => {
-  await testTokenManager(signer);
+  // await testTokenManager(signer);
   // await testCommunityLocker(signer);
   // await testTokenManagerLinker(signer);
-  // await testMessageProxy(signer);
+  await testMessageProxy(signer);
   // await testEthErc20(signer);
 
 }
@@ -163,7 +171,6 @@ const bridgeETHtoSkale = async (signer: SignerWithAddress, amount: BigNumber, ch
 
 }
 
-// continue from here
 const bridgeETHfromSkale = async (signer: SignerWithAddress, amount: BigNumber) => {
 
     console.log("Bridging ETH from Skale");
@@ -186,8 +193,8 @@ const main = async () => {
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
   const ethAmount = utils.parseUnits("0.00", 18);
   
-  await testCommunityPool(signer);
-  // await testCalls(signer);
+  // await testCommunityPool(signer);
+  await testCalls(signer);
   // setMessageProxyContractEventListeners(signer);
   // if(network.name === 'skaleTestnet') {
   //     console.log("bridging from skale..", signer.address);

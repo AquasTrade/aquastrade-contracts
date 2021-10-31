@@ -6,13 +6,20 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("SkaleMappedERC20Token", {
+  await deploy("RubyTokenSkale", {
     from: deployer,
-    args: ["ruby USDC", "rubyUSDC", ethers.BigNumber.from(6)],
+    args: [],
     log: true,
   });
+
+
+// Setup Roles
+// TokenManager
+// MasterChef
+
+
 };
 
-func.tags = ["MappedERC20"];
+func.tags = ["RubyTokenSkale"];
 
 export default func;
