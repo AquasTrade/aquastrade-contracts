@@ -226,8 +226,8 @@ contract RubyTokenSkale is SkaleMappedERC20Token("RubyToken", "RUBY", 18) {
         return chainId;
     }
 
-    function burn(address from, uint256 amount) public override {
+    function burn(uint256 amount) public override {
         require(hasRole(BURNER_ROLE, msg.sender), "RUBY::Caller is not a burner");
-        _burn(from, amount);
+        _burn(msg.sender, amount);
     }
 }

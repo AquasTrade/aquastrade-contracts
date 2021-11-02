@@ -30,6 +30,8 @@ const bridgeL2tokensToL1 = async (signer: SignerWithAddress) => {
     const tokenManagerABI = l2Artifacts.token_manager_erc20_abi;
     const tokenManagerContract = new ethers.Contract(tokenManagerAddress, tokenManagerABI, signer);
 
+    // console.log("token manager contract", tokenManagerContract)
+    // return;
 
     const rubyUSDCcontract = <MockUSDC>new ethers.Contract(rubyUSDC, abiRubyUSDC, signer);
     const rubyUSDTcontract = <MockUSDT>new ethers.Contract(rubyUSDT, abiRubyUSDT, signer);
@@ -42,36 +44,38 @@ const bridgeL2tokensToL1 = async (signer: SignerWithAddress) => {
     let balanceOfRubyUSDTbefore = await rubyUSDTcontract.balanceOf(signer.address);
     let balanceOfRubyUSDPbefore = await rubyUSDPcontract.balanceOf(signer.address);
 
+
+
     // Approvals
     console.log("approvals...")
-    if((await rubyUSDCcontract.allowance(signer.address, tokenManagerAddress)).lt(amount6)) {
-        let res = await rubyUSDCcontract.approve(tokenManagerAddress, amount6);
+        console.log("approving rubyUSDC")
+        let res = await rubyUSDCcontract.approve(tokenManagerAddress, ethers.utils.parseUnits("1000000", 6));
         await res.wait(1);
-    }
 
-    if((await rubyUSDTcontract.allowance(signer.address, tokenManagerAddress)).lt(amount6)) {
-        let res = await rubyUSDTcontract.approve(tokenManagerAddress, amount6);
+        res = await rubyUSDTcontract.approve(tokenManagerAddress, ethers.utils.parseUnits("1000000", 6));
         await res.wait(1);
-    }
-    if((await rubyUSDPcontract.allowance(signer.address, tokenManagerAddress)).lt(amount18)) {
-        let res = await rubyUSDPcontract.approve(tokenManagerAddress, amount18);
+
+        res = await rubyUSDPcontract.approve(tokenManagerAddress, ethers.utils.parseUnits("1000000", 18));
         await res.wait(1);
-    }
 
-    console.log("bridging...")
+    console.log("bridging...", signer.address, USDC, amount6);
+
+    const usdtAllowance =  await rubyUSDTcontract.allowance(signer.address, tokenManagerAddress)
+
+    console.log("Allowance USDT", ethers.utils.formatUnits(usdtAllowance, 6))
 
 
-    // Bridging
-    let res = await tokenManagerContract.exitToMainERC20(USDC, amount6);
+    Bridging
+    res = await tokenManagerContract.exitToMainERC20(USDC, signer.address, amount6);
     await res.wait(1);
 
     console.log("bridging USDT...")
 
-    res = await tokenManagerContract.exitToMainERC20(USDT, amount6);
+    res = await tokenManagerContract.exitToMainERC20(USDT, signer.address, amount6);
     await res.wait(1);
 
     console.log("bridging USDP...")
-    res = await tokenManagerContract.exitToMainERC20(USDP, amount18);
+    res = await tokenManagerContract.exitToMainERC20(USDP, signer.address, amount18);
     await res.wait(1);
 
     let balanceOfRubyUSDCafter = await rubyUSDCcontract.balanceOf(signer.address);
@@ -96,8 +100,8 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
     const USDTcontract = <MockUSDT>new ethers.Contract(USDT, abiUSDT, signer);
     const USDPcontract = <MockUSDP>new ethers.Contract(USDP, abiUSDP, signer);
 
-    const amount6 = ethers.utils.parseUnits("100", 6);
-    const amount18 = ethers.utils.parseUnits("100", 18);
+    const amount6 = ethers.utils.parseUnits("1000", 6);
+    const amount18 = ethers.utils.parseUnits("1000", 18);
 
     let balanceOfUSDCbefore = await USDCcontract.balanceOf(signer.address);
     let balanceOfUSDTbefore = await USDTcontract.balanceOf(signer.address);

@@ -28,6 +28,8 @@ const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
     const tokenManagerABI = l2Artifacts.token_manager_erc20_abi;
     const tokenManagerContract = new ethers.Contract(tokenManagerAddress, tokenManagerABI, signer);
 
+    console.log("tokenManagerContract", tokenManagerContract);
+
     let res = await tokenManagerContract.addERC20TokenByOwner(USDC, rubyUSDC);
     await res.wait(1);
     res = await tokenManagerContract.addERC20TokenByOwner(USDT, rubyUSDT);

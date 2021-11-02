@@ -23,8 +23,8 @@ contract SkaleMappedERC20Token is ERC20, AccessControl {
         _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) public virtual {
+    function burn(uint256 amount) public virtual {
         require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
-        _burn(from, amount);
+        _burn(msg.sender, amount);
     }
 }
