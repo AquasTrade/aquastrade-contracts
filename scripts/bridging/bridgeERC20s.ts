@@ -65,7 +65,7 @@ const bridgeL2tokensToL1 = async (signer: SignerWithAddress) => {
     console.log("Allowance USDT", ethers.utils.formatUnits(usdtAllowance, 6))
 
 
-    Bridging
+    // Bridging
     res = await tokenManagerContract.exitToMainERC20(USDC, signer.address, amount6);
     await res.wait(1);
 
