@@ -5,8 +5,10 @@ import { ethers, network } from "hardhat";
 import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
-const routerAddr = require(`../deployments/${network.name}/UniswapV2Router02.json`).address;
-const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.json`).address;
+
+
+const routerAddr = require(`../../deployments/${network.name}/UniswapV2Router02.json`).address;
+const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
 
 
 const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {

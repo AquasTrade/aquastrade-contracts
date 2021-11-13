@@ -1,6 +1,6 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers } from "hardhat";
-import { bytecode } from "../artifacts/contracts/uniswapv2/UniswapV2Pair.sol/UniswapV2Pair.json";
+import { bytecode } from "../../artifacts/contracts/uniswapv2/UniswapV2Pair.sol/UniswapV2Pair.json";
 
 const main = async () => {
   const initCodeHash = ethers.utils.keccak256(bytecode);
