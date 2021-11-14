@@ -1,26 +1,29 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.12;
-import "./RubyToken.sol";
+import "./token_mappings/RubyToken.sol";
 
 // import "./libraries/SafeMath.sol";
 import "./libraries/SafeERC20.sol";
 import "hardhat/console.sol";
 
 
-import "./uniswapv2/interfaces/IUniswapV2ERC20.sol";
-import "./uniswapv2/interfaces/IUniswapV2Pair.sol";
-import "./uniswapv2/interfaces/IUniswapV2Factory.sol";
+import "./amm/interfaces/IRubyERC20.sol";
+import "./amm/interfaces/IRubyPair.sol";
+import "./amm/interfaces/IRubyFactory.sol";
+
+import "./Ownable.sol";
+
 
 // RubyMaker is fork of SushiMaker
 contract RubyMaker is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IUniswapV2Factory public immutable factory;
+    IRubyFactory public immutable factory;
     address public immutable bar;
     address private immutable ruby;
-    address private immutable weth;
+    address private immutable ethc;
     uint256 public burnPercent;
 
     mapping(address => address) internal _bridges;
@@ -42,23 +45,22 @@ contract RubyMaker is Ownable {
         address _factory,
         address _bar,
         address _ruby,
-        address _weth,
+        address _ethc,
         uint256 _burnPercent
     ) public {
 
         require(_factory != address(0), "RubyMaker: Invalid factory address.");
         require(_bar != address(0), "RubyMaker: Invalid bar address.");
         require(_ruby != address(0), "RubyMaker: Invalid ruby address.");
-        require(_weth != address(0), "RubyMaker: Invalid weth address.");
+        require(_ethc != address(0), "RubyMaker: Invalid ethc address.");
         require(_burnPercent >= 0 && _burnPercent <= 1000, "RubyMaker: Invalid burn percent.");
 
-        factory = IUniswapV2Factory(_factory);
+        factory = IRubyFactory(_factory);
         bar = _bar;
         ruby = _ruby;
-        weth = _weth;
+        ethc = _ethc;
 
         // Note: Percentages are defined with 4 decimals for more granularity (so 20% is defined as 200)
-        // initially to be set to 20 (0.01% of the total trade)
         // 0.05% (1/6th) of the total fees (0.30%) are sent to the RubyMaker
         // 0.04% of these fees (80%) are converted to Ruby and sent to the RubyBar (xRUBY)
         // 0.01% of these fees (20%) are burned
@@ -75,13 +77,13 @@ contract RubyMaker is Ownable {
     function bridgeFor(address token) public view returns (address bridge) {
         bridge = _bridges[token];
         if (bridge == address(0)) {
-            bridge = weth;
+            bridge = ethc;
         }
     }
 
     function setBridge(address token, address bridge) external onlyOwner {
         // Checks
-        require(token != ruby && token != weth && token != bridge, "RubyMaker: Invalid bridge");
+        require(token != ruby && token != ethc && token != bridge, "RubyMaker: Invalid bridge");
 
         // Effects
         _bridges[token] = bridge;
@@ -108,7 +110,7 @@ contract RubyMaker is Ownable {
 
     function _convert(address token0, address token1) internal {
         // Interactions
-        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token0, token1));
+        IRubyPair pair = IRubyPair(factory.getPair(token0, token1));
         require(address(pair) != address(0), "RubyMaker: Invalid pair");
 
         IERC20(address(pair)).safeTransfer(address(pair), pair.balanceOf(address(this)));
@@ -140,8 +142,8 @@ contract RubyMaker is Ownable {
             if (token0 == ruby) {
                 _transferRubyToBar(amount);
                 rubyOut = amount;
-            } else if (token0 == weth) {
-                rubyOut = _toRUBY(weth, amount);
+            } else if (token0 == ethc) {
+                rubyOut = _toRUBY(ethc, amount);
             } else {
                 address bridge = bridgeFor(token0);
                 amount = _swap(token0, bridge, amount, address(this));
@@ -155,12 +157,12 @@ contract RubyMaker is Ownable {
             // eg. USDT - RUBY
             _transferRubyToBar(amount1);
             rubyOut = _toRUBY(token0, amount0).add(amount1);
-        } else if (token0 == weth) {
+        } else if (token0 == ethc) {
             // eg. ETH - USDC
-            rubyOut = _toRUBY(weth, _swap(token1, weth, amount1, address(this)).add(amount0));
-        } else if (token1 == weth) {
+            rubyOut = _toRUBY(ethc, _swap(token1, ethc, amount1, address(this)).add(amount0));
+        } else if (token1 == ethc) {
             // eg. USDT - ETH
-            rubyOut = _toRUBY(weth, _swap(token0, weth, amount0, address(this)).add(amount1));
+            rubyOut = _toRUBY(ethc, _swap(token0, ethc, amount0, address(this)).add(amount1));
         } else {
             // eg. MIC - USDT
             address bridge0 = bridgeFor(token0);
@@ -188,7 +190,7 @@ contract RubyMaker is Ownable {
         uint256 amountIn,
         address to
     ) internal returns (uint256 amountOut) {
-        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(fromToken, toToken));
+        IRubyPair pair = IRubyPair(factory.getPair(fromToken, toToken));
         require(address(pair) != address(0), "RubyMaker: Cannot convert");
 
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();

@@ -2,18 +2,25 @@ import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments, getNamedAccounts } = hre;
+  const { ethers, deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("RubyToken", {
+  await deploy("RubyTokenMainnet", {
     from: deployer,
     log: true,
     deterministicDeployment: false,
   });
+
+  let tokenContract = await ethers.getContract("RubyTokenMainnet");
+  const balanceOf = await tokenContract.balanceOf(deployer);
+  console.log("balanceOf", balanceOf.toString());
+
 };
 
-func.tags = ["RubyToken"];
-func.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "USDT", "USDC", "USDP", "WETH"];
+
+
+func.tags = ["RubyTokenMainnet"];
+func.dependencies = [];
 
 export default func;

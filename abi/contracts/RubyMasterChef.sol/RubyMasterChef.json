@@ -335,19 +335,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "devAddr",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -356,6 +343,13 @@
       }
     ],
     "name": "emergencyWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "emergencyWithdrawRubyTokens",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

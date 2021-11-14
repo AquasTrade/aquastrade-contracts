@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IRubyMasterChefRewarder.sol";
-import "./RubyToken.sol";
+import "./token_mappings/RubyToken.sol";
 import "./libraries/BoringERC20.sol";
 
 import "hardhat/console.sol";
@@ -49,8 +49,6 @@ contract RubyMasterChef is Ownable {
 
     // The RUBY TOKEN!
     RubyToken public ruby;
-    // Dev address.
-    address public devAddr;
     // Treasury address.
     address public treasuryAddr;
     // RUBY tokens created per second.
@@ -224,8 +222,9 @@ contract RubyMasterChef is Ownable {
         uint256 multiplier = block.timestamp.sub(pool.lastRewardTimestamp);
         uint256 rubyReward = multiplier.mul(rubyPerSec).mul(pool.allocPoint).div(totalAllocPoint);
         uint256 lpPercent = 1000 - treasuryPercent;
-        ruby.mint(treasuryAddr, rubyReward.mul(treasuryPercent).div(1000));
-        ruby.mint(address(this), rubyReward.mul(lpPercent).div(1000));
+        
+        safeRubyTransfer(treasuryAddr, rubyReward.mul(treasuryPercent).div(1000));
+    
         pool.accRubyPerShare = pool.accRubyPerShare.add(rubyReward.mul(1e12).div(lpSupply).mul(lpPercent).div(1000));
         pool.lastRewardTimestamp = block.timestamp;
         emit UpdatePool(_pid, pool.lastRewardTimestamp, lpSupply, pool.accRubyPerShare);
@@ -289,6 +288,18 @@ contract RubyMasterChef is Ownable {
         user.rewardDebt = 0;
     }
 
+    /** 
+    * @notice Owner should be able to withdraw all the RubyTokens in case of emergency.
+    * The RubyMasterChef contract will be placed behind a timelock, and the owner/deployer will be a multisig,
+    * so this should not raise trust concerns.
+    * This function is needed because the RubyMasterChef will be pre-fed with all of the Ruby tokens dedicated
+    * for liquidity mining incentives, and incase of unfortunate situation they should be retreived.
+    */ 
+    function emergencyWithdrawRubyTokens() public onlyOwner {
+        uint256 rubyBalance = ruby.balanceOf(address(this));
+        ruby.transfer(msg.sender, rubyBalance);
+    }
+
     // Safe ruby transfer function, just in case if rounding error causes pool to not have enough RUBYs.
     function safeRubyTransfer(address _to, uint256 _amount) internal {
         uint256 rubyBal = ruby.balanceOf(address(this));
@@ -301,7 +312,7 @@ contract RubyMasterChef is Ownable {
 
     // Update treasury address by the previous treasury.
     function setTreasuryAddr(address _treasuryAddr) public {
-        require(msg.sender == treasuryAddr, "setTreasuryAddr: wut?");
+        require(msg.sender == treasuryAddr, "setTreasuryAddr: not enough permissions to execute this action");
         treasuryAddr = _treasuryAddr;
         emit SetTreasuryAddress(msg.sender, _treasuryAddr);
     }

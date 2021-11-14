@@ -6,17 +6,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("MockUSDC", {
+  const wethAddress = (await ethers.getContract("WETH")).address;
+  const factoryAddress = (await ethers.getContract("RubyFactory")).address;
+
+  await deploy("RubyRouter", {
     from: deployer,
+    args: [factoryAddress, wethAddress],
     log: true,
+    deterministicDeployment: false,
   });
-
-  let tokenContract = await ethers.getContract("MockUSDC");
-  const balanceOf = await tokenContract.balanceOf(deployer);
-  console.log("balanceOf", balanceOf.toString());
-
 };
 
-func.tags = ["USDC"];
+func.tags = ["RubyRouter", "AMM"];
+func.dependencies = ["RubyFactory", "WETH"];
 
 export default func;

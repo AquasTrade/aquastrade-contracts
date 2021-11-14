@@ -29,7 +29,7 @@ contract RubyBar is ERC20("RubyBar", "xRUBY"), Ownable {
         emit RubyMakerAllowanceSet(rubyMakerAddress, amount);
     }
 
-    // Enter the mine. Pay some RUBYs. Earn some shares.
+    // Enter the bar. Pay some RUBYs. Earn some shares.
     // Locks RUBY and mints xRUBY
     function enter(uint256 _amount) public {
         // Gets the amount of Ruby locked in the contract

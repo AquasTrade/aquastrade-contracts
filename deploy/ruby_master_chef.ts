@@ -6,12 +6,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer, treasury } = await getNamedAccounts();
 
-  const ruby = await ethers.getContract("RubyToken");
+  const RUBY_TOKEN_ADDRESS_SCHAIN = ""; // Ruby token address on the SChain
 
   const { address } = await deploy("RubyMasterChef", {
     from: deployer,
     args: [
-      ruby.address,
+      RUBY_TOKEN_ADDRESS_SCHAIN,
       treasury,
       "10000000000000000000", // 10 RUBY per sec
       "1631948400", // Sat Sep 18 09:00
@@ -21,14 +21,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     deterministicDeployment: false,
   });
 
-  if ((await ruby.owner()) !== address) {
-    // Transfer Ruby Ownership to RubyMasterChef
-    console.log("Transfer Ruby Ownership to RubyMasterChef");
-    await (await ruby.transferOwnership(address)).wait();
-  }
 };
 
 func.tags = ["RubyMasterChef"];
-func.dependencies = ["UniswapV2Factory", "UniswapV2Router02", "RubyToken"];
+func.dependencies = ["UniswapV2Factory", "UniswapV2Router02"];
 
 export default func;

@@ -6,10 +6,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  // await deploy("MockUSDP", {
-  //   from: deployer,
-  //   log: true,
-  // });
+  await deploy("MockUSDP", {
+    from: deployer,
+    log: true,
+  });
 
   let tokenContract = await ethers.getContract("MockUSDP");
   const balanceOf = await tokenContract.balanceOf(deployer);

@@ -3,17 +3,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_factory",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "tokenA",
         "type": "address"
       },
@@ -84,7 +73,7 @@
         "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
