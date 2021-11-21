@@ -89,7 +89,7 @@ describe("RubyMasterChef", function () {
     await expect(
       this.chef.connect(this.bob).setTreasuryAddr(this.bob.address, { from: this.bob.address }),
     ).to.be.revertedWith("setTreasuryAddr: wut?");
-    
+
     await this.chef.connect(this.treasury).setTreasuryAddr(this.bob.address, { from: this.treasury.address });
     expect(await this.chef.treasuryAddr()).to.equal(this.bob.address);
   });

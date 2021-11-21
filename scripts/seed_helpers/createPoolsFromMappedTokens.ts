@@ -97,7 +97,6 @@ const writeRubyPoolAddrs = async (factory: UniswapV2Factory) => {
   rubyPoolAddrs.usdtEthc = await factory.getPair(usdtAddr, ethcAddr);
   rubyPoolAddrs.usdpEthc = await factory.getPair(usdpAddr, ethcAddr);
 
-
   fs.writeFileSync("./utils/new_pools_addr.json", JSON.stringify(rubyPoolAddrs));
 };
 
@@ -133,7 +132,6 @@ const main = async () => {
   // // 1 USDC = 1 USDT
   // // 1 USDC = 1 USDP
   // // 1 USDT = 1 USDP
-
 
   const amountEthC = ethers.utils.parseUnits("2", 18); // 2
 

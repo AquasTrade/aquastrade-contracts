@@ -1,4 +1,3 @@
-
 const { ethers } = require("hardhat");
 
 import { BigNumber } from "ethers";
@@ -13,7 +12,7 @@ export async function advanceBlockTo(blockNumber: number) {
   }
 }
 
-export async function increase(value:BigNumber) {
+export async function increase(value: BigNumber) {
   await ethers.provider.send("evm_increaseTime", [value.toNumber()]);
   await advanceBlock();
 }

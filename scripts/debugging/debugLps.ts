@@ -5,15 +5,12 @@ import { ethers, network } from "hardhat";
 import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
-
-
 const routerAddr = require(`../../deployments/${network.name}/UniswapV2Router02.json`).address;
 const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
 
-
 const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
-  const pair = (await factory.allPairs(1))
-  console.log("pair", pair)
+  const pair = await factory.allPairs(1);
+  console.log("pair", pair);
   const pairLength = (await factory.allPairsLength()).toNumber();
 
   for (let i = 0; i < pairLength; i++) {
@@ -39,31 +36,28 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
 };
 
 const main = async () => {
-
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
+  const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
+  const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
 
-const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
-const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
+  const weth = await router.WETH();
 
-const weth = await router.WETH();
+  console.log("weth", weth);
 
-console.log("weth", weth)
+  const blockNumber = await ethers.provider.getBlockNumber();
+  const providerNetwork = await ethers.provider.getNetwork();
 
-const blockNumber = await ethers.provider.getBlockNumber();
-const providerNetwork = await ethers.provider.getNetwork()
-
-console.log("provider network", providerNetwork);
-console.log("deployer network", await deployer.provider?.getNetwork());
+  console.log("provider network", providerNetwork);
+  console.log("deployer network", await deployer.provider?.getNetwork());
 
   console.log("block number", blockNumber);
 
-  const factoryNetwork = await factory.provider.getNetwork()
+  const factoryNetwork = await factory.provider.getNetwork();
   console.log("factory network", factoryNetwork);
 
-await debugPairs(factory, deployer.address);
+  await debugPairs(factory, deployer.address);
 };
-
 
 main()
   .then(() => process.exit(0))

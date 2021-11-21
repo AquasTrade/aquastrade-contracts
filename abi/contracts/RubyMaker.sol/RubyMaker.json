@@ -223,7 +223,7 @@
     "name": "factory",
     "outputs": [
       {
-        "internalType": "contract IRubyFactory",
+        "internalType": "contract IUniswapV2Factory",
         "name": "",
         "type": "address"
       }

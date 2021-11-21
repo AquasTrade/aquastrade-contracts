@@ -1,10 +1,9 @@
 /* eslint no-use-before-define: "warn" */
-import { ethers, network} from "hardhat";
+import { ethers, network } from "hardhat";
 import { BigNumber, utils } from "ethers";
 import l1Artifacts from "../../ima_bridge/l1_artifacts.json";
 import l2Artifacts from "../../ima_bridge/l2_artifacts.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
-
 
 const bridgeETHfromSkale = async () => {
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
@@ -14,37 +13,34 @@ const bridgeETHfromSkale = async () => {
   const tokenManagerABI = l2Artifacts.token_manager_eth_abi;
   const tokenManagerContract = new ethers.Contract(tokenManagerAddress, tokenManagerABI, signer);
   // console.log("token manager contract", tokenManagerContract)
-  const res = await tokenManagerContract.exitToMain(signer.address, amount, { gasLimit: 8000000, gasPrice: 100000000000 });
+  const res = await tokenManagerContract.exitToMain(signer.address, amount, {
+    gasLimit: 8000000,
+    gasPrice: 100000000000,
+  });
   const receipt = await res.wait(1);
   console.log("receipt", receipt);
-}
-
+};
 
 const retreiveEthOnMainnet = async () => {
-
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
   const amount = utils.parseUnits("0.1", 18);
 
-    const depositBoxABI = l1Artifacts.deposit_box_eth_abi;
-    const depositBoxAddress = l1Artifacts.deposit_box_eth_address;
-    const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
-    // console.log("depositBoxContract", depositBoxContract);
-    const res = await depositBoxContract.getMyEth();
-    const receipt = await res.wait(1);
-    console.log("receipt", receipt);
-
-}
+  const depositBoxABI = l1Artifacts.deposit_box_eth_abi;
+  const depositBoxAddress = l1Artifacts.deposit_box_eth_address;
+  const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
+  // console.log("depositBoxContract", depositBoxContract);
+  const res = await depositBoxContract.getMyEth();
+  const receipt = await res.wait(1);
+  console.log("receipt", receipt);
+};
 
 const main = async () => {
-
-  if(network.name === 'rinkeby') {
+  if (network.name === "rinkeby") {
     await retreiveEthOnMainnet();
-  } else if (network.name === 'skaleTestnet') {
+  } else if (network.name === "skaleTestnet") {
     await bridgeETHfromSkale();
   }
-
-
-}
+};
 
 main();
 
@@ -63,7 +59,6 @@ main();
 
 // }
 
-
 // const testEthErc20 = async (signer: SignerWithAddress) => {
 
 //   const ethErc20Address = l2Artifacts.eth_erc20_address;
@@ -75,7 +70,6 @@ main();
 //   console.log("ethErc20Address", ethErc20Address);
 //   const balance = await ethErc20Contract.balanceOf(signer.address);
 //   console.log("balance", ethers.utils.formatUnits(balance, 18));
-
 
 // }
 // // Todo continue debugging on messages, maybe the mesage encoding is the issue:
@@ -128,7 +122,7 @@ main();
 //   const tokenManagerLinkerAbi = l2Artifacts.token_manager_linker_abi;
 
 //   const tokenManagerEthAddress = l2Artifacts.token_manager_eth_address;
-  
+
 //   const tokenManagerContract = new ethers.Contract(tokenManagerLinkerAddress, tokenManagerLinkerAbi, signer);
 
 //   const hasTokenManager = await tokenManagerContract.hasTokenManager(tokenManagerEthAddress);
@@ -153,7 +147,7 @@ main();
 //   console.log("communityPool", communityPool);
 //   console.log("schainHash", schainHash);
 //   console.log("timeLimitPerMessage", timeLimitPerMessage);
-  
+
 //   // const res = await tokenManagerContract.checkAllowedToSendMessage(signer.address);
 //   // const receipt = await res.wait(1);
 //   // console.log("allowed to send message recipe", receipt);
@@ -220,22 +214,20 @@ main();
 // //     const receipt = await res.wait(1);
 // // }
 
-
 // const main = async () => {
-
 
 //   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 //   const ethAmount = utils.parseUnits("0.00", 18);
-  
+
 //   // await testCommunityPool(signer);
 //   await testCalls(signer);
 //   // setMessageProxyContractEventListeners(signer);
 //   // if(network.name === 'skaleTestnet') {
 //   //     console.log("bridging from skale..", signer.address);
-//   //   await bridgeETHfromSkale(signer, ethAmount)    
+//   //   await bridgeETHfromSkale(signer, ethAmount)
 //   // } else {
 //   //   console.log("bridging to skale..", signer.address);
-//   //   await bridgeETHtoSkale(signer, ethAmount, <string>process.env.TESTNET_CHAINNAME);    
+//   //   await bridgeETHtoSkale(signer, ethAmount, <string>process.env.TESTNET_CHAINNAME);
 //   // }
 // };
 

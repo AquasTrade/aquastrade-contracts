@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./Ownable.sol";
 
-
 // RubyBar is fork of SushiBar
 contract RubyBar is ERC20("RubyBar", "xRUBY"), Ownable {
     using SafeMath for uint256;

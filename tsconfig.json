@@ -23,7 +23,7 @@
     "test/**/*.ts",
     "typechain/**/*.d.ts",
     "typechain/**/*.ts",
-    "utils/**/*.ts",
+    "deployment_addresses/**/*.ts",
     "scripts/**/*.ts",
     "deploy/**/*.ts"
   ]

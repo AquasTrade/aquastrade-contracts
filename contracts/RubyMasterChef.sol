@@ -222,9 +222,9 @@ contract RubyMasterChef is Ownable {
         uint256 multiplier = block.timestamp.sub(pool.lastRewardTimestamp);
         uint256 rubyReward = multiplier.mul(rubyPerSec).mul(pool.allocPoint).div(totalAllocPoint);
         uint256 lpPercent = 1000 - treasuryPercent;
-        
+
         safeRubyTransfer(treasuryAddr, rubyReward.mul(treasuryPercent).div(1000));
-    
+
         pool.accRubyPerShare = pool.accRubyPerShare.add(rubyReward.mul(1e12).div(lpSupply).mul(lpPercent).div(1000));
         pool.lastRewardTimestamp = block.timestamp;
         emit UpdatePool(_pid, pool.lastRewardTimestamp, lpSupply, pool.accRubyPerShare);
@@ -288,13 +288,13 @@ contract RubyMasterChef is Ownable {
         user.rewardDebt = 0;
     }
 
-    /** 
-    * @notice Owner should be able to withdraw all the RubyTokens in case of emergency.
-    * The RubyMasterChef contract will be placed behind a timelock, and the owner/deployer will be a multisig,
-    * so this should not raise trust concerns.
-    * This function is needed because the RubyMasterChef will be pre-fed with all of the Ruby tokens dedicated
-    * for liquidity mining incentives, and incase of unfortunate situation they should be retreived.
-    */ 
+    /**
+     * @notice Owner should be able to withdraw all the RubyTokens in case of emergency.
+     * The RubyMasterChef contract will be placed behind a timelock, and the owner/deployer will be a multisig,
+     * so this should not raise trust concerns.
+     * This function is needed because the RubyMasterChef will be pre-fed with all of the Ruby tokens dedicated
+     * for liquidity mining incentives, and incase of unfortunate situation they should be retreived.
+     */
     function emergencyWithdrawRubyTokens() public onlyOwner {
         uint256 rubyBalance = ruby.balanceOf(address(this));
         ruby.transfer(msg.sender, rubyBalance);

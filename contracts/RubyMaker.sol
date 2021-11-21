@@ -7,20 +7,18 @@ import "./token_mappings/RubyToken.sol";
 import "./libraries/SafeERC20.sol";
 import "hardhat/console.sol";
 
-
-import "./amm/interfaces/IRubyERC20.sol";
-import "./amm/interfaces/IRubyPair.sol";
-import "./amm/interfaces/IRubyFactory.sol";
+import "./amm/interfaces/IUniswapV2ERC20.sol";
+import "./amm/interfaces/IUniswapV2Pair.sol";
+import "./amm/interfaces/IUniswapV2Factory.sol";
 
 import "./Ownable.sol";
-
 
 // RubyMaker is fork of SushiMaker
 contract RubyMaker is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IRubyFactory public immutable factory;
+    IUniswapV2Factory public immutable factory;
     address public immutable bar;
     address private immutable ruby;
     address private immutable ethc;
@@ -48,14 +46,13 @@ contract RubyMaker is Ownable {
         address _ethc,
         uint256 _burnPercent
     ) public {
-
         require(_factory != address(0), "RubyMaker: Invalid factory address.");
         require(_bar != address(0), "RubyMaker: Invalid bar address.");
         require(_ruby != address(0), "RubyMaker: Invalid ruby address.");
         require(_ethc != address(0), "RubyMaker: Invalid ethc address.");
         require(_burnPercent >= 0 && _burnPercent <= 1000, "RubyMaker: Invalid burn percent.");
 
-        factory = IRubyFactory(_factory);
+        factory = IUniswapV2Factory(_factory);
         bar = _bar;
         ruby = _ruby;
         ethc = _ethc;
@@ -72,7 +69,6 @@ contract RubyMaker is Ownable {
         burnPercent = newBurnPercent;
         emit BurnPercentChanged(newBurnPercent);
     }
-
 
     function bridgeFor(address token) public view returns (address bridge) {
         bridge = _bridges[token];
@@ -110,7 +106,7 @@ contract RubyMaker is Ownable {
 
     function _convert(address token0, address token1) internal {
         // Interactions
-        IRubyPair pair = IRubyPair(factory.getPair(token0, token1));
+        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token0, token1));
         require(address(pair) != address(0), "RubyMaker: Invalid pair");
 
         IERC20(address(pair)).safeTransfer(address(pair), pair.balanceOf(address(this)));
@@ -190,7 +186,7 @@ contract RubyMaker is Ownable {
         uint256 amountIn,
         address to
     ) internal returns (uint256 amountOut) {
-        IRubyPair pair = IRubyPair(factory.getPair(fromToken, toToken));
+        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(fromToken, toToken));
         require(address(pair) != address(0), "RubyMaker: Cannot convert");
 
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();

@@ -15,12 +15,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let tokenContract = await ethers.getContract("RubyTokenMainnet");
   const balanceOf = await tokenContract.balanceOf(deployer);
   console.log("balanceOf", balanceOf.toString());
-
 };
 
-
-
 func.tags = ["RubyTokenMainnet"];
-func.dependencies = [];
 
 export default func;

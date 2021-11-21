@@ -4,43 +4,111 @@
 
 `yarn`
 
+#### Local setup:
+
+Start local chain:
+
+`yarn chain`
+
 #### Deployments:
 
-1. `yarn deploy --tags UniswapV2Factory`
-2. `yarn deploy --tags UniswapV2Router02`
-3. `yarn deploy --tags WETH`
-4. `yarn deploy --tags USDC`
-5. `yarn deploy --tags USDT`
-6. `yarn deploy --tags MockERC20s`
-6. `yarn deploy --tags Mock721`
-7. `yarn deploy --tags RubyToken`
-8. `yarn deploy --tags RubyMasterChef`
-9. `yarn deploy --tags Timelock`
-10. `yarn deploy --tags RubyBar`
-11. `yarn deploy --tags RubyMaker`
-12. `yarn deploy --tags Multicall2`
-13. `yarn deploy --tags MappedERC20`
-14. `yarn deploy --tags Mapped721`
-15. `yarn deploy --tags USDP`
+The default network specified in `hardhat.config.ts` would be used for the deployments. This can be either overriden in the file, or by adding `--network {NETWORK}`, e.g:
 
+`yarn deploy --tags WETH --network skaleTestnet`
+
+##### Mock tokens:
+
+1. `yarn deploy --tags MockUSDC`
+2. `yarn deploy --tags MockUSDP`
+3. `yarn deploy --tags MockUSDT`
+
+or
+
+`yarn deploy --tags MockTokens`
+
+##### Mapped tokens (L2):
+
+1. `yarn deploy --tags RubyUSDC`
+2. `yarn deploy --tags RubyUSDP`
+3. `yarn deploy --tags RubyUSDT`
+
+or
+
+`yarn deploy --tags MappedTokens`
+
+##### RubyToken:
+
+1. `yarn deploy --tags RubyTokenMainnet` # L1 (i.e Mainnet, Rinkeby)
+   or
+2. `yarn deploy --tags RubyToken` # L2 (i.e Skale, Skale testchain)
+
+##### AMM:
+
+1. `yarn deploy --tags WETH`
+2. `yarn deploy --tags UniswapV2Factory`
+3. `yarn deploy --tags UniswapV2Router02`
+
+or
+
+`yarn deploy --tags AMM`
+
+#### Ruby Staking (xRUBY):
+
+1. `yarn deploy --tags RubyBar`
+2. `yarn deploy --tags RubyMaker`
+
+or
+
+`yarn deploy --tags Staking`
+
+##### Farm:
+
+1. `yarn deploy --tags RubyMasterChef`
+
+##### Stable swap:
+
+1. `yarn deploy --tags Allowlist`
+2. `yarn deploy --tags AmplificationUtils`
+3. `yarn deploy --tags SwapUtils`
+4. `yarn deploy --tags LPToken`
+5. `yarn deploy --tags SwapDeployer`
+6. `yarn deploy --tags Swap`
+7. `yarn deploy --tags USDPool`
+
+or
+
+`yarn deploy --tags StableSwap`
+
+##### Utils:
+
+1. `yarn deploy --tags Multicall2`
+
+##### Governance:
+
+1. `yarn deploy --tags Timelock`
+
+---
 
 #### Init code hash:
 
 `0xe14a5d38633264eaf4ed6f00cb96aa46e94bc6c69875cfe6d6ae2d1f76eb4452`
 
+---
+
 #### Deployment addresses:
 
-``` Rinkeby
+##### Rinkeby:
+
+```
     USDC: 0xF7Ef09660B71fD18A56AA913207Ebfa6727874C1
     USDT: 0x2Fc800Cf8c219DD07866f883F8f25a346F92d07b
     USDP: 0x3595E2f313780cb2f23e197B8e297066fd410d30
 ```
 
+##### SKALE testnet:
+
 ```
-SKALE testnet:
-
-Contracts: 
-
+Contracts:
 {
     UniswapV2Factory: '0x622311A7E32f3dD209C86f5Fe522BcEdbbAbFB8c',
     UniswapV2Router: '0x7d18D7C457459148Ab1ad7423bCD7F2689B072a3',
@@ -58,7 +126,6 @@ Contracts:
 }
 
 LPs:
-
 {
     usdcUsdt: '0xAAaEe87F8F7bEf70f0755874760E1f64005012B1',
     usdcUsdp: '0x06072351e4d6d36C05ca9a562Ca876932De9699f',
@@ -70,9 +137,9 @@ LPs:
 
 ```
 
-### Quick deployment and seeding (for testing)
+### Quick deployment and seeding (for testing) - OUTDATED
 
-#### Exchange:
+#### AMM:
 
 1. `yarn deploy --tags RubyToken`
 2. `yarn premint`
@@ -87,7 +154,7 @@ or `./automation_scripts/deploy_and_seed_exchange.sh`
 
 or `./automation_scripts/deploy_and_seed_masterchef.sh`
 
-### Staking:
+#### Staking:
 
 1. `yarn deploy --tags RubyMaker`
 2. `yarn setTradingFee` # sets the RubyMaker to be the fee receiver from the exchange trades (UniswapV2Factory)

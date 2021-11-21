@@ -3,7 +3,6 @@ import { RubyToken, UniswapV2Pair } from "../../typechain";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 
-
 export const BASE_TEN = 10;
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
@@ -52,13 +51,20 @@ export function getBigNumber(amount: any, decimals = 18) {
   return BigNumber.from(amount).mul(BigNumber.from(BASE_TEN).pow(decimals));
 }
 
-export const assertRubyConversion = async (testState: any, burnPercent: number, lpToken: UniswapV2Pair, rubyConvertedAmount: BigNumber, rubyTotalSupplyBefore: BigNumber, rubyTotalSupplyAfter: BigNumber) => {
-  const makerBalanceRuby = await testState.ruby.balanceOf(testState.rubyMaker.address)
-  const makerBalanceLP = await lpToken.balanceOf(testState.rubyMaker.address)
+export const assertRubyConversion = async (
+  testState: any,
+  burnPercent: number,
+  lpToken: UniswapV2Pair,
+  rubyConvertedAmount: BigNumber,
+  rubyTotalSupplyBefore: BigNumber,
+  rubyTotalSupplyAfter: BigNumber,
+) => {
+  const makerBalanceRuby = await testState.ruby.balanceOf(testState.rubyMaker.address);
+  const makerBalanceLP = await lpToken.balanceOf(testState.rubyMaker.address);
   const barBalance = await testState.ruby.balanceOf(testState.bar.address);
   const totalSupplyDifference = rubyTotalSupplyBefore.sub(rubyTotalSupplyAfter);
-  
-  const burned = rubyConvertedAmount.mul((BigNumber.from(burnPercent))).div(BigNumber.from(1000));
+
+  const burned = rubyConvertedAmount.mul(BigNumber.from(burnPercent)).div(BigNumber.from(1000));
   const distributed = rubyConvertedAmount.sub(burned);
 
   expect(makerBalanceRuby).to.equal(0);
@@ -67,6 +73,6 @@ export const assertRubyConversion = async (testState: any, burnPercent: number, 
 
   expect(rubyConvertedAmount).to.equal(distributed.add(burned));
   expect(totalSupplyDifference).to.equal(burned);
-}
+};
 
 export * from "./time";

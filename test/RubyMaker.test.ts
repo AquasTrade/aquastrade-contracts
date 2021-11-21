@@ -3,10 +3,9 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { prepare, deploy, getBigNumber, createSLP, assertRubyConversion } from "./utilities";
 
-import {RubyMaker, RubyToken} from "../typechain"
+import { RubyMaker, RubyToken } from "../typechain";
 
 describe("RubyMaker", function () {
-
   // 20%, percentages are represented with 4 decimals for better granularity
   const burnPercent = 200;
   const makerBurnAllowance = ethers.utils.parseUnits((200_000_000).toString(), 18);
@@ -25,24 +24,26 @@ describe("RubyMaker", function () {
   });
 
   beforeEach(async function () {
-
-
     await deploy(this, [
       ["ruby", this.RubyToken, []],
-      ["dai", this.MockERC20, ["DAI", "DAI", getBigNumber("10000000"),  18]],
-      ["mic", this.MockERC20, ["MIC", "MIC", getBigNumber("10000000"),  18]],
-      ["usdc", this.MockERC20, ["USDC", "USDC", getBigNumber("10000000"),  18]],
-      ["weth", this.MockERC20, ["WETH", "ETH", getBigNumber("10000000"),  18]],
-      ["strudel", this.MockERC20, ["$TRDL", "$TRDL", getBigNumber("10000000"),  18]],
+      ["dai", this.MockERC20, ["DAI", "DAI", getBigNumber("10000000"), 18]],
+      ["mic", this.MockERC20, ["MIC", "MIC", getBigNumber("10000000"), 18]],
+      ["usdc", this.MockERC20, ["USDC", "USDC", getBigNumber("10000000"), 18]],
+      ["weth", this.MockERC20, ["WETH", "ETH", getBigNumber("10000000"), 18]],
+      ["strudel", this.MockERC20, ["$TRDL", "$TRDL", getBigNumber("10000000"), 18]],
       ["factory", this.UniswapV2Factory, [this.alice.address]],
     ]);
     this.ruby = <RubyToken>this.ruby;
 
-    await this.ruby.mint(this.signers[0].address, getBigNumber("10000000"))
+    await this.ruby.mint(this.signers[0].address, getBigNumber("10000000"));
 
     await deploy(this, [["bar", this.RubyBar, [this.ruby.address]]]);
     await deploy(this, [
-      ["rubyMaker", this.RubyMaker, [this.factory.address, this.bar.address, this.ruby.address, this.weth.address, burnPercent]],
+      [
+        "rubyMaker",
+        this.RubyMaker,
+        [this.factory.address, this.bar.address, this.ruby.address, this.weth.address, burnPercent],
+      ],
     ]);
 
     await this.bar.setMakerAllowance(this.rubyMaker.address, makerBurnAllowance);
@@ -59,9 +60,7 @@ describe("RubyMaker", function () {
   });
 
   describe("RubyMaker state", function () {
-
     it("should be set correctly after deployment", async function () {
-
       let factoryAddr = await this.rubyMaker.factory();
       let barAddr = await this.rubyMaker.bar();
       let burnPct = await this.rubyMaker.burnPercent();
@@ -71,7 +70,6 @@ describe("RubyMaker", function () {
       expect(barAddr).to.equal(this.bar.address);
       expect(burnPct).to.equal(burnPercent);
       expect(owner).to.equal(this.signers[0].address);
-    
     });
 
     it("burn percent should be updated correctly by the owner if it is within the correct range", async function () {
@@ -81,11 +79,12 @@ describe("RubyMaker", function () {
 
       // change burn percent and assert
       const newBurnPercent = 300;
-      await expect(this.rubyMaker.setBurnPercent(newBurnPercent)).to.emit(this.rubyMaker, "BurnPercentChanged").withArgs(newBurnPercent);
+      await expect(this.rubyMaker.setBurnPercent(newBurnPercent))
+        .to.emit(this.rubyMaker, "BurnPercentChanged")
+        .withArgs(newBurnPercent);
 
       burnPct = await this.rubyMaker.burnPercent();
       expect(burnPct).to.equal(newBurnPercent);
-
     });
 
     it("burn percent update should fail if it is incorrect", async function () {
@@ -98,7 +97,6 @@ describe("RubyMaker", function () {
       await expect(this.rubyMaker.setBurnPercent(newBurnPercent)).to.be.revertedWith(
         "RubyMaker: Invalid burn percent.",
       );
-
     });
 
     it("burn percent update should fail if it is not updated by the owner", async function () {
@@ -111,10 +109,8 @@ describe("RubyMaker", function () {
       await expect(this.rubyMaker.connect(this.signers[1]).setBurnPercent(newBurnPercent)).to.be.revertedWith(
         "Ownable: caller is not the owner",
       );
-
     });
-
-  })
+  });
 
   describe("setBridge", function () {
     it("does not allow to set bridge for Ruby", async function () {
@@ -143,24 +139,29 @@ describe("RubyMaker", function () {
   });
   describe("convert", function () {
     it("should convert RUBY - ETH", async function () {
-
       const rubyConvertedAmount = BigNumber.from("1897569270781234370");
       // Get supply before conversion
       const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
-      
+
       // Transfer and convert
       await this.rubyEth.transfer(this.rubyMaker.address, getBigNumber(1));
       await this.rubyMaker.convert(this.ruby.address, this.weth.address);
 
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+
       // Assert
-      await assertRubyConversion(this, burnPercent, this.rubyEth, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.rubyEth,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("should convert USDC - ETH", async function () {
-
       const rubyConvertedAmount = BigNumber.from("1590898251382934275");
 
       // Get supply before conversion
@@ -171,15 +172,20 @@ describe("RubyMaker", function () {
       await this.rubyMaker.convert(this.usdc.address, this.weth.address);
 
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
-      // Assert
-      await assertRubyConversion(this, burnPercent, this.usdcEth, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
 
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.usdcEth,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("should convert $TRDL - ETH", async function () {
-
       const rubyConvertedAmount = BigNumber.from("1590898251382934275");
 
       // Get supply before conversion
@@ -190,11 +196,17 @@ describe("RubyMaker", function () {
       await this.rubyMaker.convert(this.strudel.address, this.weth.address);
 
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
-      // Assert
-      await assertRubyConversion(this, burnPercent, this.strudelEth, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
 
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.strudelEth,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("should convert USDC - RUBY", async function () {
@@ -206,16 +218,22 @@ describe("RubyMaker", function () {
       // Transfer and convert
       await this.rubyUSDC.transfer(this.rubyMaker.address, getBigNumber(1));
       await this.rubyMaker.convert(this.usdc.address, this.ruby.address);
-      
+
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+
       // Assert
-      await assertRubyConversion(this, burnPercent, this.rubyUSDC, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.rubyUSDC,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("should convert using standard ETH path", async function () {
-
       const rubyConvertedAmount = BigNumber.from("1590898251382934275");
 
       // Get supply before conversion
@@ -226,16 +244,20 @@ describe("RubyMaker", function () {
       await this.rubyMaker.convert(this.dai.address, this.weth.address);
 
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+
       // Assert
-      await assertRubyConversion(this, burnPercent, this.daiEth, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
-
-
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.daiEth,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("converts MIC/USDC using more complex path", async function () {
-
       const rubyConvertedAmount = BigNumber.from("1590898251382934275");
 
       // Get supply before conversion
@@ -248,14 +270,20 @@ describe("RubyMaker", function () {
       await this.rubyMaker.convert(this.mic.address, this.usdc.address);
 
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+
       // Assert
-      await assertRubyConversion(this, burnPercent, this.micUSDC, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.micUSDC,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("converts DAI/USDC using more complex path", async function () {
-
       const rubyConvertedAmount = BigNumber.from("1590898251382934275");
       // Get supply before conversion
       const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
@@ -267,11 +295,17 @@ describe("RubyMaker", function () {
       await this.rubyMaker.convert(this.dai.address, this.usdc.address);
 
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+
       // Assert
-      await assertRubyConversion(this, burnPercent, this.daiUSDC, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
-      
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.daiUSDC,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("converts DAI/MIC using two step path", async function () {
@@ -286,11 +320,17 @@ describe("RubyMaker", function () {
       await this.rubyMaker.convert(this.dai.address, this.mic.address);
 
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
-      // Assert
-      await assertRubyConversion(this, burnPercent, this.daiMIC, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
 
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.daiMIC,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
     });
 
     it("reverts if it loops back", async function () {
@@ -326,7 +366,6 @@ describe("RubyMaker", function () {
 
   describe("convertMultiple", function () {
     it("should allow to convert multiple", async function () {
-
       const rubyConvertedAmount = BigNumber.from("3186583558687783097");
       // Get supply before conversion
       const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
@@ -338,12 +377,19 @@ describe("RubyMaker", function () {
         [this.dai.address, this.ruby.address],
         [this.weth.address, this.weth.address],
       );
-        
+
       // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply()
-  
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+
       // Assert
-      await assertRubyConversion(this, burnPercent, this.daiEth, rubyConvertedAmount, rubyTotalSupplyBeforeConvert, rubyTotalSupplyAfterConvert);
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.daiEth,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
       expect(await this.rubyEth.balanceOf(this.rubyMaker.address)).to.equal(0);
     });
   });

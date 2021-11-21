@@ -8,11 +8,10 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 /**
  * @title RubyToken with Governance
  * @notice This version of the RubyToken is to be used on the SChain
- * It features access control needed for the IMA TokenManager contract (bridging), 
+ * It features access control needed for the IMA TokenManager contract (bridging),
  * and also for the RubyMaker contract (distribute and burn mechanism)
  */
 contract RubyToken is ERC20Capped, AccessControl {
-
     /// @notice Access control roles for the IMA TokenManager
     bytes32 public constant MINTER_ROLE_IMA = keccak256("MINTER_ROLE_IMA");
     bytes32 public constant BURNER_ROLE_IMA = keccak256("BURNER_ROLE_IMA");
@@ -21,14 +20,12 @@ contract RubyToken is ERC20Capped, AccessControl {
     /// The RubyMaker contract should be able to burn tokens from the RubyBar (distribute and burn mechanism).
     bytes32 public constant BURNER_FROM_ROLE_MAKER = keccak256("BURNER_ROLE");
 
-
     /// @notice Total number of tokens
     uint256 public constant MAX_SUPPLY = 200_000_000e18; // 200 million Ruby
 
-    constructor () ERC20("RubyToken", "Ruby") ERC20Capped(MAX_SUPPLY) public {
+    constructor() public ERC20("RubyToken", "Ruby") ERC20Capped(MAX_SUPPLY) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
-
 
     /// @notice Creates `amount` token to `to`. Must only be called by the IMA TokenManager contract
     function mint(address to, uint256 amount) public {
@@ -50,8 +47,11 @@ contract RubyToken is ERC20Capped, AccessControl {
     /// The appropriate allowance needs to be set to the RubyMaker for the RubyBar RUBY tokens.
     function burnFrom(address account, uint256 amount) public virtual {
         require(hasRole(BURNER_FROM_ROLE_MAKER, msg.sender), "RUBY::burnFrom: Caller is not a burner");
-        
-        uint256 decreasedAllowance = allowance(account, msg.sender).sub(amount, "RUBY::burnFrom: burn amount exceeds allowance");
+
+        uint256 decreasedAllowance = allowance(account, msg.sender).sub(
+            amount,
+            "RUBY::burnFrom: burn amount exceeds allowance"
+        );
 
         _approve(account, msg.sender, decreasedAllowance);
         _burn(account, amount);
