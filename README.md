@@ -79,6 +79,10 @@ or
 
 `yarn deploy --tags StableSwap`
 
+##### Ruby router:
+
+1. `yarn deploy --tags RubyRouter`
+
 ##### Utils:
 
 1. `yarn deploy --tags Multicall2`
