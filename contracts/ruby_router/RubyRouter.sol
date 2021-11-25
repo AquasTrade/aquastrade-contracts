@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../amm/interfaces/IUniswapV2Router02.sol";
+import "../amm/libraries/TransferHelper.sol";
+import "../amm/libraries/UniswapV2Library.sol";
 import "../stable_swap/interfaces/ISwap.sol";
 
 import { SwapType, AMMSwapType, AMMSwapDetails, StableSwapDetails, SwapDetails } from "./RoutingUtils.sol";
@@ -46,6 +48,8 @@ contract RubyRouter is OwnableUpgradeable {
     function swap(SwapDetails calldata swapDetails) public returns (uint256 outputAmount) {
         require(swapDetails.order.length <= _maxSwapHops, "Invalid number of swap calls");
 
+        _handleInputToken(swapDetails);
+
         for (uint256 i = 0; i < swapDetails.order.length; i++) {
             require(
                 swapDetails.order[i] == SwapType.AMM || swapDetails.order[i] == SwapType.STABLE_POOL,
@@ -58,6 +62,64 @@ contract RubyRouter is OwnableUpgradeable {
                 outputAmount = _swapStablePool(swapDetails.stableSwaps[i]);
             }
         }
+
+        _handleOutputToken(swapDetails, outputAmount);
+    }
+
+    // Approves and transfers the input token to the AMM Router or the StableSwap pool
+    function _handleInputToken(SwapDetails calldata swapDetails) private {
+        address tokenInAddr;
+        uint256 amountIn;
+
+        if (swapDetails.order[0] == SwapType.AMM) {
+            uint256[] memory amounts;
+            if (swapDetails.ammSwaps[0].swapType == AMMSwapType.EXACT_TOKENS_FOR_TOKENS) {
+                amounts = UniswapV2Library.getAmountsOut(
+                    ammRouter.factory(),
+                    swapDetails.ammSwaps[0].amountIn,
+                    swapDetails.ammSwaps[0].path
+                );
+            } else {
+                amounts = UniswapV2Library.getAmountsIn(
+                    ammRouter.factory(),
+                    swapDetails.ammSwaps[0].amountOut,
+                    swapDetails.ammSwaps[0].path
+                );
+            }
+            tokenInAddr = swapDetails.ammSwaps[0].path[0];
+            amountIn = amounts[0];
+        } else {
+            //StableSwap
+            ISwap stablePool = ISwap(swapDetails.stableSwaps[0].stablePool);
+            require(enabledStablePools[stablePool], "RubyRouter: The stable pool is not enabled");
+            tokenInAddr = address(stablePool.getToken(swapDetails.stableSwaps[0].tokenIndexFrom));
+            amountIn = swapDetails.stableSwaps[0].dx;
+        }
+
+        IERC20 tokenIn = IERC20(tokenInAddr);
+        tokenIn.safeIncreaseAllowance(address(ammRouter), amountIn);
+        tokenIn.safeTransferFrom(msg.sender, address(this), amountIn);
+    }
+
+    // Transfers the output token back to the user
+    function _handleOutputToken(SwapDetails calldata swapDetails, uint256 amountOut) private {
+        address tokenOutAddr;
+
+        uint256 lastHopIndex = swapDetails.order.length - 1;
+        if (swapDetails.order[lastHopIndex] == SwapType.AMM) {
+            uint256 lastAmmSwapIndex = swapDetails.ammSwaps.length - 1;
+            uint256 lastTokenIndex = swapDetails.ammSwaps[lastAmmSwapIndex].path.length - 1;
+
+            tokenOutAddr = swapDetails.ammSwaps[lastAmmSwapIndex].path[lastTokenIndex];
+        } else {
+            //StableSwap
+            uint256 lastStableSwapIndex = swapDetails.stableSwaps.length - 1;
+            ISwap stablePool = ISwap(swapDetails.stableSwaps[lastStableSwapIndex].stablePool);
+            tokenOutAddr = address(stablePool.getToken(swapDetails.stableSwaps[lastStableSwapIndex].tokenIndexTo));
+        }
+
+        IERC20 tokenOut = IERC20(tokenOutAddr);
+        tokenOut.safeTransfer(msg.sender, amountOut);
     }
 
     function _swapAmm(AMMSwapDetails calldata swapDetails) private returns (uint256 outputAmount) {
@@ -69,16 +131,16 @@ contract RubyRouter is OwnableUpgradeable {
         uint256[] memory outputAmounts;
         if (swapDetails.swapType == AMMSwapType.EXACT_TOKENS_FOR_TOKENS) {
             outputAmounts = ammRouter.swapExactTokensForTokens(
-                swapDetails.amount0,
-                swapDetails.amount1,
+                swapDetails.amountIn,
+                swapDetails.amountOut,
                 swapDetails.path,
                 swapDetails.to,
                 swapDetails.deadline
             );
         } else {
             outputAmounts = ammRouter.swapTokensForExactETH(
-                swapDetails.amount0,
-                swapDetails.amount1,
+                swapDetails.amountOut,
+                swapDetails.amountIn,
                 swapDetails.path,
                 swapDetails.to,
                 swapDetails.deadline

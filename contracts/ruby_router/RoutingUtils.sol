@@ -13,8 +13,8 @@ enum AMMSwapType {
 
 struct AMMSwapDetails {
     AMMSwapType swapType;
-    uint256 amount0;
-    uint256 amount1;
+    uint256 amountIn;
+    uint256 amountOut;
     address[] path;
     address to;
     uint256 deadline;
