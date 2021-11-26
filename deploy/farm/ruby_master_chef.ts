@@ -6,12 +6,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer, treasury } = await getNamedAccounts();
 
-  const RUBY_TOKEN_ADDRESS_SCHAIN = ""; // Ruby token address on the SChain
+  const RUBY_TOKEN_ADDRESS = "0x0165878a594ca255338adfa4d48449f69242eb8f"; // Ruby token address on the SChain
 
   const { address } = await deploy("RubyMasterChef", {
     from: deployer,
     args: [
-      RUBY_TOKEN_ADDRESS_SCHAIN,
+      RUBY_TOKEN_ADDRESS,
       treasury,
       "10000000000000000000", // 10 RUBY per sec
       "1631948400", // Sat Sep 18 09:00

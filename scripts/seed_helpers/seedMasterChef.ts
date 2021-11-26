@@ -6,7 +6,7 @@ import { RubyMasterChef, UniswapV2Factory } from "../../typechain";
 const masterChefAddr = require(`../deployments/${network.name}/RubyMasterChef.json`).address;
 const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.json`).address;
 
-const rubyAddr = require(`../deployments/${network.name}/RubyToken.json`).address;
+const rubyAddr = require(`../deployments/${network.name}/RubyTokenMainnet.json`).address;
 const usdcAddr = require(`../deployments/${network.name}/MockUSDC.json`).address;
 const usdtAddr = require(`../deployments/${network.name}/MockUSDT.json`).address;
 const usdpAddr = require(`../deployments/${network.name}/MockUSDP.json`).address;

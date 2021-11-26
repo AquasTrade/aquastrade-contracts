@@ -9,6 +9,7 @@ import "../amm/interfaces/IUniswapV2Router02.sol";
 import "../amm/libraries/TransferHelper.sol";
 import "../amm/libraries/UniswapV2Library.sol";
 import "../stable_swap/interfaces/ISwap.sol";
+import "hardhat/console.sol";
 
 import { SwapType, AMMSwapType, AMMSwapDetails, StableSwapDetails, SwapDetails } from "./RoutingUtils.sol";
 
@@ -47,9 +48,12 @@ contract RubyRouter is OwnableUpgradeable {
 
     function swap(SwapDetails calldata swapDetails) public returns (uint256 outputAmount) {
         require(swapDetails.order.length <= _maxSwapHops, "Invalid number of swap calls");
-
+        console.log("Swapping tokens...");
         _handleInputToken(swapDetails);
 
+        console.log("Input token handled...");
+        uint256 ammSwapIndex = 0;
+        uint256 stableSwapIndex = 0;
         for (uint256 i = 0; i < swapDetails.order.length; i++) {
             require(
                 swapDetails.order[i] == SwapType.AMM || swapDetails.order[i] == SwapType.STABLE_POOL,
@@ -57,16 +61,25 @@ contract RubyRouter is OwnableUpgradeable {
             );
 
             if (swapDetails.order[i] == SwapType.AMM) {
-                outputAmount = _swapAmm(swapDetails.ammSwaps[i]);
+                console.log("Performing amm swap...");
+                outputAmount = _swapAmm(swapDetails.ammSwaps[ammSwapIndex]);
+                console.log("Amm swap done, output amount: %s", outputAmount);
+                ammSwapIndex++;
             } else {
-                outputAmount = _swapStablePool(swapDetails.stableSwaps[i]);
+                console.log("Performing stable swap...");
+                outputAmount = _swapStablePool(swapDetails.stableSwaps[stableSwapIndex]);
+                console.log("Stable swap done, output amount: %s", outputAmount);
+                stableSwapIndex++;
             }
         }
 
+        console.log("Handling output token");
         _handleOutputToken(swapDetails, outputAmount);
+        console.log("Output token handled");
     }
 
     // Approves and transfers the input token to the AMM Router or the StableSwap pool
+    // TODO: Handle approval better...
     function _handleInputToken(SwapDetails calldata swapDetails) private {
         address tokenInAddr;
         uint256 amountIn;

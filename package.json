@@ -102,7 +102,10 @@
     "bridgeL1tokens": "hardhat run scripts/bridging/bridgeERC20s.ts --network rinkeby",
     "bridgeL2tokens": "hardhat run scripts/bridging/bridgeERC20s.ts --network skaleTestnet",
     "communityLocker": "hardhat run scripts/debugging/communityLocker.ts --network skaleTestnet",
-    "debugStableSwap": "hardhat run scripts/stable_swap/debug.ts --network localhost"
+    "debugStableSwap": "hardhat run scripts/stable_swap/debug.ts --network localhost",
+    "createRubyUsdcLP": "hardhat run scripts/seed_helpers/createRubyUsdcLP.ts --network localhost",
+    "createRubyUsdStablePool": "hardhat run scripts/stable_swap/createRubyUsdStablePool.ts --network localhost",
+    "debugRubyRouter": "hardhat run scripts/ruby_router/debug.ts --network localhost"
   },
   "files": [
     "/contracts"
