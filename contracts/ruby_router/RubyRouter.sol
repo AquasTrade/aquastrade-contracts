@@ -110,7 +110,6 @@ contract RubyRouter is OwnableUpgradeable {
         }
 
         IERC20 tokenIn = IERC20(tokenInAddr);
-        tokenIn.safeIncreaseAllowance(address(ammRouter), amountIn);
         tokenIn.safeTransferFrom(msg.sender, address(this), amountIn);
     }
 
@@ -142,6 +141,9 @@ contract RubyRouter is OwnableUpgradeable {
             "RubyRouter: Invalid AMM swap type"
         );
         uint256[] memory outputAmounts;
+
+        _increaseTokenAllowance(swapDetails.path[0], address(ammRouter), swapDetails.amountIn);
+
         if (swapDetails.swapType == AMMSwapType.EXACT_TOKENS_FOR_TOKENS) {
             outputAmounts = ammRouter.swapExactTokensForTokens(
                 swapDetails.amountIn,
@@ -163,7 +165,12 @@ contract RubyRouter is OwnableUpgradeable {
     }
 
     function _swapStablePool(StableSwapDetails calldata swapDetails) private returns (uint256 outputAmount) {
-        require(enabledStablePools[ISwap(swapDetails.stablePool)], "RubyRouter: The stable pool is not enabled");
+        ISwap stablePool = ISwap(swapDetails.stablePool);
+        require(enabledStablePools[stablePool], "RubyRouter: The stable pool is not enabled");
+
+        address tokenAddress = address(stablePool.getToken(swapDetails.tokenIndexFrom));
+        _increaseTokenAllowance(tokenAddress, swapDetails.stablePool, swapDetails.dx);
+
         outputAmount = ISwap(swapDetails.stablePool).swap(
             swapDetails.tokenIndexFrom,
             swapDetails.tokenIndexTo,
@@ -171,6 +178,20 @@ contract RubyRouter is OwnableUpgradeable {
             swapDetails.minDy,
             swapDetails.deadline
         );
+    }
+
+    function _increaseTokenAllowance(
+        address token,
+        address spender,
+        uint256 amountIn
+    ) private {
+        IERC20 tokenIn = IERC20(token);
+        uint256 tokenAllowance = tokenIn.allowance(address(this), spender);
+        console.log("token allowance...", tokenAllowance, spender);
+        if (tokenAllowance < amountIn) {
+            console.log("increasing tokenAllowance...");
+            tokenIn.safeIncreaseAllowance(spender, amountIn);
+        }
     }
 
     function enableStablePool(ISwap stablePool) public onlyOwner {

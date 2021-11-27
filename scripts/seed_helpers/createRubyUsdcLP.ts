@@ -40,8 +40,6 @@ const addLiquidity = async (
   }
 };
 
-
-
 const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
   const pairLength = (await factory.allPairsLength()).toNumber();
 
@@ -108,18 +106,18 @@ const main = async () => {
   const amountRubyUsdcLPusdc = ethers.utils.parseUnits("50000000", 6); // 50 mil
 
   // RUBY-USDC
-  console.log("ruby addr", rubyAddr)
-  console.log("usdc addr", usdcAddr)
-  await addLiquidity(rubyAddr, usdcAddr, amountRubyUsdcLPruby, amountRubyUsdcLPusdc, deployer.address, deadline);
+  console.log("ruby addr", rubyAddr);
+  console.log("usdc addr", usdcAddr);
+  // await addLiquidity(rubyAddr, usdcAddr, amountRubyUsdcLPruby, amountRubyUsdcLPusdc, deployer.address, deadline);
 
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
-//   const result = await factory.createPair(rubyAddr, usdcAddr);
-//   await result.wait(1);
+  //   const result = await factory.createPair(rubyAddr, usdcAddr);
+  //   await result.wait(1);
   const pair = await factory.getPair(rubyAddr, usdcAddr);
-// console.log("Factory addr pair", pair);
-//   await debugPairs(factory, deployer.address);
+  console.log("Factory addr pair", pair);
+  //   await debugPairs(factory, deployer.address);
 
-//   await writeRubyPoolAddrs(factory);
+  //   await writeRubyPoolAddrs(factory);
 };
 
 main()

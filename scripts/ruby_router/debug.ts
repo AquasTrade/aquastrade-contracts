@@ -2,22 +2,39 @@
 import fs from "fs";
 import { ethers, network } from "hardhat";
 
-import { Swap, LPToken, MockUSDC, MockUSDP, MockUSDT, RubyUSDC, RubyUSDP, RubyUSDT, ERC20, RubyRouter, RubyTokenMainnet, RubyToken, UniswapV2Router02 } from "../../typechain";
+import {
+  Swap,
+  LPToken,
+  MockUSDC,
+  MockUSDP,
+  MockUSDT,
+  RubyUSDC,
+  RubyUSDP,
+  RubyUSDT,
+  ERC20,
+  RubyRouter,
+  RubyTokenMainnet,
+  RubyToken,
+  UniswapV2Router02,
+  IUniswapV2Pair,
+} from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { BigNumber } from "ethers";
 
 const rubyUsdPoolAddr = require(`../../deployments/${network.name}/RubyUSDPool.json`).address;
 const rubyRouterAddr = require(`../../deployments/${network.name}/RubyRouter.json`).address;
 const ammRouterAddr = require(`../../deployments/${network.name}/UniswapV2Router02.json`).address;
+const rubyUsdPoolLpTokenAddr = require(`../../deployments/${network.name}/RubyUSDPoolLPToken.json`).address;
+const rubyUsdcAmmLpAddr = "0x8D5C1A588DA7C2aCD649F5826f085552A589200b";
 
 enum SwapType {
-    AMM,
-    STABLE_POOL
+  AMM,
+  STABLE_POOL,
 }
 
 enum AMMSwapType {
-    EXACT_TOKENS_FOR_TOKENS,
-    TOKENS_FOR_EXACT_TOKENS
+  EXACT_TOKENS_FOR_TOKENS,
+  TOKENS_FOR_EXACT_TOKENS,
 }
 
 let usdcAddr: any;
@@ -55,7 +72,12 @@ const main = async () => {
 
   const rubyRouter: RubyRouter = (await ethers.getContractAt("RubyRouter", rubyRouterAddr)) as RubyRouter;
   const rubyUsdPool: Swap = (await ethers.getContractAt("Swap", rubyUsdPoolAddr)) as Swap;
-  const ammRouter: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", ammRouterAddr)) as UniswapV2Router02;
+  const ammRouter: UniswapV2Router02 = (await ethers.getContractAt(
+    "UniswapV2Router02",
+    ammRouterAddr,
+  )) as UniswapV2Router02;
+  const rubyUsdPoolLpToken: LPToken = (await ethers.getContractAt("LPToken", rubyUsdPoolLpTokenAddr)) as LPToken;
+
   let usdc;
   let usdp;
   let usdt;
@@ -84,7 +106,6 @@ const main = async () => {
   const usdcAmount = ethers.utils.parseUnits("5000", 6);
   const usdpAmount = ethers.utils.parseUnits("5000", 6);
 
-
   const blockNumber = await ethers.provider.getBlockNumber();
   const blockData = await ethers.provider.getBlock(blockNumber);
   const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
@@ -96,31 +117,50 @@ const main = async () => {
   const usdpTokenIndex = await rubyUsdPool.getTokenIndex(usdpAddr);
   const usdpAmountOut = await rubyUsdPool.calculateSwap(usdcTokenIndex, usdpTokenIndex, usdcAmountIn);
 
-  // TODO: Continue here
-  const swapDetails = {
-    ammSwaps: [{
-        swapType: AMMSwapType.EXACT_TOKENS_FOR_TOKENS, 
-        amountIn: rubyAmount,
-        amountOut: usdcAmountIn,
-        path: [rubyAddr, usdcAddr], 
-        to: rubyRouterAddr, 
-        deadline: deadline
-    }
-    ],
-    stableSwaps: [{
-        stablePool: rubyUsdPoolAddr,
-        tokenIndexFrom: usdcTokenIndex,
-        tokenIndexTo: usdpTokenIndex,
-        dx: usdcAmountIn,
-        minDy: usdpAmountOut,
-        deadline: deadline
-    }],
-    order: [SwapType.AMM, SwapType.STABLE_POOL]
-  };
+  // const swapDetails = {
+  //   ammSwaps: [{
+  //       swapType: AMMSwapType.EXACT_TOKENS_FOR_TOKENS,
+  //       amountIn: rubyAmount,
+  //       amountOut: usdcAmountIn,
+  //       path: [rubyAddr, usdcAddr],
+  //       to: rubyRouterAddr,
+  //       deadline: deadline
+  //   }
+  //   ],
+  //   stableSwaps: [{
+  //       stablePool: rubyUsdPoolAddr,
+  //       tokenIndexFrom: usdcTokenIndex,
+  //       tokenIndexTo: usdpTokenIndex,
+  //       dx: usdcAmountIn,
+  //       minDy: usdpAmountOut,
+  //       deadline: deadline
+  //   }],
+  //   order: [SwapType.AMM, SwapType.STABLE_POOL]
+  // };
 
-  await rubyRouter.swap(swapDetails);
+  // await rubyRouter.swap(swapDetails);
 
+  let rubyRouterlUsdpAmount = await usdp?.balanceOf(rubyRouter.address);
+  let rubyRouterUsdcAmount = await usdc?.balanceOf(rubyRouter.address);
+  let rubyRouterRubyAmount = await ruby?.balanceOf(rubyRouter.address);
 
+  console.log("rubyRouterlUsdpAmount", ethers.utils.formatUnits(<BigNumber>rubyRouterlUsdpAmount, 18));
+  console.log("rubyRouterUsdcAmount", ethers.utils.formatUnits(<BigNumber>rubyRouterUsdcAmount, 6));
+  console.log("rubyRouterRubyAmount", ethers.utils.formatUnits(<BigNumber>rubyRouterRubyAmount, 18));
+
+  let rubyUsdPoolBalanceUSDC = await usdc?.balanceOf(rubyUsdPoolAddr);
+  let rubyUsdPoolBalanceUSDP = await usdp?.balanceOf(rubyUsdPoolAddr);
+  let rubyUsdPoolBalanceUSDT = await usdt?.balanceOf(rubyUsdPoolAddr);
+
+  console.log("rubyUsdPoolBalanceUSDC", ethers.utils.formatUnits(<BigNumber>rubyUsdPoolBalanceUSDC, 6));
+  console.log("rubyUsdPoolBalanceUSDP", ethers.utils.formatUnits(<BigNumber>rubyUsdPoolBalanceUSDP, 18));
+  console.log("rubyUsdPoolBalanceUSDT", ethers.utils.formatUnits(<BigNumber>rubyUsdPoolBalanceUSDT, 6));
+
+  let rubyUsdcAmmBalanceUSDC = await usdc?.balanceOf(rubyUsdcAmmLpAddr);
+  let rubyUsdcAmmBalanceRUBY = await ruby?.balanceOf(rubyUsdcAmmLpAddr);
+
+  console.log("rubyUsdcAmmBalanceUSDC", ethers.utils.formatUnits(<BigNumber>rubyUsdcAmmBalanceUSDC, 6));
+  console.log("rubyUsdcAmmBalanceRUBY", ethers.utils.formatUnits(<BigNumber>rubyUsdcAmmBalanceRUBY, 18));
 };
 
 main()

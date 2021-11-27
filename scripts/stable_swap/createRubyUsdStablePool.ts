@@ -30,7 +30,6 @@ const addLiquidity = async (pool: Swap, amounts: BigNumber[], minToMint: BigNumb
   console.log("Liquidity to pool added successfully");
 };
 
-
 const approveTokens = async (tokens: any[], poolAddr: string, amount: BigNumber) => {
   for (let token of tokens) {
     console.log("Aprooving token...");
@@ -81,12 +80,11 @@ const main = async () => {
   let rubyUsdPoolBalanceUSDT = await usdt?.balanceOf(rubyUsdPoolAddr);
 
   let userLpTokenAmount = await rubyUsdPoolLpToken.balanceOf(deployer.address);
-  console.log("USER LP TOKEN AMOUNT", ethers.utils.formatUnits(userLpTokenAmount, 18))
+  console.log("USER LP TOKEN AMOUNT", ethers.utils.formatUnits(userLpTokenAmount, 18));
 
   console.log("RUBY USD POOL BALANCE USDC", ethers.utils.formatUnits(<BigNumber>rubyUsdPoolBalanceUSDC, 6));
   console.log("RUBY USD POOL BALANCE USDT", ethers.utils.formatUnits(<BigNumber>rubyUsdPoolBalanceUSDT, 6));
   console.log("RUBY USD POOL BALANCE USDP", ethers.utils.formatUnits(<BigNumber>rubyUsdPoolBalanceUSDP, 18));
-
 };
 
 main()
