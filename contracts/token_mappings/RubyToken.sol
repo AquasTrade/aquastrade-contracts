@@ -13,12 +13,12 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
  */
 contract RubyToken is ERC20Capped, AccessControl {
     /// @notice Access control roles for the IMA TokenManager
-    bytes32 public constant MINTER_ROLE_IMA = keccak256("MINTER_ROLE_IMA");
-    bytes32 public constant BURNER_ROLE_IMA = keccak256("BURNER_ROLE_IMA");
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     /// @notice Burner role for the RubyMaker.
     /// The RubyMaker contract should be able to burn tokens from the RubyBar (distribute and burn mechanism).
-    bytes32 public constant BURNER_FROM_ROLE_MAKER = keccak256("BURNER_ROLE");
+    bytes32 public constant BURNER_FROM_ROLE_MAKER = keccak256("BURNER_FROM_ROLE_MAKER");
 
     /// @notice Total number of tokens
     uint256 public constant MAX_SUPPLY = 200_000_000e18; // 200 million Ruby
@@ -29,7 +29,7 @@ contract RubyToken is ERC20Capped, AccessControl {
 
     /// @notice Creates `amount` token to `to`. Must only be called by the IMA TokenManager contract
     function mint(address to, uint256 amount) public {
-        require(hasRole(MINTER_ROLE_IMA, msg.sender), "RUBY::mint: Caller is not a minter");
+        require(hasRole(MINTER_ROLE, msg.sender), "RUBY::mint: Caller is not a minter");
         require(totalSupply().add(amount) <= MAX_SUPPLY, "RUBY::mint: Cannot exceed max supply.");
         _mint(to, amount);
         _moveDelegates(address(0), _delegates[to], amount);
@@ -37,7 +37,7 @@ contract RubyToken is ERC20Capped, AccessControl {
 
     /// @notice Destroys `amount` of RUBY tokens from the msg.sender. Must only be called by the IMA TokenManager contract
     function burn(uint256 amount) public virtual {
-        require(hasRole(BURNER_ROLE_IMA, msg.sender), "RUBY::burn: Caller is not a burner");
+        require(hasRole(BURNER_ROLE, msg.sender), "RUBY::burn: Caller is not a burner");
         _burn(msg.sender, amount);
         _moveDelegates(msg.sender, address(0), amount);
     }

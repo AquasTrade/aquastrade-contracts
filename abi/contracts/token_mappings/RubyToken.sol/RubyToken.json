@@ -194,7 +194,7 @@
   },
   {
     "inputs": [],
-    "name": "BURNER_ROLE_IMA",
+    "name": "BURNER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -259,7 +259,7 @@
   },
   {
     "inputs": [],
-    "name": "MINTER_ROLE_IMA",
+    "name": "MINTER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",

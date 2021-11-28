@@ -18,8 +18,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const tokenManagerErc20Address = imaL2Artifacts.token_manager_erc20_address;
 
   const tokenContract = await ethers.getContract("RubyToken");
-  const minterRole = await tokenContract.MINTER_ROLE_IMA();
-  const burnerRole = await tokenContract.BURNER_ROLE_IMA();
+  const minterRole = await tokenContract.MINTER_ROLE();
+  const burnerRole = await tokenContract.BURNER_ROLE();
   const adminRole = await tokenContract.DEFAULT_ADMIN_ROLE();
 
   if ((await tokenContract.hasRole(minterRole, tokenManagerErc20Address)) === false) {
@@ -34,11 +34,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   // Check roles
   console.log(
-    "TokenManagerErc20 has MINTER_ROLE_IMA:",
+    "TokenManagerErc20 has MINTER_ROLE:",
     await tokenContract.hasRole(minterRole, tokenManagerErc20Address),
   );
   console.log(
-    "TokenManagerErc20 has BURNER_ROLE_IMA:",
+    "TokenManagerErc20 has BURNER_ROLE:",
     await tokenContract.hasRole(burnerRole, tokenManagerErc20Address),
   );
   console.log("Deployer has DEFAULT_ADMIN_ROLE: ", await tokenContract.hasRole(adminRole, deployer));
