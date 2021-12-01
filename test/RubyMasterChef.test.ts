@@ -1,7 +1,10 @@
 const { ethers, network } = require("hardhat");
 import { expect } from "chai";
+import { BigNumber } from "ethers";
 import { ADDRESS_ZERO, advanceTimeAndBlock, latest } from "./utilities";
 
+
+// TODO: Tests to be updated
 describe("RubyMasterChef", function () {
   before(async function () {
     this.signers = await ethers.getSigners();
@@ -38,6 +41,7 @@ describe("RubyMasterChef", function () {
     this.ruby = await this.RubyToken.deploy(); // b=1
     await this.ruby.deployed();
 
+
     this.partnerToken = await this.SushiToken.deploy(); // b=2
     await this.partnerToken.deployed();
   });
@@ -62,16 +66,12 @@ describe("RubyMasterChef", function () {
     );
     await this.chef.deployed();
 
-    await this.ruby.transferOwnership(this.chef.address);
-
     const ruby = await this.chef.ruby();
     const treasuryAddr = await this.chef.treasuryAddr();
-    const owner = await this.ruby.owner();
     const treasuryPercent = await this.chef.treasuryPercent();
 
     expect(ruby).to.equal(this.ruby.address);
     expect(treasuryAddr).to.equal(this.treasury.address);
-    expect(owner).to.equal(this.chef.address);
     expect(treasuryPercent).to.equal(this.treasuryPercent);
   });
 
@@ -88,7 +88,7 @@ describe("RubyMasterChef", function () {
 
     await expect(
       this.chef.connect(this.bob).setTreasuryAddr(this.bob.address, { from: this.bob.address }),
-    ).to.be.revertedWith("setTreasuryAddr: wut?");
+    ).to.be.revertedWith("setTreasuryAddr: not enough permissions to execute this action");
 
     await this.chef.connect(this.treasury).setTreasuryAddr(this.bob.address, { from: this.treasury.address });
     expect(await this.chef.treasuryAddr()).to.equal(this.bob.address);
@@ -249,7 +249,9 @@ describe("RubyMasterChef", function () {
 
       await this.partnerToken.mint(this.rewarder.address, "80"); // t-57
 
-      await this.ruby.transferOwnership(this.chef.address); // t-56
+      // await this.ruby.transfer(this.chef.address, ethers.utils.parseUnits("10000")); // t-56
+      await advanceTimeAndBlock(1); // t-56
+
 
       await this.chef.add("100", this.lp.address, this.rewarder.address); // t-55
 
@@ -296,7 +298,7 @@ describe("RubyMasterChef", function () {
 
       await this.partnerToken.mint(this.rewarder.address, "1000000000000000000000000"); // t-57
 
-      await this.ruby.transferOwnership(this.chef.address); // t-56
+      await advanceTimeAndBlock(1); // t-56
 
       await this.chef.add("100", this.lp.address, this.rewarder.address); // t-55
 
@@ -336,7 +338,7 @@ describe("RubyMasterChef", function () {
 
       await this.partnerToken.mint(this.rewarder.address, "1000000000000000000000000"); // t-57
 
-      await this.ruby.transferOwnership(this.chef.address); // t-56
+      await this.ruby.transfer(this.chef.address, ethers.utils.parseUnits("10000")); // t-56
 
       await this.chef.add("100", this.lp.address, ADDRESS_ZERO); // t-55
 
