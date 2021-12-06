@@ -48,7 +48,7 @@ contract RubyMasterChef is Ownable {
     }
 
     // The RUBY TOKEN!
-    RubyToken public ruby;
+    IERC20 public ruby;
     // Treasury address.
     address public treasuryAddr;
     // RUBY tokens created per second.
@@ -82,9 +82,10 @@ contract RubyMasterChef is Ownable {
     event SetTreasuryAddress(address indexed oldAddress, address indexed newAddress);
     event SetTreasuryPercent(uint256 newPercent);
     event UpdateEmissionRate(address indexed user, uint256 _rubyPerSec);
+    event RubyEmergencyWithdrawal(address indexed to, uint256 amount);
 
     constructor(
-        RubyToken _ruby,
+        IERC20 _ruby,
         address _treasuryAddr,
         uint256 _rubyPerSec,
         uint256 _startTimestamp,
@@ -290,25 +291,31 @@ contract RubyMasterChef is Ownable {
 
     /**
      * @notice Owner should be able to withdraw all the RubyTokens in case of emergency.
+     * The owner should be able to withdraw the tokens to himself or another address
      * The RubyMasterChef contract will be placed behind a timelock, and the owner/deployer will be a multisig,
      * so this should not raise trust concerns.
      * This function is needed because the RubyMasterChef will be pre-fed with all of the Ruby tokens dedicated
      * for liquidity mining incentives, and incase of unfortunate situation they should be retreived.
      */
-    function emergencyWithdrawRubyTokens() public onlyOwner {
-        uint256 rubyBalance = ruby.balanceOf(address(this));
-        ruby.transfer(msg.sender, rubyBalance);
+    function emergencyWithdrawRubyTokens(address to, uint256 amount) public onlyOwner {
+        require(to != address(0), "emergencyWithdrawRubyTokens: Invalid withdrawal address.");
+        require(amount != 0, "emergencyWithdrawRubyTokens: Invalid input amount.");
+        uint256 amountTransfered = safeRubyTransfer(to, amount);
+        emit RubyEmergencyWithdrawal(to, amountTransfered);
     }
 
     // Safe ruby transfer function, just in case if rounding error causes pool to not have enough RUBYs.
-    function safeRubyTransfer(address _to, uint256 _amount) internal {
+    function safeRubyTransfer(address _to, uint256 _amount) internal returns (uint256 amountTransfered) {
         uint256 rubyBal = ruby.balanceOf(address(this));
         if (_amount > rubyBal) {
-            ruby.transfer(_to, rubyBal);
+            ruby.safeTransfer(_to, rubyBal);
+            amountTransfered = rubyBal;
         } else {
-            ruby.transfer(_to, _amount);
+            ruby.safeTransfer(_to, _amount);
+            amountTransfered = _amount;
         }
     }
+
 
     // Update treasury address by the previous treasury.
     function setTreasuryAddr(address _treasuryAddr) public {
@@ -330,4 +337,5 @@ contract RubyMasterChef is Ownable {
         rubyPerSec = _rubyPerSec;
         emit UpdateEmissionRate(msg.sender, _rubyPerSec);
     }
+
 }
