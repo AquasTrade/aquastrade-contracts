@@ -2,11 +2,17 @@ import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { ethers, deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
+  const { ethers, deployments, getNamedAccounts, network } = hre;
+  const { deploy, get } = deployments;
   const { deployer, treasury } = await getNamedAccounts();
 
-  const RUBY_TOKEN_ADDRESS = "0x0165878a594ca255338adfa4d48449f69242eb8f"; // Ruby token address on the SChain
+  let RUBY_TOKEN_ADDRESS = ""
+  if(network.name === 'localhost') {
+    RUBY_TOKEN_ADDRESS = (await get("RubyTokenMintable")).address; // Ruby token address on Localhost
+  } else {
+    RUBY_TOKEN_ADDRESS = (await get("RubyToken")).address; // Ruby token address on SChain
+
+  }
 
   const { address } = await deploy("RubyMasterChef", {
     from: deployer,

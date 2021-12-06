@@ -1,11 +1,11 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair } from "../../typechain";
+import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair, WETH } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import fs from "fs";
 
-const rubyAddr = require(`../../deployments/${network.name}/RubyTokenMainnet.json`).address;
+const rubyAddr = require(`../../deployments/${network.name}/RubyTokenMintable.json`).address;
 const usdcAddr = require(`../../deployments/${network.name}/MockUSDC.json`).address;
 const usdtAddr = require(`../../deployments/${network.name}/MockUSDT.json`).address;
 const usdpAddr = require(`../../deployments/${network.name}/MockUSDP.json`).address;
@@ -99,7 +99,7 @@ const writeRubyPoolAddrs = async (factory: UniswapV2Factory) => {
   rubyPoolAddrs.rubyWeth = await factory.getPair(rubyAddr, wethAddr);
   rubyPoolAddrs.rubyUsdp = await factory.getPair(rubyAddr, usdpAddr);
 
-  fs.writeFileSync("./utils/ruby_pool_addr.json", JSON.stringify(rubyPoolAddrs));
+  fs.writeFileSync("./deployment_addresses/ruby_pool_addr.json", JSON.stringify(rubyPoolAddrs));
 };
 
 const approveTokens = async (tokenAddrs: string[]) => {
@@ -121,7 +121,7 @@ const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
   // // // approve tokens
-  await approveTokens([rubyAddr, usdpAddr, usdcAddr, usdtAddr, wethAddr, usdpAddr]);
+  await approveTokens([rubyAddr, usdpAddr, usdcAddr, usdtAddr, wethAddr]);
 
   const blockNumber = await ethers.provider.getBlockNumber();
   const blockData = await ethers.provider.getBlock(blockNumber);
@@ -129,9 +129,8 @@ const main = async () => {
 
   // // PRICING
   // // 1 RUBY = 5 USD
-  // // 1 RUBY = 0.0016 WETH
-  // // 1 WETH = 3000 USD
-  // // 1 WETH = 600 RUBY
+  // // 1 WETH = 3M USD
+  // // 1 WETH = 1M RUBY
   // // 1 USDC = 1 USDT
 
   const amountRubyUsdcLPruby = ethers.utils.parseUnits("10000000", 18); // 10 mil
@@ -144,13 +143,13 @@ const main = async () => {
   const amountRubyUsdpLPusdp = ethers.utils.parseUnits("50000000", 18); // 50 mil
 
   const amountUsdcWethLPusdc = ethers.utils.parseUnits("90000000", 6); // 90 mil
-  const amountUsdcWethLPweth = ethers.utils.parseUnits("30000", 18); // 30k
+  const amountUsdcWethLPweth = ethers.utils.parseUnits("30", 18); // 30
 
   const amountUsdtWethLPusdt = ethers.utils.parseUnits("90000000", 6); // 90 mil
-  const amountUsdtWethLPweth = ethers.utils.parseUnits("30000", 18); // 30k
+  const amountUsdtWethLPweth = ethers.utils.parseUnits("30", 18); // 30
 
   const amountRubyWethLPruby = ethers.utils.parseUnits("30000000", 18); // 30 mil
-  const amountRubyWethLPweth = ethers.utils.parseUnits("50000", 18); // 50k
+  const amountRubyWethLPweth = ethers.utils.parseUnits("30", 18); // 30
 
   const amountUsdcUsdtLP = ethers.utils.parseUnits("10000000", 6); // 10 mil
 

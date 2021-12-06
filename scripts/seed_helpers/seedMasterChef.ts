@@ -3,14 +3,14 @@ import { ethers, network } from "hardhat";
 import { utils } from "ethers";
 import { RubyMasterChef, UniswapV2Factory } from "../../typechain";
 
-const masterChefAddr = require(`../deployments/${network.name}/RubyMasterChef.json`).address;
-const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.json`).address;
+const masterChefAddr = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
+const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
 
-const rubyAddr = require(`../deployments/${network.name}/RubyTokenMainnet.json`).address;
-const usdcAddr = require(`../deployments/${network.name}/MockUSDC.json`).address;
-const usdtAddr = require(`../deployments/${network.name}/MockUSDT.json`).address;
-const usdpAddr = require(`../deployments/${network.name}/MockUSDP.json`).address;
-const wethAddr = require(`../deployments/${network.name}/WETH.json`).address;
+const rubyAddr = require(`../../deployments/${network.name}/RubyTokenMintable.json`).address;
+const usdcAddr = require(`../../deployments/${network.name}/MockUSDC.json`).address;
+const usdtAddr = require(`../../deployments/${network.name}/MockUSDT.json`).address;
+const usdpAddr = require(`../../deployments/${network.name}/MockUSDP.json`).address;
+const wethAddr = require(`../../deployments/${network.name}/WETH.json`).address;
 
 const addSingleRewardFarms = async (masterChef: RubyMasterChef, lpTokenAddr: string, allocPoints: number) => {
   const zeroAddress = "0x0000000000000000000000000000000000000000";

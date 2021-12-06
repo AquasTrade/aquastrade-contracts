@@ -84,7 +84,7 @@
     "createLPs": "hardhat run scripts/createMockLPs.ts",
     "createRubyStablePools": "hardhat run scripts/seed_helpers/createRubyAndStablePools.ts",
     "createPoolsFromMappedTokens": "hardhat run scripts/seed_helpers/createPoolsFromMappedTokens.ts",
-    "seedMasterChef": "hardhat run scripts/seedMasterChef.ts",
+    "seedMasterChef": "hardhat run scripts/seed_helpers/seedMasterChef.ts",
     "setupMappedERC20s": "node scripts/setupMappedERC20tokens.js",
     "setupMappedERC721s": "node scripts/setupMappedERC721tokens.js",
     "skaleDebug": "node scripts/skaleDebug.js",
@@ -105,7 +105,9 @@
     "debugStableSwap": "hardhat run scripts/stable_swap/debug.ts --network localhost",
     "createRubyUsdcLP": "hardhat run --no-compile scripts/seed_helpers/createRubyUsdcLP.ts",
     "createRubyUsdStablePool": "hardhat run scripts/stable_swap/createRubyUsdStablePool.ts --network localhost",
-    "debugRubyRouter": "hardhat run scripts/ruby_router/debug.ts --network localhost"
+    "debugRubyRouter": "hardhat run scripts/ruby_router/debug.ts --network localhost",
+    "transferRubyTokensToMasterChef": "hardhat run scripts/seed_helpers/transferRubyTokensToMasterChef.ts",
+    "depositWETH": "hardhat run scripts/seed_helpers/depositWETH.ts"
   },
   "files": [
     "/contracts"

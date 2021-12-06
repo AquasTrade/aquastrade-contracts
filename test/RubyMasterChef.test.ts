@@ -68,7 +68,7 @@ describe("RubyMasterChef", function () {
     );
     await this.chef.deployed();
 
-    const ruby = await this.chef.ruby();
+    const ruby = await this.chef.RUBY();
     const treasuryAddr = await this.chef.treasuryAddr();
     const treasuryPercent = await this.chef.treasuryPercent();
 
@@ -123,7 +123,6 @@ describe("RubyMasterChef", function () {
       this.treasuryPercent,
     );
     await this.chef.deployed();
-      // TODO: Finish this
     const ownerInitialBalance = await this.ruby.balanceOf(this.owner.address);
     const amountToChef = ethers.utils.parseUnits("1000", 18);
 
@@ -133,16 +132,52 @@ describe("RubyMasterChef", function () {
     await this.ruby.transfer(this.chef.address, amountToChef); // t-56
     expect(await this.ruby.balanceOf(this.chef.address)).to.equal(amountToChef);
 
-    const amountWithdrawBob = ethers.utils.parseUnits("10", 18);
+    const initialWithdrawAmount = ethers.utils.parseUnits("10", 18);
 
-    await this.chef.emergencyWithdrawRubyTokens(this.bob.address, amountWithdrawBob);
-    expect(await this.ruby.balanceOf(this.chef.address)).to.equal(amountToChef.sub(amountWithdrawBob));
-    expect(await this.ruby.balanceOf(this.bob.address)).to.equal(amountWithdrawBob);
+    // CASE 1: Owner should be able to withdraw to other users
+    await this.chef.emergencyWithdrawRubyTokens(this.bob.address, initialWithdrawAmount);
 
-    await this.chef.emergencyWithdrawRubyTokens(this.owner.address, (amountToChef).sub(amountWithdrawBob));
-    expect(await this.ruby.balanceOf(this.owner.address)).to.equal(ownerInitialBalance.sub());
+    // Chef should have `initialWithdrawAmount` less tokens
+    expect(await this.ruby.balanceOf(this.chef.address)).to.equal(amountToChef.sub(initialWithdrawAmount));
+
+    // Bob should have `initialWithdrawAmount` tokens
+    expect(await this.ruby.balanceOf(this.bob.address)).to.equal(initialWithdrawAmount);
+
+    // CASE 2: Owner should be able to withdraw to himself
+    await this.chef.emergencyWithdrawRubyTokens(this.owner.address, initialWithdrawAmount);
+
+    // Owner should have: (ownerInitialBalance - amountToChef + initialWithdrawAmount)
+    expect(await this.ruby.balanceOf(this.owner.address)).to.equal(ownerInitialBalance.sub(amountToChef).add(initialWithdrawAmount));
+
+    // CASE 3: Other users should not be able to withdraw
+    await expect(
+      this.chef.connect(this.bob).emergencyWithdrawRubyTokens(this.bob.address, initialWithdrawAmount)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+
+    // CASE 4: Owner should not be able to withdraw with invalid address
+    await expect(
+      this.chef.emergencyWithdrawRubyTokens(ADDRESS_ZERO, initialWithdrawAmount)
+    ).to.be.revertedWith("emergencyWithdrawRubyTokens: Invalid withdrawal address.");
+
+    // CASE 5: Owner should not be able to withdraw with invalid amount
+    await expect(
+      this.chef.emergencyWithdrawRubyTokens(this.owner.address, BigNumber.from(0)),
+    ).to.be.revertedWith("emergencyWithdrawRubyTokens: Invalid withdrawal amount.");
 
 
+    // CASE 6: RubyEmergencyWithdrawal event should be emitted
+    let chefRemainingBalance = await this.ruby.balanceOf(this.chef.address);
+    await expect(this.chef.emergencyWithdrawRubyTokens(this.owner.address, chefRemainingBalance))
+    .to.emit(this.chef, "RubyEmergencyWithdrawal").withArgs(this.owner.address, chefRemainingBalance);
+
+    // Owner should have: (ownerInitialBalance - initialWithdrawAmount (the balance sent to bob))
+    expect(await this.ruby.balanceOf(this.owner.address)).to.equal(ownerInitialBalance.sub(initialWithdrawAmount));
+    expect(await this.ruby.balanceOf(this.chef.address)).to.equal("0");
+
+    // CASE 7: Owner should not be able to withdraw when the RubyMasterChef doesn't have the required withdrawal amount
+    await expect(
+      this.chef.emergencyWithdrawRubyTokens(this.owner.address, chefRemainingBalance)
+    ).to.be.revertedWith("emergencyWithdrawRubyTokens: Not enough balance to withdraw.");
 
   });
 
