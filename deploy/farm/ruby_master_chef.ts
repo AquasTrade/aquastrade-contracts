@@ -9,10 +9,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let RUBY_TOKEN_ADDRESS = ""
   if(network.name === 'localhost') {
     RUBY_TOKEN_ADDRESS = (await get("RubyTokenMintable")).address; // Ruby token address on Localhost
-  } else {
+  } else if(network.name === 'skaleTestnet') {
     RUBY_TOKEN_ADDRESS = (await get("RubyToken")).address; // Ruby token address on SChain
-
+  } else {
+    throw new Error("Invalid network");
   }
+
+  console.log("RUBY_TOKEN_ADDRESS", RUBY_TOKEN_ADDRESS);
 
   const { address } = await deploy("RubyMasterChef", {
     from: deployer,
@@ -20,7 +23,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       RUBY_TOKEN_ADDRESS,
       treasury,
       "10000000000000000000", // 10 RUBY per sec
-      "1631948400", // Sat Sep 18 09:00
+      "1638867600", // 	Tue Dec 07 2021 09:00:00 GMT+0000
       "100", // 10%
     ],
     log: true,

@@ -104,10 +104,14 @@
     "communityLocker": "hardhat run scripts/debugging/communityLocker.ts --network skaleTestnet",
     "debugStableSwap": "hardhat run scripts/stable_swap/debug.ts --network localhost",
     "createRubyUsdcLP": "hardhat run --no-compile scripts/seed_helpers/createRubyUsdcLP.ts",
-    "createRubyUsdStablePool": "hardhat run scripts/stable_swap/createRubyUsdStablePool.ts --network localhost",
-    "debugRubyRouter": "hardhat run scripts/ruby_router/debug.ts --network localhost",
-    "transferRubyTokensToMasterChef": "hardhat run scripts/seed_helpers/transferRubyTokensToMasterChef.ts",
-    "depositWETH": "hardhat run scripts/seed_helpers/depositWETH.ts"
+    "createRubyUsdStablePool": "hardhat run --no-compile scripts/stable_swap/createRubyUsdStablePool.ts --network localhost",
+    "debugRubyRouter": "hardhat run --no-compile scripts/ruby_router/debug.ts --network localhost",
+    "transferRubyTokensToMasterChef": "hardhat run --no-compile scripts/seed_helpers/transferRubyTokensToMasterChef.ts",
+    "depositWETH": "hardhat run --no-compile scripts/seed_helpers/depositWETH.ts",
+    "depositMC": "hardhat run --no-compile scripts/masterChef/deposit.ts --network skaleTestnet",
+    "withdrawMC": "hardhat run --no-compile scripts/masterChef/withdraw.ts --network skaleTestnet",
+    "seedMC": "hardhat run --no-compile scripts/masterChef/seed.ts --network skaleTestnet"
+
   },
   "files": [
     "/contracts"
