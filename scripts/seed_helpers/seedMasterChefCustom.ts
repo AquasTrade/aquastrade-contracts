@@ -48,7 +48,7 @@ const getLpAddrs = async (factory: UniswapV2Factory) => {
     // '0xAAaEe87F8F7bEf70f0755874760E1f64005012B1', // usdc-usdt
     // '0x06072351e4d6d36C05ca9a562Ca876932De9699f', // usdc-usdp
     // '0x6cE9C57Fe5b680F5e132c369715554087dFCec9d', // usdt-usdp
-    '0x2b7cD677Ccb6e5D03179f582737B8d0AB743615F', // eth-ruby
+    "0x2b7cD677Ccb6e5D03179f582737B8d0AB743615F", // eth-ruby
   ];
 
   return lpAddrs;

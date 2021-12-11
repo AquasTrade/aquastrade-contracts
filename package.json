@@ -111,7 +111,6 @@
     "depositMC": "hardhat run --no-compile scripts/masterChef/deposit.ts --network skaleTestnet",
     "withdrawMC": "hardhat run --no-compile scripts/masterChef/withdraw.ts --network skaleTestnet",
     "seedMC": "hardhat run --no-compile scripts/masterChef/seed.ts --network skaleTestnet"
-
   },
   "files": [
     "/contracts"

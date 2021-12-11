@@ -115,7 +115,7 @@ const main = async () => {
   console.log("Factory addr pair", pair);
   await debugPairs(factory, deployer.address);
 
-    // await writeRubyPoolAddrs(factory);
+  // await writeRubyPoolAddrs(factory);
 };
 
 main()

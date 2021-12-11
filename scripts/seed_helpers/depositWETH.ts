@@ -8,13 +8,11 @@ const main = async () => {
   const weth: WETH = (await ethers.getContractAt("WETH", WETHaddress)) as WETH;
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  const res = await weth.deposit({value: ethers.utils.parseUnits("1000", 18)});
+  const res = await weth.deposit({ value: ethers.utils.parseUnits("1000", 18) });
   await res.wait(1);
   const wethBalance = await weth.balanceOf(deployer.address);
 
   console.log("Deployer Balance WETH:", ethers.utils.formatUnits(wethBalance, 18));
-
-
 };
 
 main()

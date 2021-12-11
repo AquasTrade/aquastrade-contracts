@@ -6,10 +6,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy, get } = deployments;
   const { deployer, treasury } = await getNamedAccounts();
 
-  let RUBY_TOKEN_ADDRESS = ""
-  if(network.name === 'localhost') {
+  let RUBY_TOKEN_ADDRESS = "";
+  if (network.name === "localhost") {
     RUBY_TOKEN_ADDRESS = (await get("RubyTokenMintable")).address; // Ruby token address on Localhost
-  } else if(network.name === 'skaleTestnet') {
+  } else if (network.name === "skaleTestnet") {
     RUBY_TOKEN_ADDRESS = (await get("RubyToken")).address; // Ruby token address on SChain
   } else {
     throw new Error("Invalid network");

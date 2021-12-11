@@ -63,7 +63,7 @@ or
 
 ##### Farm:
 
-1. Deploy ruby token if not deployed `yarn deploy --tags RubyTokenMintable` or `yarn deploy --tags RubyToken` 
+1. Deploy ruby token if not deployed `yarn deploy --tags RubyTokenMintable` or `yarn deploy --tags RubyToken`
 2. Deploy RubyMasterChef `yarn deploy --tags RubyMasterChef`
 3. Seed RubyMasterChef with RUBY tokens `yarn transferRubyTokensToMasterChef`
 

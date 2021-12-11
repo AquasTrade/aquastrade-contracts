@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IRubyMasterChefRewarder.sol";
+import "./interfaces/IRubyStaker.sol";
 import "./token_mappings/RubyToken.sol";
 import "./libraries/BoringERC20.sol";
 
@@ -50,6 +51,9 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
 
     // The RUBY TOKEN!
     IERC20 public immutable RUBY;
+
+    IRubyStaker public rubyStaker;
+
     // Treasury address.
     address public treasuryAddr;
     // RUBY tokens created per second.
@@ -81,21 +85,29 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event UpdatePool(uint256 indexed pid, uint256 lastRewardTimestamp, uint256 lpSupply, uint256 accRubyPerShare);
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
+    event MultiHarvest(address indexed user, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event SetTreasuryAddress(address indexed oldAddress, address indexed newAddress);
     event SetTreasuryPercent(uint256 newPercent);
+    event SetRubyStaker(address indexed newRubyStaker);
     event UpdateEmissionRate(address indexed user, uint256 _rubyPerSec);
-    event RubyEmergencyWithdrawal(address indexed to, uint256 amount);
 
     constructor(
-        IERC20 _ruby,
+        address _ruby,
+        address _rubyStaker,
         address _treasuryAddr,
         uint256 _rubyPerSec,
         uint256 _startTimestamp,
         uint256 _treasuryPercent
     ) public {
-        require(0 <= _treasuryPercent && _treasuryPercent <= 1000, "Constructor: invalid treasury percent value");
-        RUBY = _ruby;
+        require(_ruby != address(0), "RubyMasterChef: Invalid RubyToken address");
+        require(_rubyStaker != address(0), "RubyMasterChef: Invalid RubyStaker address");
+        require(_treasuryAddr != address(0), "RubyMasterChef: Invalid treasury address");
+        require(_rubyPerSec != 0, "RubyMasterChef: Invalid emission rate amount.");
+        require(0 <= _treasuryPercent && _treasuryPercent <= 1000, "RubyMasterChef: invalid treasury percent value");
+
+        RUBY = IERC20(_ruby);
+        rubyStaker = IRubyStaker(_rubyStaker);
         treasuryAddr = _treasuryAddr;
         rubyPerSec = _rubyPerSec;
         startTimestamp = _startTimestamp;
@@ -224,12 +236,14 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
             return;
         }
         uint256 multiplier = block.timestamp.sub(pool.lastRewardTimestamp);
-        uint256 rubyReward = multiplier.mul(rubyPerSec).mul(pool.allocPoint).div(totalAllocPoint);
+        uint256 rewardAmount = multiplier.mul(rubyPerSec).mul(pool.allocPoint).div(totalAllocPoint);
         uint256 lpPercent = 1000 - treasuryPercent;
 
-        RUBY.safeTransfer(treasuryAddr, rubyReward.mul(treasuryPercent).div(1000));
+        RUBY.safeTransfer(treasuryAddr, rewardAmount.mul(treasuryPercent).div(1000));
 
-        pool.accRubyPerShare = pool.accRubyPerShare.add(rubyReward.mul(ACC_TOKEN_PRECISION).div(lpSupply).mul(lpPercent).div(1000));
+        pool.accRubyPerShare = pool.accRubyPerShare.add(
+            rewardAmount.mul(ACC_TOKEN_PRECISION).div(lpSupply).mul(lpPercent).div(1000)
+        );
         pool.lastRewardTimestamp = block.timestamp;
         emit UpdatePool(_pid, pool.lastRewardTimestamp, lpSupply, pool.accRubyPerShare);
     }
@@ -242,7 +256,8 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         if (user.amount > 0) {
             // Harvest accRubyPerShare
             uint256 pending = user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION).sub(user.rewardDebt);
-            RUBY.safeTransfer(msg.sender, pending);
+            rubyStaker.mint(msg.sender, pending);
+            RUBY.safeTransfer(address(rubyStaker), pending);
             emit Harvest(msg.sender, _pid, pending);
         }
         user.amount = user.amount.add(_amount);
@@ -267,9 +282,11 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
 
         // Harvest RUBY
         uint256 pending = user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION).sub(user.rewardDebt);
-        RUBY.safeTransfer(msg.sender, pending);
-        emit Harvest(msg.sender, _pid, pending);
-
+        if (pending > 0) {
+            rubyStaker.mint(msg.sender, pending);
+            RUBY.safeTransfer(address(rubyStaker), pending);
+            emit Harvest(msg.sender, _pid, pending);
+        }
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION);
 
@@ -282,6 +299,22 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
+    function claim(uint256[] calldata _pids) external {
+        massUpdatePools();
+        uint256 pending;
+        for (uint256 i = 0; i < _pids.length; i++) {
+            PoolInfo storage pool = poolInfo[_pids[i]];
+            UserInfo storage user = userInfo[_pids[i]][msg.sender];
+            pending = pending.add(user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION).sub(user.rewardDebt));
+            user.rewardDebt = user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION);
+        }
+        if (pending > 0) {
+            rubyStaker.mint(msg.sender, pending);
+            RUBY.safeTransfer(address(rubyStaker), pending);
+        }
+        emit MultiHarvest(msg.sender, pending);
+    }
+
     // Withdraw without caring about rewards. EMERGENCY ONLY.
     function emergencyWithdraw(uint256 _pid) external nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
@@ -290,22 +323,6 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
         user.amount = 0;
         user.rewardDebt = 0;
-    }
-
-    /**
-     * @notice Owner should be able to withdraw all the RubyTokens in case of emergency.
-     * The owner should be able to withdraw the tokens to himself or another address
-     * The RubyMasterChef contract will be placed behind a timelock, and the owner/deployer will be a multisig,
-     * so this should not raise trust concerns.
-     * This function is needed because the RubyMasterChef will be pre-fed with all of the Ruby tokens dedicated
-     * for liquidity mining incentives, and incase of unfortunate situation they should be retreived.
-     */
-    function emergencyWithdrawRubyTokens(address to, uint256 amount) public onlyOwner {
-        require(to != address(0), "emergencyWithdrawRubyTokens: Invalid withdrawal address.");
-        require(amount != 0, "emergencyWithdrawRubyTokens: Invalid withdrawal amount.");
-        require(RUBY.balanceOf(address(this)) >= amount, "emergencyWithdrawRubyTokens: Not enough balance to withdraw.");
-        RUBY.safeTransfer(to, amount);
-        emit RubyEmergencyWithdrawal(to, amount);
     }
 
     // Update treasury address by the previous treasury.
@@ -321,12 +338,15 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         emit SetTreasuryPercent(_newTreasuryPercent);
     }
 
-    // Pancake has to add hidden dummy pools inorder to alter the emission,
-    // here we make it simple and transparent to all.
+    function setRubyStaker(address _newRubyStaker) public onlyOwner {
+        require(_newRubyStaker != address(0), "setRubyStaker: invalid ruby minter address");
+        rubyStaker = IRubyStaker(_newRubyStaker);
+        emit SetRubyStaker(_newRubyStaker);
+    }
+
     function updateEmissionRate(uint256 _rubyPerSec) public onlyOwner {
         massUpdatePools();
         rubyPerSec = _rubyPerSec;
         emit UpdateEmissionRate(msg.sender, _rubyPerSec);
     }
-
 }

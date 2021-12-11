@@ -5,9 +5,8 @@ const masterChefAddr = require(`../../deployments/${network.name}/RubyMasterChef
 // const rubyTokenMintableAddr = require(`../../deployments/${network.name}/RubyTokenMintable.json`).address; // for testing purposes only
 const rubyTokenSchainAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
 
-
 const main = async () => {
-//   const rubyToken: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
+  //   const rubyToken: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
   const rubyToken: RubyToken = (await ethers.getContractAt("RubyToken", rubyTokenSchainAddr)) as RubyToken;
   // const rubyToken: RubyTokenMintable = (await ethers.getContractAt("RubyTokenMintable", rubyTokenMintableAddr)) as RubyTokenMintable;
 
@@ -16,9 +15,7 @@ const main = async () => {
   await res.wait(1);
   const balanceOfMasterChef = ethers.utils.formatUnits(await rubyToken.balanceOf(masterChefAddr));
 
-   console.log("Balance Of RubyMasterChef", balanceOfMasterChef);
-
-
+  console.log("Balance Of RubyMasterChef", balanceOfMasterChef);
 };
 
 main()

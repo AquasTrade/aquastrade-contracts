@@ -16,7 +16,7 @@ const deposit = async (masterChef: RubyMasterChef, poolId: number, amount: BigNu
   const res = await masterChef.deposit(poolId, amount);
   const receipt = await res.wait(1);
 
-    // console.log("deposit static call res", res);
+  // console.log("deposit static call res", res);
 
   if (receipt.status) {
     console.log(`Depositing to RubyMasterChef successful, PoolID: ${poolId}`);
@@ -26,18 +26,16 @@ const deposit = async (masterChef: RubyMasterChef, poolId: number, amount: BigNu
 };
 
 const approve = async (lpAddress: string, ownerAddr: string, amount: BigNumber) => {
-    const lp: UniswapV2Pair = (await ethers.getContractAt("UniswapV2Pair", lpAddress)) as UniswapV2Pair;
-    const allowance = await lp.allowance(ownerAddr, masterChefAddr);
-    if(allowance < amount) {
-        const res = await lp.approve(masterChefAddr, amount);
-        const receipt = await res.wait(1); 
-        if(receipt.status) {
-            console.log("Approval successful");
-        }
-        
+  const lp: UniswapV2Pair = (await ethers.getContractAt("UniswapV2Pair", lpAddress)) as UniswapV2Pair;
+  const allowance = await lp.allowance(ownerAddr, masterChefAddr);
+  if (allowance < amount) {
+    const res = await lp.approve(masterChefAddr, amount);
+    const receipt = await res.wait(1);
+    if (receipt.status) {
+      console.log("Approval successful");
     }
-
-}
+  }
+};
 
 const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
@@ -45,7 +43,7 @@ const main = async () => {
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
 
   const poolId = 5; // USDT - USDP pool
-  const lpAddress = "0x6cE9C57Fe5b680F5e132c369715554087dFCec9d"; 
+  const lpAddress = "0x6cE9C57Fe5b680F5e132c369715554087dFCec9d";
   const amount = "0.3";
   // Lets seed the master chef with more real LPs (stables and ruby)
   const amountBn = utils.parseUnits(amount, 18);

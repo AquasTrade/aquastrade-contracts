@@ -54,34 +54,34 @@ const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
   const depositBoxABI = l1Artifacts.deposit_box_erc20_abi;
   const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
 
-  const usdcExists = await depositBoxContract.getSchainToERC20('melodic-murzim', USDC);
-  const usdtExists = await depositBoxContract.getSchainToERC20('melodic-murzim', USDT);
-  const usdpExists = await depositBoxContract.getSchainToERC20('melodic-murzim', USDT);
-  const rubyExists = await depositBoxContract.getSchainToERC20('melodic-murzim', RubyMainnet);
-  
+  const usdcExists = await depositBoxContract.getSchainToERC20("melodic-murzim", USDC);
+  const usdtExists = await depositBoxContract.getSchainToERC20("melodic-murzim", USDT);
+  const usdpExists = await depositBoxContract.getSchainToERC20("melodic-murzim", USDT);
+  const rubyExists = await depositBoxContract.getSchainToERC20("melodic-murzim", RubyMainnet);
+
   let res;
-  if(!usdcExists) {
-    console.log("Registering USDC...")
+  if (!usdcExists) {
+    console.log("Registering USDC...");
     let res = await depositBoxContract.addERC20TokenByOwner(process.env.TESTNET_CHAINNAME, USDC);
     await res.wait(1);
   }
 
-  if(!usdtExists) {
-    console.log("Registering USDT...")
+  if (!usdtExists) {
+    console.log("Registering USDT...");
     res = await depositBoxContract.addERC20TokenByOwner(process.env.TESTNET_CHAINNAME, USDT);
     await res.wait(1);
   }
 
-  if(!usdpExists) {
-    console.log("Registering USDP...")
+  if (!usdpExists) {
+    console.log("Registering USDP...");
     res = await depositBoxContract.addERC20TokenByOwner(process.env.TESTNET_CHAINNAME, USDP);
     await res.wait(1);
   }
 
-  if(!rubyExists) {
-      console.log("Registering RUBY...")
-      res = await depositBoxContract.addERC20TokenByOwner(process.env.TESTNET_CHAINNAME, RubyMainnet);
-      await res.wait(1);
+  if (!rubyExists) {
+    console.log("Registering RUBY...");
+    res = await depositBoxContract.addERC20TokenByOwner(process.env.TESTNET_CHAINNAME, RubyMainnet);
+    await res.wait(1);
   }
 
   const sChainHash = "0x7cef6e298b91c11477b769ff449417928f4d2bcf03594bb34bbc24ed08d3fdf0";
@@ -99,7 +99,6 @@ const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
 };
 
 const main = async () => {
-
   // console.log("process argv", process.argv);
 
   const signer: SignerWithAddress = (await ethers.getSigners())[0];

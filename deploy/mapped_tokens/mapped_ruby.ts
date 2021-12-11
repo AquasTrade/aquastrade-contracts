@@ -33,14 +33,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 
   // Check roles
-  console.log(
-    "TokenManagerErc20 has MINTER_ROLE:",
-    await tokenContract.hasRole(minterRole, tokenManagerErc20Address),
-  );
-  console.log(
-    "TokenManagerErc20 has BURNER_ROLE:",
-    await tokenContract.hasRole(burnerRole, tokenManagerErc20Address),
-  );
+  console.log("TokenManagerErc20 has MINTER_ROLE:", await tokenContract.hasRole(minterRole, tokenManagerErc20Address));
+  console.log("TokenManagerErc20 has BURNER_ROLE:", await tokenContract.hasRole(burnerRole, tokenManagerErc20Address));
   console.log("Deployer has DEFAULT_ADMIN_ROLE: ", await tokenContract.hasRole(adminRole, deployer));
 };
 

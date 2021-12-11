@@ -39,7 +39,8 @@ contract RubyBar is ERC20("RubyBar", "xRUBY"), Ownable {
         if (totalShares == 0 || totalRuby == 0) {
             _mint(msg.sender, _amount);
         }
-        // Calculate and mint the amount of xRUBY the RUBY is worth. The ratio will change overtime, as xRUBY is burned/minted and RUBY deposited + gained from fees / withdrawn.
+        // Calculate and mint the amount of xRUBY the RUBY is worth.
+        // The ratio will change overtime, as xRUBY is burned/minted and RUBY deposited + gained from fees / withdrawn.
         else {
             uint256 what = _amount.mul(totalShares).div(totalRuby);
             _mint(msg.sender, what);

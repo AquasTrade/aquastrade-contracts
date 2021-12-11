@@ -42,13 +42,13 @@ const debug = async (masterChef: RubyMasterChef) => {
 
 const getLpAddrs = async (factory: UniswapV2Factory) => {
   const lpAddrs: string[] = [
-    '0xA443b6204946b929147CEbF79482c8A1D6b01117', // eth-usdp
-    '0x82D747306CfBEc02989AA608BF5FE7145dCF2e47', // eth-usdt
-    '0x13c4398BB59F7CE12Fd58a2ae307E8Ca08fB51D5', // eth-usdc
-    '0xAAaEe87F8F7bEf70f0755874760E1f64005012B1', // usdc-usdt
-    '0x06072351e4d6d36C05ca9a562Ca876932De9699f', // usdc-usdp
-    '0x6cE9C57Fe5b680F5e132c369715554087dFCec9d', // usdt-usdp
-    '0x2b7cD677Ccb6e5D03179f582737B8d0AB743615F', // eth-ruby
+    "0xA443b6204946b929147CEbF79482c8A1D6b01117", // eth-usdp
+    "0x82D747306CfBEc02989AA608BF5FE7145dCF2e47", // eth-usdt
+    "0x13c4398BB59F7CE12Fd58a2ae307E8Ca08fB51D5", // eth-usdc
+    "0xAAaEe87F8F7bEf70f0755874760E1f64005012B1", // usdc-usdt
+    "0x06072351e4d6d36C05ca9a562Ca876932De9699f", // usdc-usdp
+    "0x6cE9C57Fe5b680F5e132c369715554087dFCec9d", // usdt-usdp
+    "0x2b7cD677Ccb6e5D03179f582737B8d0AB743615F", // eth-ruby
   ];
 
   return lpAddrs;

@@ -21,9 +21,8 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
     const token1addr = await univ2Pair.token1();
     const reserves = await univ2Pair.getReserves();
     const balance = ethers.utils.formatUnits(await univ2Pair.balanceOf(deployerAddr), 18);
-    const token0contract: ERC20 = (await ethers.getContractAt("ERC20", token0addr)) as ERC20; 
-    const token1contract: ERC20 = (await ethers.getContractAt("ERC20", token1addr)) as ERC20; 
-    
+    const token0contract: ERC20 = (await ethers.getContractAt("ERC20", token0addr)) as ERC20;
+    const token1contract: ERC20 = (await ethers.getContractAt("ERC20", token1addr)) as ERC20;
 
     const token0name = await token0contract.name();
     const token0symbol = await token0contract.symbol();
@@ -33,9 +32,8 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
     const token1symbol = await token1contract.symbol();
     const token1decimals = await token1contract.decimals();
 
-    const reserve0 = ethers.utils.formatUnits(reserves[0], token0decimals)
-    const reserve1 = ethers.utils.formatUnits(reserves[1], token1decimals)
-
+    const reserve0 = ethers.utils.formatUnits(reserves[0], token0decimals);
+    const reserve1 = ethers.utils.formatUnits(reserves[1], token1decimals);
 
     console.log(`========================================`);
     console.log("Pair debug info:");
