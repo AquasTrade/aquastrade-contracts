@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IRubyMasterChefRewarder.sol";
+import "./interfaces/IRubyMasterChef.sol";
 import "./interfaces/IRubyStaker.sol";
 import "./token_mappings/RubyToken.sol";
 import "./libraries/BoringERC20.sol";
@@ -91,6 +92,7 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
     event SetTreasuryPercent(uint256 newPercent);
     event SetRubyStaker(address indexed newRubyStaker);
     event UpdateEmissionRate(address indexed user, uint256 _rubyPerSec);
+    event RubyTokenEmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
 
     constructor(
         address _ruby,
@@ -256,8 +258,7 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         if (user.amount > 0) {
             // Harvest accRubyPerShare
             uint256 pending = user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION).sub(user.rewardDebt);
-            rubyStaker.mint(msg.sender, pending);
-            RUBY.safeTransfer(address(rubyStaker), pending);
+            _mintRubyRewards(msg.sender, pending);
             emit Harvest(msg.sender, _pid, pending);
         }
         user.amount = user.amount.add(_amount);
@@ -283,8 +284,7 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         // Harvest RUBY
         uint256 pending = user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION).sub(user.rewardDebt);
         if (pending > 0) {
-            rubyStaker.mint(msg.sender, pending);
-            RUBY.safeTransfer(address(rubyStaker), pending);
+            _mintRubyRewards(msg.sender, pending);
             emit Harvest(msg.sender, _pid, pending);
         }
         user.amount = user.amount.sub(_amount);
@@ -309,10 +309,15 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
             user.rewardDebt = user.amount.mul(pool.accRubyPerShare).div(ACC_TOKEN_PRECISION);
         }
         if (pending > 0) {
-            rubyStaker.mint(msg.sender, pending);
-            RUBY.safeTransfer(address(rubyStaker), pending);
+            _mintRubyRewards(msg.sender, pending);
         }
         emit MultiHarvest(msg.sender, pending);
+    }
+
+    // Mint ruby rewards and transfers toekns to rubyStaker
+    function _mintRubyRewards(address _account, uint256 _amount) internal {
+        rubyStaker.mint(_account, _amount);
+        RUBY.safeTransfer(address(rubyStaker), _amount);
     }
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
@@ -348,5 +353,22 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         massUpdatePools();
         rubyPerSec = _rubyPerSec;
         emit UpdateEmissionRate(msg.sender, _rubyPerSec);
+    }
+
+    /**
+     * @notice Owner should be able to withdraw all the Reward tokens in case of emergency.
+     * The owner should be able to withdraw the tokens to himself or another address
+     * The RubyMasterChef contract will be placed behind a timelock, and the owner/deployer will be a multisig,
+     * so this should not raise trust concerns.
+     * This function is needed because the RubyMasterChef will be pre-fed with all of the
+     * reward tokens (RUBY) tokens dedicated for liquidity mining incentives, and incase
+     * of unfortunate situation they should be retreived.
+     */
+    function emergencyWithdrawRubyToken(address _receiver, uint256 _amount) external onlyOwner {
+        require(_receiver != address(0), "RubyMasterChef: Invalid withdrawal address.");
+        require(_amount != 0, "RubyMasterChef: Invalid withdrawal amount.");
+        require(RUBY.balanceOf(address(this)) >= _amount, "RubyMasterChef: Not enough balance to withdraw.");
+        RUBY.safeTransfer(_receiver, _amount);
+        emit RubyTokenEmergencyWithdrawal(address(RUBY), _receiver, _amount);
     }
 }

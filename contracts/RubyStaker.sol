@@ -25,6 +25,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     /* ========== EVENTS ========== */
 
     event RewardMinterUpdate(address indexed oldRewardMinter, address indexed newRewardMinter);
+    event RewardDistributorSet(address indexed rewardDistributor);
     event RubyTokenEmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
     event RewardAdded(uint256 reward);
     event Staked(address indexed user, uint256 amount);
@@ -34,6 +35,11 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     event TreasuryFeeMinted(uint256 amount);
 
     /* ========== STATE VARIABLES ========== */
+
+    enum RewardType {
+        LOCKED,
+        STAKED
+    }
 
     struct Reward {
         uint256 periodFinish;
@@ -51,12 +57,17 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         uint256 amount;
         uint256 unlockTime;
     }
+
+    struct RewardData {
+        RewardType rewardType;
+        uint256 amount;
+    }
+
     IERC20 public rubyToken;
     address public rewardMinter; // RubyMasterChef
     address public rewardDistributor; // RubyMaker
 
-    // token => amount
-    Reward public rewardData;
+    mapping(RewardType => Reward) rewardData;
 
     // Duration that rewards are streamed over
     uint256 public constant rewardsDuration = 86400 * 7;
@@ -64,10 +75,11 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     // Duration of lock/earned penalty period
     uint256 public constant lockDuration = rewardsDuration * 12;
 
-    // user => amount
-    mapping(address => uint256) public userRewardPaid;
-    mapping(address => uint256) public rewards;
+    // user -> rewardTypeId -> amount
+    mapping(address => mapping(RewardType => uint256)) public userRewardPerTokenPaid;
+    mapping(address => mapping(RewardType => uint256)) public rewards;
 
+    uint256 public totalSupply;
     uint256 public lockedSupply;
 
     // Private mappings for balance data
@@ -88,29 +100,42 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     }
 
     modifier updateReward(address account) {
-        address token = address(rubyToken);
         uint256 balance;
-        uint256 supply = lockedSupply;
-        rewardData.rewardPerTokenStored = _rewardPerToken(supply);
-        rewardData.lastUpdateTime = lastTimeRewardApplicable();
+        rewardData[RewardType.LOCKED].rewardPerTokenStored = _rewardPerToken(RewardType.LOCKED, lockedSupply);
+        rewardData[RewardType.LOCKED].lastUpdateTime = lastTimeRewardApplicable(RewardType.LOCKED);
+
+        rewardData[RewardType.STAKED].rewardPerTokenStored = _rewardPerToken(RewardType.STAKED, totalSupply);
+        rewardData[RewardType.STAKED].lastUpdateTime = lastTimeRewardApplicable(RewardType.STAKED);
+
         if (account != address(0)) {
             // Special case, use the locked balances and supply for stakingReward rewards
-            rewards[account] = _earned(account, balances[account].locked, supply);
-            userRewardPaid[account] = rewardData.rewardPerTokenStored;
+            rewards[account][RewardType.LOCKED] = _earned(
+                account,
+                RewardType.LOCKED,
+                balances[account].locked,
+                lockedSupply
+            );
+            userRewardPerTokenPaid[account][RewardType.LOCKED] = rewardData[RewardType.LOCKED].rewardPerTokenStored;
             balance = balances[account].total;
+
+            rewards[account][RewardType.STAKED] = _earned(account, RewardType.STAKED, balance, totalSupply);
+            userRewardPerTokenPaid[account][RewardType.STAKED] = rewardData[RewardType.STAKED].rewardPerTokenStored;
         }
+
         _;
     }
 
-    constructor(address _rubyToken, address _rewardMinter) public {
+    constructor(
+        address _rubyToken,
+        address _rewardMinter
+    ) public {
         require(_rubyToken != address(0), "RubyStaker: Invalid ruby token.");
         require(_rewardMinter != address(0), "RubyStaker: Invalid reward minter address.");
         rubyToken = IERC20(_rubyToken);
         rewardMinter = _rewardMinter;
 
         // set reward data
-        rewardData.lastUpdateTime = block.timestamp;
-        rewardData.periodFinish = block.timestamp;
+        rewardData[RewardType.LOCKED].lastUpdateTime = block.timestamp;
     }
 
     /* ========== ADMIN CONFIGURATION ========== */
@@ -121,39 +146,64 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         rewardMinter = _newRewardMinter;
     }
 
+    function setRewardDistributor(address _rewardDistributor) external onlyOwner {
+        require(_rewardDistributor != address(0), "RubyStaker: Invalid reward distributor address.");
+        rewardDistributor = _rewardDistributor;
+        emit RewardDistributorSet(_rewardDistributor);
+    }
+
     /* ========== VIEW FUNCTIONS ========== */
 
-    function _rewardPerToken(uint256 _supply) internal view returns (uint256) {
+    function _rewardPerToken(RewardType _rewardType, uint256 _supply) internal view returns (uint256) {
         if (_supply == 0) {
-            return rewardData.rewardPerTokenStored;
+            return rewardData[_rewardType].rewardPerTokenStored;
         }
         return
-            rewardData.rewardPerTokenStored.add(
-                lastTimeRewardApplicable().sub(rewardData.lastUpdateTime).mul(rewardData.rewardRate).mul(1e18).div(
-                    _supply
-                )
+            rewardData[_rewardType].rewardPerTokenStored.add(
+                lastTimeRewardApplicable(_rewardType)
+                    .sub(rewardData[_rewardType].lastUpdateTime)
+                    .mul(rewardData[_rewardType].rewardRate)
+                    .mul(1e18)
+                    .div(_supply)
             );
     }
 
     function _earned(
         address _user,
+        RewardType _rewardType,
         uint256 _balance,
         uint256 supply
     ) internal view returns (uint256) {
-        return _balance.mul(_rewardPerToken(supply).sub(userRewardPaid[_user])).div(1e18).add(rewards[_user]);
+        return
+            _balance
+                .mul(_rewardPerToken(_rewardType, supply).sub(userRewardPerTokenPaid[_user][_rewardType]))
+                .div(1e18)
+                .add(rewards[_user][_rewardType]);
     }
 
-    function lastTimeRewardApplicable() public view returns (uint256) {
-        return Math.min(block.timestamp, rewardData.periodFinish);
+    function lastTimeRewardApplicable(RewardType _rewardType) public view returns (uint256) {
+        return Math.min(block.timestamp, rewardData[_rewardType].periodFinish);
     }
 
-    function getRewardForDuration() external view returns (uint256) {
-        return rewardData.rewardRate.mul(rewardsDuration);
+    function rewardPerToken(RewardType _rewardType) external view returns (uint256) {
+        uint256 supply = _rewardType == RewardType.LOCKED ? lockedSupply : totalSupply;
+        return _rewardPerToken(_rewardType, supply);
+    }
+
+    function getRewardForDuration(RewardType _rewardType) external view returns (uint256) {
+        return rewardData[_rewardType].rewardRate.mul(rewardsDuration);
     }
 
     // Address and claimable amount of all reward tokens for the given account
-    function claimableRewards(address account) external view returns (uint256 rewardAmount) {
-        rewardAmount = _earned(account, balances[account].locked, lockedSupply);
+    function claimableRewards(address account) external view returns (RewardData[] memory rewardsData) {
+        rewardsData = new RewardData[](2);
+
+        rewardsData[0].rewardType = RewardType.LOCKED;
+        rewardsData[0].amount = _earned(account, RewardType.LOCKED, balances[account].locked, lockedSupply);
+
+        rewardsData[1].rewardType = RewardType.STAKED;
+        rewardsData[1].amount = _earned(account, RewardType.STAKED, balances[account].total, totalSupply);
+        return rewardsData;
     }
 
     // Total balance of an account, including unlocked, locked and earned tokens
@@ -247,6 +297,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     // Locked tokens cannot be withdrawn for lockDuration and are eligible to receive stakingReward rewards
     function stake(uint256 amount, bool lock) external nonReentrant updateReward(msg.sender) {
         require(amount > 0, "RubyStaker: Invalid staking amount");
+        totalSupply = totalSupply.add(amount);
         Balances storage bal = balances[msg.sender];
         bal.total = bal.total.add(amount);
         if (lock) {
@@ -270,6 +321,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     // Minted tokens receive rewards normally but incur a 50% penalty when
     // withdrawn before lockDuration has passed.
     function mint(address user, uint256 amount) external override onlyRewardMinter updateReward(user) {
+        totalSupply = totalSupply.add(amount);
         Balances storage bal = balances[user];
         bal.total = bal.total.add(amount);
         bal.earned = bal.earned.add(amount);
@@ -325,18 +377,20 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
 
         uint256 adjustedAmount = amount.add(penaltyAmount);
         bal.total = bal.total.sub(adjustedAmount);
+        totalSupply = totalSupply.sub(adjustedAmount);
         rubyToken.safeTransfer(msg.sender, amount);
         if (penaltyAmount > 0) {
-            _notifyReward(penaltyAmount);
+            _notifyReward(RewardType.LOCKED, penaltyAmount);
         }
         emit Withdrawn(msg.sender, amount);
     }
 
     // Claim all pending staking rewards
     function getReward() public nonReentrant updateReward(msg.sender) {
-        uint256 reward = rewards[msg.sender];
+        uint256 reward = rewards[msg.sender][RewardType.LOCKED] + rewards[msg.sender][RewardType.STAKED];
+        rewards[msg.sender][RewardType.LOCKED] = 0;
+        rewards[msg.sender][RewardType.STAKED] = 0;
         if (reward > 0) {
-            rewards[msg.sender] = 0;
             rubyToken.safeTransfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
@@ -351,9 +405,10 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         bal.unlocked = 0;
         bal.earned = 0;
 
+        totalSupply = totalSupply.sub(amount.add(penaltyAmount));
         rubyToken.safeTransfer(msg.sender, amount);
         if (penaltyAmount > 0) {
-            _notifyReward(penaltyAmount);
+            _notifyReward(RewardType.LOCKED, penaltyAmount);
         }
         getReward();
     }
@@ -376,23 +431,24 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         }
         bal.locked = bal.locked.sub(amount);
         bal.total = bal.total.sub(amount);
+        totalSupply = totalSupply.sub(amount);
         lockedSupply = lockedSupply.sub(amount);
         rubyToken.safeTransfer(msg.sender, amount);
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    function _notifyReward(uint256 reward) internal {
-        if (block.timestamp >= rewardData.periodFinish) {
-            rewardData.rewardRate = reward.div(rewardsDuration);
+    function _notifyReward(RewardType _rewardType, uint256 reward) internal {
+        if (block.timestamp >= rewardData[_rewardType].periodFinish) {
+            rewardData[_rewardType].rewardRate = reward.div(rewardsDuration);
         } else {
-            uint256 remaining = rewardData.periodFinish.sub(block.timestamp);
-            uint256 leftover = remaining.mul(rewardData.rewardRate);
-            rewardData.rewardRate = reward.add(leftover).div(rewardsDuration);
+            uint256 remaining = rewardData[_rewardType].periodFinish.sub(block.timestamp);
+            uint256 leftover = remaining.mul(rewardData[_rewardType].rewardRate);
+            rewardData[_rewardType].rewardRate = reward.add(leftover).div(rewardsDuration);
         }
 
-        rewardData.lastUpdateTime = block.timestamp;
-        rewardData.periodFinish = block.timestamp.add(rewardsDuration);
+        rewardData[_rewardType].lastUpdateTime = block.timestamp;
+        rewardData[_rewardType].periodFinish = block.timestamp.add(rewardsDuration);
     }
 
     function notifyRewardAmount(uint256 reward) external onlyRewardDistributor updateReward(address(0)) {
@@ -400,7 +456,8 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         // handle the transfer of reward tokens via `transferFrom` to reduce the number
         // of transactions required and ensure correctness of the reward amount
         rubyToken.safeTransferFrom(msg.sender, address(this), reward);
-        _notifyReward(reward);
+        // Staking rewards
+        _notifyReward(RewardType.STAKED, reward);
         emit RewardAdded(reward);
     }
 

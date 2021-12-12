@@ -19,7 +19,7 @@ contract RubyMaker is Ownable {
     using SafeERC20 for IERC20;
 
     IUniswapV2Factory public immutable factory;
-    address public immutable bar;
+    address public immutable rubyStaker;
     address private immutable ruby;
     address private immutable ethc;
     uint256 public burnPercent;
@@ -41,25 +41,25 @@ contract RubyMaker is Ownable {
 
     constructor(
         address _factory,
-        address _bar,
+        address _rubyStaker,
         address _ruby,
         address _ethc,
         uint256 _burnPercent
     ) public {
         require(_factory != address(0), "RubyMaker: Invalid factory address.");
-        require(_bar != address(0), "RubyMaker: Invalid bar address.");
+        require(_rubyStaker != address(0), "RubyMaker: Invalid rubyStaker address.");
         require(_ruby != address(0), "RubyMaker: Invalid ruby address.");
         require(_ethc != address(0), "RubyMaker: Invalid ethc address.");
-        require(_burnPercent >= 0 && _burnPercent <= 1000, "RubyMaker: Invalid burn percent.");
+        require(_burnPercent >= 0 && _burnPercent <= 100, "RubyMaker: Invalid burn percent.");
 
         factory = IUniswapV2Factory(_factory);
-        bar = _bar;
+        rubyStaker = _rubyStaker;
         ruby = _ruby;
         ethc = _ethc;
 
-        // Note: Percentages are defined with 4 decimals for more granularity (so 20% is defined as 200)
+        // Note: Percentages are defined with 3 decimals (20% is defined as 20)
         // 0.05% (1/6th) of the total fees (0.30%) are sent to the RubyMaker
-        // 0.04% of these fees (80%) are converted to Ruby and sent to the RubyBar (xRUBY)
+        // 0.04% of these fees (80%) are converted to Ruby and sent to the RubyStaker
         // 0.01% of these fees (20%) are burned
         burnPercent = _burnPercent;
     }
@@ -116,12 +116,12 @@ contract RubyMaker is Ownable {
             (amount0, amount1) = (amount1, amount0);
         }
         uint256 convertedRuby = _convertStep(token0, token1, amount0, amount1);
-        uint256 rubyToBurn = (convertedRuby.mul(burnPercent)).div(1000);
+        uint256 rubyToBurn = (convertedRuby.mul(burnPercent)).div(100);
 
         convertedRuby = convertedRuby - rubyToBurn;
 
         // Burn ruby from the bar after it has been transferred
-        RubyToken(ruby).burnFrom(bar, rubyToBurn);
+        RubyToken(ruby).burnFrom(rubyStaker, rubyToBurn);
 
         emit LogConvert(msg.sender, token0, token1, amount0, amount1, convertedRuby, rubyToBurn);
     }
@@ -205,12 +205,12 @@ contract RubyMaker is Ownable {
     }
 
     function _toRUBY(address token, uint256 amountIn) internal returns (uint256 amountOut) {
-        amountOut = _swap(token, ruby, amountIn, bar);
+        amountOut = _swap(token, ruby, amountIn, rubyStaker);
     }
 
     // Used for safe transfers of Ruby to RubyBar
     function _transferRubyToBar(uint256 amount) internal {
-        bool result = RubyToken(ruby).transfer(bar, amount);
+        bool result = RubyToken(ruby).transfer(rubyStaker, amount);
         require(result == true, "RubyMaker: Transfer to RubyBar unsuccessful.");
     }
 }
