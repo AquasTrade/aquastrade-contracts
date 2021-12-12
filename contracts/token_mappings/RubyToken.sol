@@ -16,10 +16,6 @@ contract RubyToken is ERC20Capped, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
-    /// @notice Burner role for the RubyMaker.
-    /// The RubyMaker contract should be able to burn tokens from the RubyBar (distribute and burn mechanism).
-    bytes32 public constant BURNER_FROM_ROLE_MAKER = keccak256("BURNER_FROM_ROLE_MAKER");
-
     /// @notice Total number of tokens
     uint256 public constant MAX_SUPPLY = 200_000_000e18; // 200 million Ruby
 
@@ -35,27 +31,11 @@ contract RubyToken is ERC20Capped, AccessControl {
         _moveDelegates(address(0), _delegates[to], amount);
     }
 
-    /// @notice Destroys `amount` of RUBY tokens from the msg.sender. Must only be called by the IMA TokenManager contract
+    /// @notice Destroys `amount` of RUBY tokens from the msg.sender. Must only be called by the IMA TokenManager contract and the RubyMaker contract
     function burn(uint256 amount) public virtual {
         require(hasRole(BURNER_ROLE, msg.sender), "RUBY::burn: Caller is not a burner");
         _burn(msg.sender, amount);
         _moveDelegates(msg.sender, address(0), amount);
-    }
-
-    /// @notice Destroys `amount` of RUBY tokens from account Must only be called by the RubyMaker contract
-    /// The RubyMaker contract can only burn tokens from the RubyBar contract
-    /// The appropriate allowance needs to be set to the RubyMaker for the RubyBar RUBY tokens.
-    function burnFrom(address account, uint256 amount) public virtual {
-        require(hasRole(BURNER_FROM_ROLE_MAKER, msg.sender), "RUBY::burnFrom: Caller is not a burner");
-
-        uint256 decreasedAllowance = allowance(account, msg.sender).sub(
-            amount,
-            "RUBY::burnFrom: burn amount exceeds allowance"
-        );
-
-        _approve(account, msg.sender, decreasedAllowance);
-        _burn(account, amount);
-        _moveDelegates(account, address(0), amount);
     }
 
     // Copied and modified from YAM code:

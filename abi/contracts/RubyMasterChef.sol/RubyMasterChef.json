@@ -2,8 +2,13 @@
   {
     "inputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "address",
         "name": "_ruby",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_rubyStaker",
         "type": "address"
       },
       {
@@ -142,6 +147,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "MultiHarvest",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "previousOwner",
         "type": "address"
       },
@@ -161,6 +185,12 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "to",
         "type": "address"
       },
@@ -171,7 +201,7 @@
         "type": "uint256"
       }
     ],
-    "name": "RubyEmergencyWithdrawal",
+    "name": "RubyTokenEmergencyWithdrawal",
     "type": "event"
   },
   {
@@ -203,6 +233,19 @@
       }
     ],
     "name": "Set",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newRubyStaker",
+        "type": "address"
+      }
+    ],
+    "name": "SetRubyStaker",
     "type": "event"
   },
   {
@@ -351,6 +394,19 @@
   {
     "inputs": [
       {
+        "internalType": "uint256[]",
+        "name": "_pids",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_pid",
         "type": "uint256"
@@ -383,16 +439,16 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "to",
+        "name": "_receiver",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "name": "emergencyWithdrawRubyTokens",
+    "name": "emergencyWithdrawRubyToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -553,6 +609,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "rubyStaker",
+    "outputs": [
+      {
+        "internalType": "contract IRubyStaker",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -576,6 +645,19 @@
       }
     ],
     "name": "set",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newRubyStaker",
+        "type": "address"
+      }
+    ],
+    "name": "setRubyStaker",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

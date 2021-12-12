@@ -21,19 +21,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     if (chainId === CHAIN_ID.HARDHAT || chainId === CHAIN_ID.LOCALHOST) {
       TOKEN_ADDRESSES = [
         (await get("MockUSDP")).address,
+        (await get("MockDAI")).address,
         (await get("MockUSDC")).address,
         (await get("MockUSDT")).address,
       ];
     } else {
       TOKEN_ADDRESSES = [
         (await get("RubyUSDP")).address,
+        (await get("RubyDAI")).address,
         (await get("RubyUSDC")).address,
         (await get("RubyUSDT")).address,
       ];
     }
 
-    const TOKEN_DECIMALS = [18, 6, 6];
-    const LP_TOKEN_NAME = "Ruby USDP/USDC/USDT";
+    const TOKEN_DECIMALS = [18, 18, 6, 6];
+    const LP_TOKEN_NAME = "Ruby USDP/DAI/USDC/USDT";
     const LP_TOKEN_SYMBOL = "rubyUSD";
     const INITIAL_A = 200;
     const SWAP_FEE = 4e6; // 4bps
@@ -60,21 +62,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     const newPoolEvent = receipt?.events?.find((e: any) => e["event"] == "NewSwapPool");
     const usdSwapAddress = newPoolEvent["args"]["swapAddress"];
-    log(`deployed USD pool (targeting "Swap") at ${usdSwapAddress}`);
-    await save("RubyUSDPool", {
+    log(`deployed USD 4 pool (targeting "Swap") at ${usdSwapAddress}`);
+    await save("RubyUSD4Pool", {
       abi: (await get("Swap")).abi,
       address: usdSwapAddress,
     });
   }
 
-  const lpTokenAddress = (await read("RubyUSDPool", "swapStorage")).lpToken;
-  log(`USD pool LP Token at ${lpTokenAddress}`);
+  const lpTokenAddress = (await read("RubyUSD4Pool", "swapStorage")).lpToken;
+  log(`USD 4 pool LP Token at ${lpTokenAddress}`);
 
-  await save("RubyUSDPoolLPToken", {
+  await save("RubyUSD4PoolLPToken", {
     abi: (await get("LPToken")).abi, // LPToken ABI
     address: lpTokenAddress,
   });
 };
 export default func;
-func.tags = ["USDPool"];
+func.tags = ["USD4Pool", "StableSwap"];
 func.dependencies = ["SwapUtils", "SwapDeployer", "Swap"];

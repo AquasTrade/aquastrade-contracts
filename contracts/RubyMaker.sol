@@ -10,6 +10,7 @@ import "hardhat/console.sol";
 import "./amm/interfaces/IUniswapV2ERC20.sol";
 import "./amm/interfaces/IUniswapV2Pair.sol";
 import "./amm/interfaces/IUniswapV2Factory.sol";
+import "./interfaces/IRubyStaker.sol";
 
 import "./Ownable.sol";
 
@@ -19,7 +20,7 @@ contract RubyMaker is Ownable {
     using SafeERC20 for IERC20;
 
     IUniswapV2Factory public immutable factory;
-    address public immutable rubyStaker;
+    IRubyStaker public immutable rubyStaker;
     address private immutable ruby;
     address private immutable ethc;
     uint256 public burnPercent;
@@ -53,7 +54,7 @@ contract RubyMaker is Ownable {
         require(_burnPercent >= 0 && _burnPercent <= 100, "RubyMaker: Invalid burn percent.");
 
         factory = IUniswapV2Factory(_factory);
-        rubyStaker = _rubyStaker;
+        rubyStaker = IRubyStaker(_rubyStaker);
         ruby = _ruby;
         ethc = _ethc;
 
@@ -115,15 +116,17 @@ contract RubyMaker is Ownable {
         if (token0 != pair.token0()) {
             (amount0, amount1) = (amount1, amount0);
         }
-        uint256 convertedRuby = _convertStep(token0, token1, amount0, amount1);
-        uint256 rubyToBurn = (convertedRuby.mul(burnPercent)).div(100);
+        uint256 totalConvertedRuby = _convertStep(token0, token1, amount0, amount1);
+        uint256 rubyToBurn = (totalConvertedRuby.mul(burnPercent)).div(100);
 
-        convertedRuby = convertedRuby - rubyToBurn;
+        uint256 rubyRewards = totalConvertedRuby - rubyToBurn;
 
-        // Burn ruby from the bar after it has been transferred
-        RubyToken(ruby).burnFrom(rubyStaker, rubyToBurn);
+        // Burn ruby
+        RubyToken(ruby).burn(rubyToBurn);
 
-        emit LogConvert(msg.sender, token0, token1, amount0, amount1, convertedRuby, rubyToBurn);
+        rubyStaker.notifyRewardAmount(1, rubyRewards);
+
+        emit LogConvert(msg.sender, token0, token1, amount0, amount1, rubyRewards, rubyToBurn);
     }
 
     function _convertStep(
@@ -136,7 +139,6 @@ contract RubyMaker is Ownable {
         if (token0 == token1) {
             uint256 amount = amount0.add(amount1);
             if (token0 == ruby) {
-                _transferRubyToBar(amount);
                 rubyOut = amount;
             } else if (token0 == ethc) {
                 rubyOut = _toRUBY(ethc, amount);
@@ -147,11 +149,9 @@ contract RubyMaker is Ownable {
             }
         } else if (token0 == ruby) {
             // eg. RUBY - ETH
-            _transferRubyToBar(amount0);
             rubyOut = _toRUBY(token1, amount1).add(amount0);
         } else if (token1 == ruby) {
             // eg. USDT - RUBY
-            _transferRubyToBar(amount1);
             rubyOut = _toRUBY(token0, amount0).add(amount1);
         } else if (token0 == ethc) {
             // eg. ETH - USDC
@@ -205,12 +205,6 @@ contract RubyMaker is Ownable {
     }
 
     function _toRUBY(address token, uint256 amountIn) internal returns (uint256 amountOut) {
-        amountOut = _swap(token, ruby, amountIn, rubyStaker);
-    }
-
-    // Used for safe transfers of Ruby to RubyBar
-    function _transferRubyToBar(uint256 amount) internal {
-        bool result = RubyToken(ruby).transfer(rubyStaker, amount);
-        require(result == true, "RubyMaker: Transfer to RubyBar unsuccessful.");
+        amountOut = _swap(token, ruby, amountIn, address(this));
     }
 }

@@ -21,6 +21,7 @@ The default network specified in `hardhat.config.ts` would be used for the deplo
 1. `yarn deploy --tags MockUSDC`
 2. `yarn deploy --tags MockUSDP`
 3. `yarn deploy --tags MockUSDT`
+4. `yarn deploy --tags MockDAI`
 
 or
 
@@ -31,6 +32,7 @@ or
 1. `yarn deploy --tags RubyUSDC`
 2. `yarn deploy --tags RubyUSDP`
 3. `yarn deploy --tags RubyUSDT`
+3. `yarn deploy --tags RubyDAI`
 
 or
 
@@ -75,7 +77,7 @@ or
 4. `yarn deploy --tags LPToken`
 5. `yarn deploy --tags SwapDeployer`
 6. `yarn deploy --tags Swap`
-7. `yarn deploy --tags USDPool`
+7. `yarn deploy --tags USD4Pool`
 
 or
 
