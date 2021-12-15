@@ -61,15 +61,15 @@ export const assertRubyConversion = async (
 ) => {
   const makerBalanceRuby = await testState.ruby.balanceOf(testState.rubyMaker.address);
   const makerBalanceLP = await lpToken.balanceOf(testState.rubyMaker.address);
-  const barBalance = await testState.ruby.balanceOf(testState.bar.address);
+  const stakerBalance = await testState.ruby.balanceOf(testState.staker.address);
   const totalSupplyDifference = rubyTotalSupplyBefore.sub(rubyTotalSupplyAfter);
 
-  const burned = rubyConvertedAmount.mul(BigNumber.from(burnPercent)).div(BigNumber.from(1000));
+  const burned = rubyConvertedAmount.mul(BigNumber.from(burnPercent)).div(BigNumber.from(100));
   const distributed = rubyConvertedAmount.sub(burned);
 
   expect(makerBalanceRuby).to.equal(0);
   expect(makerBalanceLP).to.equal(0);
-  expect(barBalance).to.equal(distributed);
+  expect(stakerBalance).to.equal(distributed);
 
   expect(rubyConvertedAmount).to.equal(distributed.add(burned));
   expect(totalSupplyDifference).to.equal(burned);

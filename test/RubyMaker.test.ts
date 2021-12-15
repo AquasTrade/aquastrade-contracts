@@ -3,19 +3,18 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { prepare, deploy, getBigNumber, createSLP, assertRubyConversion } from "./utilities";
 
-import { RubyMaker, RubyToken } from "../typechain";
+import { RubyMaker, RubyTokenMintable } from "../typechain";
 
 describe("RubyMaker", function () {
-  // 20%, percentages are represented with 4 decimals for better granularity
-  const burnPercent = 200;
+  const burnPercent = 20; // 20%
   const makerBurnAllowance = ethers.utils.parseUnits((200_000_000).toString(), 18);
 
   before(async function () {
     this.signers = await ethers.getSigners();
     await prepare(this, [
       "RubyMaker",
-      "RubyBar",
-      "RubyToken",
+      "RubyStaker",
+      "RubyTokenMintable",
       "MockRubyMakerExploit",
       "MockERC20",
       "UniswapV2Factory",
@@ -25,7 +24,7 @@ describe("RubyMaker", function () {
 
   beforeEach(async function () {
     await deploy(this, [
-      ["ruby", this.RubyToken, []],
+      ["ruby", this.RubyTokenMintable, []],
       ["dai", this.MockERC20, ["DAI", "DAI", getBigNumber("10000000"), 18]],
       ["mic", this.MockERC20, ["MIC", "MIC", getBigNumber("10000000"), 18]],
       ["usdc", this.MockERC20, ["USDC", "USDC", getBigNumber("10000000"), 18]],
@@ -33,20 +32,30 @@ describe("RubyMaker", function () {
       ["strudel", this.MockERC20, ["$TRDL", "$TRDL", getBigNumber("10000000"), 18]],
       ["factory", this.UniswapV2Factory, [this.alice.address]],
     ]);
-    this.ruby = <RubyToken>this.ruby;
+    this.ruby = <RubyTokenMintable>this.ruby;
 
-    await this.ruby.mint(this.signers[0].address, getBigNumber("10000000"));
+    // await this.ruby.mint(this.signers[0].address, getBigNumber("10000000"));
 
-    await deploy(this, [["bar", this.RubyBar, [this.ruby.address]]]);
+    // deploy the staker with dummy addresses, not really relevant for these tests
+    await deploy(this, [["staker", this.RubyStaker, [this.ruby.address, this.ruby.address]]]);
     await deploy(this, [
       [
         "rubyMaker",
         this.RubyMaker,
-        [this.factory.address, this.bar.address, this.ruby.address, this.weth.address, burnPercent],
+        [this.factory.address, this.staker.address, this.ruby.address, this.weth.address, burnPercent],
       ],
     ]);
 
-    await this.bar.setMakerAllowance(this.rubyMaker.address, makerBurnAllowance);
+    const burnerRole = await this.ruby.BURNER_ROLE();
+  
+    if ((await this.ruby.hasRole(burnerRole, this.rubyMaker.address)) === false) {
+        let res = await this.ruby.grantRole(burnerRole, this.rubyMaker.address);
+      await res.wait(1);
+    }
+
+    // await this.staker.approveRewardDistributor(0, this.rubyMaker.address, true);
+    await this.staker.addReward(this.ruby.address, this.rubyMaker.address);
+    await this.ruby.a
 
     await deploy(this, [["exploiter", this.MockRubyMakerExploit, [this.rubyMaker.address]]]);
     await createSLP(this, "rubyEth", this.ruby, this.weth, getBigNumber(10));
@@ -62,12 +71,12 @@ describe("RubyMaker", function () {
   describe("RubyMaker state", function () {
     it("should be set correctly after deployment", async function () {
       let factoryAddr = await this.rubyMaker.factory();
-      let barAddr = await this.rubyMaker.bar();
+      let stakerAddr = await this.rubyMaker.rubyStaker();
       let burnPct = await this.rubyMaker.burnPercent();
       let owner = await this.rubyMaker.owner();
 
       expect(factoryAddr).to.equal(this.factory.address);
-      expect(barAddr).to.equal(this.bar.address);
+      expect(stakerAddr).to.equal(this.staker.address);
       expect(burnPct).to.equal(burnPercent);
       expect(owner).to.equal(this.signers[0].address);
     });
@@ -78,7 +87,7 @@ describe("RubyMaker", function () {
       expect(burnPct).to.equal(burnPercent);
 
       // change burn percent and assert
-      const newBurnPercent = 300;
+      const newBurnPercent = 30;
       await expect(this.rubyMaker.setBurnPercent(newBurnPercent))
         .to.emit(this.rubyMaker, "BurnPercentChanged")
         .withArgs(newBurnPercent);
@@ -93,7 +102,7 @@ describe("RubyMaker", function () {
       expect(burnPct).to.equal(burnPercent);
 
       // change burn percent and assert
-      const newBurnPercent = 1001;
+      const newBurnPercent = 101;
       await expect(this.rubyMaker.setBurnPercent(newBurnPercent)).to.be.revertedWith(
         "RubyMaker: Invalid burn percent.",
       );
@@ -105,7 +114,7 @@ describe("RubyMaker", function () {
       expect(burnPct).to.equal(burnPercent);
 
       // change burn percent and assert
-      const newBurnPercent = 100;
+      const newBurnPercent = 25;
       await expect(this.rubyMaker.connect(this.signers[1]).setBurnPercent(newBurnPercent)).to.be.revertedWith(
         "Ownable: caller is not the owner",
       );
@@ -360,7 +369,7 @@ describe("RubyMaker", function () {
       );
       expect(await this.ruby.balanceOf(this.rubyMaker.address)).to.equal(0);
       expect(await this.micUSDC.balanceOf(this.rubyMaker.address)).to.equal(getBigNumber(1));
-      expect(await this.ruby.balanceOf(this.bar.address)).to.equal(0);
+      expect(await this.ruby.balanceOf(this.staker.address)).to.equal(0);
     });
   });
 

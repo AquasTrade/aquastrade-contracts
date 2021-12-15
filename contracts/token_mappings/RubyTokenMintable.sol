@@ -26,6 +26,7 @@ contract RubyTokenMintable is ERC20Capped, AccessControl {
     constructor() public ERC20("RubyTokenMintable", "Ruby") ERC20Capped(MAX_SUPPLY) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _mint(msg.sender, MAX_SUPPLY);
+
     }
 
     /// @notice Creates `amount` token to `to`. Must only be called by the IMA TokenManager contract
@@ -33,14 +34,12 @@ contract RubyTokenMintable is ERC20Capped, AccessControl {
         require(hasRole(MINTER_ROLE, msg.sender), "RUBY::mint: Caller is not a minter");
         require(totalSupply().add(amount) <= MAX_SUPPLY, "RUBY::mint: Cannot exceed max supply.");
         _mint(to, amount);
-        _moveDelegates(address(0), _delegates[to], amount);
     }
 
     /// @notice Destroys `amount` of RUBY tokens from the msg.sender. Must only be called by the IMA TokenManager contract
     function burn(uint256 amount) public virtual {
         require(hasRole(BURNER_ROLE, msg.sender), "RUBY::burn: Caller is not a burner");
         _burn(msg.sender, amount);
-        _moveDelegates(msg.sender, address(0), amount);
     }
 
     /// @notice Destroys `amount` of RUBY tokens from account Must only be called by the RubyMaker contract
@@ -56,7 +55,6 @@ contract RubyTokenMintable is ERC20Capped, AccessControl {
 
         _approve(account, msg.sender, decreasedAllowance);
         _burn(account, amount);
-        _moveDelegates(account, address(0), amount);
     }
 
     // Copied and modified from YAM code:

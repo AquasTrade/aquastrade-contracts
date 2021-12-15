@@ -56,6 +56,7 @@ contract RubyMaker is Ownable {
         factory = IUniswapV2Factory(_factory);
         rubyStaker = IRubyStaker(_rubyStaker);
         ruby = _ruby;
+        IERC20(_ruby).approve(_rubyStaker, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
         ethc = _ethc;
 
         // Note: Percentages are defined with 3 decimals (20% is defined as 20)
@@ -66,7 +67,7 @@ contract RubyMaker is Ownable {
     }
 
     function setBurnPercent(uint256 newBurnPercent) external onlyOwner {
-        require(newBurnPercent >= 0 && newBurnPercent <= 1000, "RubyMaker: Invalid burn percent.");
+        require(newBurnPercent >= 0 && newBurnPercent <= 100, "RubyMaker: Invalid burn percent.");
         burnPercent = newBurnPercent;
         emit BurnPercentChanged(newBurnPercent);
     }
@@ -120,6 +121,9 @@ contract RubyMaker is Ownable {
         uint256 rubyToBurn = (totalConvertedRuby.mul(burnPercent)).div(100);
 
         uint256 rubyRewards = totalConvertedRuby - rubyToBurn;
+
+        console.log("Ruby to burn %s", rubyToBurn);
+        console.log("RubyRewards %s", rubyRewards);
 
         // Burn ruby
         RubyToken(ruby).burn(rubyToBurn);
