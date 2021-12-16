@@ -92,7 +92,7 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
     event SetTreasuryPercent(uint256 newPercent);
     event SetRubyStaker(address indexed newRubyStaker);
     event UpdateEmissionRate(address indexed user, uint256 _rubyPerSec);
-    event RubyTokenEmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
+    event RubyTokenEmergencyWithdrawal(address indexed to, uint256 amount);
 
     constructor(
         address _ruby,
@@ -102,11 +102,11 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         uint256 _startTimestamp,
         uint256 _treasuryPercent
     ) public {
-        require(_ruby != address(0), "RubyMasterChef: Invalid RubyToken address");
-        require(_rubyStaker != address(0), "RubyMasterChef: Invalid RubyStaker address");
-        require(_treasuryAddr != address(0), "RubyMasterChef: Invalid treasury address");
+        require(_ruby != address(0), "RubyMasterChef: Invalid RubyToken address.");
+        require(_rubyStaker != address(0), "RubyMasterChef: Invalid RubyStaker address.");
+        require(_treasuryAddr != address(0), "RubyMasterChef: Invalid treasury address.");
         require(_rubyPerSec != 0, "RubyMasterChef: Invalid emission rate amount.");
-        require(0 <= _treasuryPercent && _treasuryPercent <= 1000, "RubyMasterChef: invalid treasury percent value");
+        require(0 <= _treasuryPercent && _treasuryPercent <= 1000, "RubyMasterChef: invalid treasury percent value.");
 
         RUBY = IERC20(_ruby);
         rubyStaker = IRubyStaker(_rubyStaker);
@@ -364,11 +364,11 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
      * reward tokens (RUBY) tokens dedicated for liquidity mining incentives, and incase
      * of unfortunate situation they should be retreived.
      */
-    function emergencyWithdrawRubyToken(address _receiver, uint256 _amount) external onlyOwner {
+    function emergencyWithdrawRubyTokens(address _receiver, uint256 _amount) external onlyOwner {
         require(_receiver != address(0), "RubyMasterChef: Invalid withdrawal address.");
         require(_amount != 0, "RubyMasterChef: Invalid withdrawal amount.");
         require(RUBY.balanceOf(address(this)) >= _amount, "RubyMasterChef: Not enough balance to withdraw.");
         RUBY.safeTransfer(_receiver, _amount);
-        emit RubyTokenEmergencyWithdrawal(address(RUBY), _receiver, _amount);
+        emit RubyTokenEmergencyWithdrawal(_receiver, _amount);
     }
 }

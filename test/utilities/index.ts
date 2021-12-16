@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { RubyToken, UniswapV2Pair } from "../../typechain";
+import { RubyToken, UniswapV2Pair, RubyStaker } from "../../typechain";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 
@@ -74,5 +74,29 @@ export const assertRubyConversion = async (
   expect(rubyConvertedAmount).to.equal(distributed.add(burned));
   expect(totalSupplyDifference).to.equal(burned);
 };
+
+export const assertStakerBalances = async (stakerContract: RubyStaker, user: string, range: Array<number>) => {
+
+
+  const earningsResult = await stakerContract.earnedBalances(user);
+  const unlockedBalance = await stakerContract.unlockedBalance(user);
+  const [amount, penaltyAmount] = await stakerContract.withdrawableBalance(user);
+
+  // console.log("earningsResult", earningsResult);
+
+expect(earningsResult.total).to.be.to.be.within(range[0], range[1]);
+expect(earningsResult.earningsData[0].amount).to.be.within(range[0], range[1]);
+expect(unlockedBalance).to.be.eq(0);
+
+
+const expectedClaimableMin = Math.floor(range[0] / 2);
+const expectedClaimableMax = Math.floor(range[1] / 2);
+expect(amount).to.be.within(expectedClaimableMin, expectedClaimableMax)
+expect(penaltyAmount).to.be.within(expectedClaimableMin, expectedClaimableMax)
+
+      // TODO: Expect earningsResult.earningsData[0].unlockTime
+
+
+}
 
 export * from "./time";

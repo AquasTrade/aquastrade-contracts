@@ -37,7 +37,7 @@ describe("RubyMaker", function () {
     // await this.ruby.mint(this.signers[0].address, getBigNumber("10000000"));
 
     // deploy the staker with dummy addresses, not really relevant for these tests
-    await deploy(this, [["staker", this.RubyStaker, [this.ruby.address, this.ruby.address]]]);
+    await deploy(this, [["staker", this.RubyStaker, [this.ruby.address]]]);
     await deploy(this, [
       [
         "rubyMaker",

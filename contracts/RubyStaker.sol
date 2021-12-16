@@ -24,8 +24,10 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
 
     /* ========== EVENTS ========== */
 
-    event RewardMinterUpdate(address indexed oldRewardMinter, address indexed newRewardMinter);
+    event RewardMinterSet(address indexed newRewardMinter);
     event RewardDistributorSet(address indexed rewardDistributor);
+    event RewardDataRegistered(address indexed rewardToken, address indexed distributor);
+    event RewardDistributorApproved(address indexed rewardToken, address indexed distributor, bool approved);
     event RubyTokenEmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
     event RewardAdded(uint256 reward);
     event Staked(address indexed user, uint256 amount);
@@ -70,7 +72,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
 
     uint256 public numRewards;
     // rewardId => Reward
-    mapping(uint256 => Reward) rewardData;
+    mapping(uint256 => Reward) public rewardData;
 
     // Duration that rewards are streamed over
     uint256 public constant rewardsDuration = 86400 * 7;
@@ -129,11 +131,9 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         _;
     }
 
-    constructor(address _rubyToken, address _rewardMinter) public {
+    constructor(address _rubyToken) public {
         require(_rubyToken != address(0), "RubyStaker: Invalid ruby token.");
-        require(_rewardMinter != address(0), "RubyStaker: Invalid reward minter address.");
         rubyToken = IERC20(_rubyToken);
-        rewardMinter = _rewardMinter;
         // set reward data
         uint256 rubyLockedRewardsId = numRewards;
         rewardData[rubyLockedRewardsId].rewardToken = _rubyToken;
@@ -143,10 +143,10 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
 
     /* ========== ADMIN CONFIGURATION ========== */
 
-    function updateRewardMinter(address _newRewardMinter) external onlyOwner {
-        require(_newRewardMinter != address(0), "RubyStaker: Invalid new reward minter.");
-        emit RewardMinterUpdate(rewardMinter, _newRewardMinter);
-        rewardMinter = _newRewardMinter;
+    function setRewardMinter(address _rewardMinter) external onlyOwner {
+        require(_rewardMinter != address(0), "RubyStaker: Invalid new reward minter.");
+        rewardMinter = _rewardMinter;
+        emit RewardMinterSet(rewardMinter);
     }
 
     // Add a new reward token to be distributed to stakers
@@ -162,6 +162,9 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         rewardDistributors[rewardTokenId][_distributor] = true;
 
         numRewards++;
+
+        emit RewardDataRegistered(_rewardsToken, _distributor);
+
     }
 
     // Modify approval for an address to call notifyRewardAmount
@@ -173,6 +176,8 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         require(_rewardId > 0, "RubyStaker: Invalid rewardId.");
         require(rewardData[_rewardId].lastUpdateTime > 0, "RubyStaker: Invalid reward distributor approval request");
         rewardDistributors[_rewardId][_distributor] = _approved;
+        emit RewardDistributorApproved(rewardData[_rewardId].rewardToken, _distributor, _approved);
+
     }
 
     /* ========== VIEW FUNCTIONS ========== */
