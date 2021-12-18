@@ -1,7 +1,7 @@
 const { ethers, network } = require("hardhat");
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { ADDRESS_ZERO, advanceTimeAndBlock, latest, assertStakerBalances } from "./utilities";
+import { ADDRESS_ZERO, advanceTimeByTimestamp, latest, assertStakerBalances } from "./utilities";
 
 describe("RubyMasterChef", function () {
   before(async function () {
@@ -349,23 +349,23 @@ describe("RubyMasterChef", function () {
 
       await this.partnerToken.mint(this.rewarder.address, "80"); // t-56
 
-      await advanceTimeAndBlock(1); // t-55
+      await advanceTimeByTimestamp(1); // t-55
 
       await this.chef.add("100", this.lp.address, this.rewarder.address); // t-54
 
       await this.lp.connect(this.bob).approve(this.chef.address, "1000"); // t-53
       await this.chef.connect(this.bob).deposit(0, "100"); // t-52
-      await advanceTimeAndBlock(4); // t-48
+      await advanceTimeByTimestamp(4); // t-48
 
       await this.chef.connect(this.bob).deposit(0, "0"); // t-47
       // Bob should have:
       //   - 0 RubyToken
       //   - 80 PartnerToken
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal(80);
-      await advanceTimeAndBlock(5); // t-42
+      await advanceTimeByTimestamp(5); // t-42
 
       await this.partnerToken.mint(this.rewarder.address, "1000"); // t-41
-      await advanceTimeAndBlock(10); // t-31
+      await advanceTimeByTimestamp(10); // t-31
 
       await this.chef.connect(this.bob).deposit(0, "0"); // t-30
 
@@ -400,13 +400,13 @@ describe("RubyMasterChef", function () {
 
       await this.partnerToken.mint(this.rewarder.address, "1000000000000000000000000"); // t-56
 
-      await advanceTimeAndBlock(1); // t-55
+      await advanceTimeByTimestamp(1); // t-55
 
       await this.chef.add("100", this.lp.address, this.rewarder.address); // t-54
 
       await this.lp.connect(this.bob).approve(this.chef.address, "1000"); // t-53
       await this.chef.connect(this.bob).deposit(0, "100"); // t-52
-      await advanceTimeAndBlock(42); // t-10
+      await advanceTimeByTimestamp(42); // t-10
 
       await expect(this.rewarder.onRubyReward(this.bob.address, "100")).to.be.revertedWith(
         "onlyRubyMasterChef: only RubyMasterChef can call this function",
@@ -450,14 +450,14 @@ describe("RubyMasterChef", function () {
 
       await this.lp.connect(this.bob).approve(this.chef.address, "1000"); // t-53
       await this.chef.connect(this.bob).deposit(0, "100"); // t-52
-      await advanceTimeAndBlock(41); // t-11
+      await advanceTimeByTimestamp(41); // t-11
 
       await this.chef.connect(this.bob).deposit(0, "0"); // t-10
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
       // At t+10, Bob should have pending:
       //   - 10*9 = 90 = 10 tokens - 1 token for treasury percent (+5) RubyToken
       //   - 0 PartnerToken
-      await advanceTimeAndBlock(20); // t+10
+      await advanceTimeByTimestamp(20); // t+10
       expect((await this.chef.pendingTokens(0, this.bob.address)).pendingRuby).to.be.within(90, 95);
       expect((await this.chef.pendingTokens(0, this.bob.address)).bonusTokenAddress).to.equal(ADDRESS_ZERO);
       expect((await this.chef.pendingTokens(0, this.bob.address)).pendingBonusToken).to.equal(0);
@@ -468,7 +468,7 @@ describe("RubyMasterChef", function () {
       // At t+20, Bob should have pending:
       //   - 10*9 + 10* = 180 (+5) RubyToken
       //   - 0 PartnerToken
-      await advanceTimeAndBlock(9); // t+20
+      await advanceTimeByTimestamp(9); // t+20
       expect((await this.chef.pendingTokens(0, this.bob.address)).pendingRuby).to.be.within(180, 185);
       expect((await this.chef.pendingTokens(0, this.bob.address)).bonusTokenAddress).to.equal(ADDRESS_ZERO);
       expect((await this.chef.pendingTokens(0, this.bob.address)).pendingBonusToken).to.equal(0);
@@ -479,7 +479,7 @@ describe("RubyMasterChef", function () {
       // At t+30, Bob should have pending:
       //   - 10*9 + 10*9 + 10*9 = 270 (+5) RubyToken
       //   - 0 PartnerToken - this is because rewarder hasn't registered the user yet! User needs to call deposit again
-      await advanceTimeAndBlock(9); // t+30
+      await advanceTimeByTimestamp(9); // t+30
       expect((await this.chef.pendingTokens(0, this.bob.address)).pendingRuby).to.be.within(270, 275);
       expect((await this.chef.pendingTokens(0, this.bob.address)).bonusTokenAddress).to.equal(
         this.partnerToken.address,
@@ -493,7 +493,7 @@ describe("RubyMasterChef", function () {
       // At t+40, Bob should have pending:
       //   - 9*9 = 81 (+10) RubyToken
       //   - 9*40 = 360 (+40) PartnerToken
-      await advanceTimeAndBlock(9); // t+40
+      await advanceTimeByTimestamp(9); // t+40
       expect((await this.chef.pendingTokens(0, this.bob.address)).pendingRuby).to.be.within(81, 91);
       expect((await this.chef.pendingTokens(0, this.bob.address)).bonusTokenAddress).to.equal(
         this.partnerToken.address,
@@ -507,8 +507,8 @@ describe("RubyMasterChef", function () {
       // At t+50, Bob should have pending:
       //   - 81 + 10*9 = 171 (+5) RubyToken
       //   - 360 + 1*40 = 400 (+40) PartnerToken
-      await advanceTimeAndBlock(4); // t+45
-      await advanceTimeAndBlock(5); // t+50
+      await advanceTimeByTimestamp(4); // t+45
+      await advanceTimeByTimestamp(5); // t+50
       expect((await this.chef.pendingTokens(0, this.bob.address)).pendingRuby).to.be.within(171, 176);
       expect((await this.chef.pendingTokens(0, this.bob.address)).bonusTokenAddress).to.equal(
         this.partnerToken.address,
@@ -560,7 +560,7 @@ describe("RubyMasterChef", function () {
 
       await this.lp.connect(this.bob).approve(this.chef.address, "1000"); // t-53
       await this.chef.connect(this.bob).deposit(0, "100"); // t-52
-      await advanceTimeAndBlock(42); // t-10
+      await advanceTimeByTimestamp(42); // t-10
 
       await this.chef.connect(this.bob).deposit(0, "0"); // t-9
       // Bob should have:
@@ -568,11 +568,11 @@ describe("RubyMasterChef", function () {
       //   - 43*40 = 1720 (+40) PartnerToken
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.be.within(1720, 1760);
-      await advanceTimeAndBlock(8); // t-1
+      await advanceTimeByTimestamp(8); // t-1
 
       await this.chef.connect(this.bob).deposit(0, "0"); // t-0
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
-      await advanceTimeAndBlock(10); // t+10
+      await advanceTimeByTimestamp(10); // t+10
 
       await this.chef.connect(this.bob).deposit(0, "0"); // t+11
       // Bob should have:
@@ -582,7 +582,7 @@ describe("RubyMasterChef", function () {
       await assertStakerBalances(this.staker, this.bob.address, [90, 100]);
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.be.within(2520, 2560);
 
-      await advanceTimeAndBlock(4); // t+15
+      await advanceTimeByTimestamp(4); // t+15
       await this.chef.connect(this.bob).deposit(0, "0"); // t+16
 
       expect(await this.ruby.balanceOf(this.bob.address)).to.be.eq(0);
@@ -621,20 +621,20 @@ describe("RubyMasterChef", function () {
 
       await this.chef.add("100", this.lp.address, this.rewarder.address); // t-54
       await this.lp.connect(this.bob).approve(this.chef.address, "1000"); // t-53
-      await advanceTimeAndBlock(107); // t+54
+      await advanceTimeByTimestamp(107); // t+54
 
       // expect(await this.ruby.totalSupply()).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
-      await advanceTimeAndBlock(5); // t+59
+      await advanceTimeByTimestamp(5); // t+59
       // expect(await this.ruby.totalSupply()).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
-      await advanceTimeAndBlock(5); // t+64
+      await advanceTimeByTimestamp(5); // t+64
       await this.chef.connect(this.bob).deposit(0, "10"); // t+65
       // expect(await this.ruby.totalSupply()).to.equal("0");
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
       expect(await this.lp.balanceOf(this.bob.address)).to.equal("990");
-      await advanceTimeAndBlock(10); // t+75
+      await advanceTimeByTimestamp(10); // t+75
       // Revert if Bob withdraws more than he deposited
       await expect(this.chef.connect(this.bob).withdraw(0, "11")).to.be.revertedWith("withdraw: not good"); // t+76
       await this.chef.connect(this.bob).withdraw(0, "10"); // t+77
@@ -689,13 +689,13 @@ describe("RubyMasterChef", function () {
       }); // t-51
 
       // Alice deposits 10 LPs at t+10
-      await advanceTimeAndBlock(58); // t+9
+      await advanceTimeByTimestamp(58); // t+9
       await this.chef.connect(this.alice).deposit(0, "10", { from: this.alice.address }); // t+10
       // Bob deposits 20 LPs at t+14
-      await advanceTimeAndBlock(3); // t+13
+      await advanceTimeByTimestamp(3); // t+13
       await this.chef.connect(this.bob).deposit(0, "20"); // t+14
       // Carol deposits 30 LPs at block t+18
-      await advanceTimeAndBlock(3); // t+17
+      await advanceTimeByTimestamp(3); // t+17
       await this.chef.connect(this.carol).deposit(0, "30", { from: this.carol.address }); // t+18
       // Alice deposits 10 more LPs at t+20. At this point:
       //   Alice should have:
@@ -703,7 +703,7 @@ describe("RubyMasterChef", function () {
       //      - 4*40 + 4*40*1/3 + 2*40*1/6 = 226 (+40) PartnerToken
       //   Treasury should have: 10*1 = 10 (+2)
       //   MasterChef should have: 1000 - 51 - 10 = 939 (+10)
-      await advanceTimeAndBlock(1); // t+19
+      await advanceTimeByTimestamp(1); // t+19
       await this.chef.connect(this.alice).deposit(0, "10", { from: this.alice.address }); // t+20,
       // expect(await this.ruby.totalSupply()).to.be.within(100, 110);
       // Because LP rewards are divided among participants and rounded down, we account
@@ -754,7 +754,7 @@ describe("RubyMasterChef", function () {
       //     - 4*40*2/3 + 2*40*2/6 + 10*40*2/7 = 247 (+40) PartnerToken
       //   Treasury should have: 20*1 = 20 (+2)
       //   MasterChef should have: 939 - 55.7 - 10 = 873.3 (+10)
-      await advanceTimeAndBlock(9); // t+29
+      await advanceTimeByTimestamp(9); // t+29
       await this.chef.connect(this.bob).withdraw(0, "5", { from: this.bob.address }); // t+30
       // expect(await this.ruby.totalSupply()).to.be.within(200, 210);
       // Because of rounding errors, we use token offsets
@@ -805,11 +805,11 @@ describe("RubyMasterChef", function () {
       // Alice withdraws 20 LPs at t+40
       // Bob withdraws 15 LPs at t+50
       // Carol withdraws 30 LPs at t+60
-      await advanceTimeAndBlock(9); // t+39
+      await advanceTimeByTimestamp(9); // t+39
       await this.chef.connect(this.alice).withdraw(0, "20", { from: this.alice.address }); // t+40
-      await advanceTimeAndBlock(9); // t+49
+      await advanceTimeByTimestamp(9); // t+49
       await this.chef.connect(this.bob).withdraw(0, "15", { from: this.bob.address }); // t+50
-      await advanceTimeAndBlock(9); // t+59
+      await advanceTimeByTimestamp(9); // t+59
       await this.chef.connect(this.carol).withdraw(0, "30", { from: this.carol.address }); // t+60
       // expect(await this.ruby.totalSupply()).to.be.within(500, 510);
       // Alice should have:
@@ -923,10 +923,10 @@ describe("RubyMasterChef", function () {
       // Add first LP to the pool with allocation 10
       await this.chef.add("10", this.lp.address, this.rewarder.address); // t-52
       // Alice deposits 10 LPs at t+10
-      await advanceTimeAndBlock(61); // t+9
+      await advanceTimeByTimestamp(61); // t+9
       await this.chef.connect(this.alice).deposit(0, "10", { from: this.alice.address }); // t+10
       // Add LP2 to the pool with allocation 20 at t+20
-      await advanceTimeAndBlock(9); // t+19
+      await advanceTimeByTimestamp(9); // t+19
       await this.chef.add("20", this.lp2.address, ADDRESS_ZERO); // t+20
       // Alice's pending reward should be:
       //   - 10*9 = 90 (+5) RubyToken
@@ -937,7 +937,7 @@ describe("RubyMasterChef", function () {
       );
       expect(await this.rewarder.pendingTokens(this.alice.address)).to.be.within(400, 440);
       // Bob deposits 10 LP2s at t+25
-      await advanceTimeAndBlock(4); // t+24
+      await advanceTimeByTimestamp(4); // t+24
       await this.chef.connect(this.bob).deposit(1, "10", { from: this.bob.address }); // t+25
       // Alice's pending reward should be:
       //   - 90 + 5*1/3*9 = 105 (+5) RubyToken
@@ -955,7 +955,7 @@ describe("RubyMasterChef", function () {
       // Bob's pending reward should be:
       //     - 5*2/3*9 = 30 (+50) RubyToken
       //     - 0 PartnerToken
-      await advanceTimeAndBlock(5); // t+30
+      await advanceTimeByTimestamp(5); // t+30
 
       expect((await this.chef.pendingTokens(0, this.alice.address)).pendingRuby).to.be.within(
         120 - this.tokenOffset,
@@ -1032,12 +1032,12 @@ describe("RubyMasterChef", function () {
       await this.lp.connect(this.alice).approve(this.chef.address, "1000", { from: this.alice.address }); // t-54
       await this.chef.add("10", this.lp.address, this.rewarder.address); // t-53
       // Alice deposits 10 LPs at t+10
-      await advanceTimeAndBlock(62); // t+9
+      await advanceTimeByTimestamp(62); // t+9
       await this.chef.connect(this.alice).deposit(0, "10", { from: this.alice.address }); // t+10
       // At t+110, Alice should have:
       //   - 100*10*0.9 = 900 (+10) RubyToken
       //   - 100*40 = 4000 (+40) PartnerToken
-      await advanceTimeAndBlock(100); // t+110
+      await advanceTimeByTimestamp(100); // t+110
       expect((await this.chef.pendingTokens(0, this.alice.address)).pendingRuby).to.be.within(900, 910);
       expect(await this.rewarder.pendingTokens(this.alice.address)).to.be.within(4000, 4040);
       // Lower RUBY emission rate to 4 RUBY per sec
@@ -1045,7 +1045,7 @@ describe("RubyMasterChef", function () {
       // At t+115, Alice should have:
       //   - 900 + 1*10*0.9 + 4*4*0.9 = 923.4 (+10) RubyToken
       //   - 4000 + 5*40 = 4200 (+40) PartnerToken
-      await advanceTimeAndBlock(4); // t+115
+      await advanceTimeByTimestamp(4); // t+115
       expect((await this.chef.pendingTokens(0, this.alice.address)).pendingRuby).to.be.within(923, 933);
       expect(await this.rewarder.pendingTokens(this.alice.address)).to.be.within(4200, 4240);
       // Increase PartnerToken emission rate to 90 PartnerToken per block
@@ -1053,7 +1053,7 @@ describe("RubyMasterChef", function () {
       // At b=35, Alice should have:
       //   - 923.4 + 21*4*0.9 = 999 (+10) RubyToken
       //   - 4200 + 1*40 + 20*90 = 6040 (+90) PartnerToken
-      await advanceTimeAndBlock(20); // t+136
+      await advanceTimeByTimestamp(20); // t+136
       expect((await this.chef.pendingTokens(0, this.alice.address)).pendingRuby).to.be.within(999, 1099);
       expect(await this.rewarder.pendingTokens(this.alice.address)).to.be.within(6040, 6130);
     });

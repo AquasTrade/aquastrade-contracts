@@ -22,9 +22,15 @@ export async function latest() {
   return BigNumber.from(block.timestamp);
 }
 
-export async function advanceTimeAndBlock(time: number) {
-  await advanceTime(time);
-  await advanceBlock();
+export async function advanceTimeByTimestamp(time: number) {
+  await ethers.provider.send("evm_increaseTime", [time]);
+  await ethers.provider.send("evm_mine", []);
+}
+
+export async function advanceTimeToTimestamp(time: number) {
+  await ethers.provider.send("evm_setNextBlockTimestamp", [time]);
+  await ethers.provider.send("evm_mine", []);
+
 }
 
 export async function advanceTime(time: number) {

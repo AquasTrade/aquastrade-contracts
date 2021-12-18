@@ -31,7 +31,8 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     event RubyTokenEmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
     event RewardAdded(uint256 reward);
     event Staked(address indexed user, uint256 amount);
-    event Withdrawn(address indexed user, uint256 amount);
+    event Withdrawal(address indexed user, uint256 amount);
+    event ExpiredLocksWithdrawal(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, address indexed rewardToken, uint256 reward);
     event RewardsDurationUpdated(address token, uint256 newDuration);
     event Recovered(address token, uint256 amount);
@@ -78,7 +79,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     uint256 public constant rewardsDuration = 86400 * 7;
 
     // Duration of lock/earned penalty period
-    uint256 public constant lockDuration = rewardsDuration * 12;
+    uint256 public constant lockDuration = rewardsDuration * 13;
 
     // user -> rewardTypeId -> amount
     mapping(address => mapping(uint256 => uint256)) public userRewardPerTokenPaid;
@@ -243,7 +244,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     // Total withdrawable balance for an account to which no penalty is applied
     function unlockedBalance(address user) external view returns (uint256 amount) {
         amount = balances[user].unlocked;
-        LockedBalance[] storage earnings = userEarnings[msg.sender];
+        LockedBalance[] storage earnings = userEarnings[user];
         for (uint256 i = 0; i < earnings.length; i++) {
             if (earnings[i].unlockTime > block.timestamp) {
                 break;
@@ -411,7 +412,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         if (penaltyAmount > 0) {
             _notifyReward(0, penaltyAmount);
         }
-        emit Withdrawn(msg.sender, amount);
+        emit Withdrawal(msg.sender, amount);
     }
 
     // Claim all pending staking rewards
@@ -465,6 +466,7 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         totalSupply = totalSupply.sub(amount);
         lockedSupply = lockedSupply.sub(amount);
         rubyToken.safeTransfer(msg.sender, amount);
+        emit ExpiredLocksWithdrawal(msg.sender, amount);
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
