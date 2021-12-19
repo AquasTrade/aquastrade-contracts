@@ -1,6 +1,8 @@
 const { ethers, network } = require("hardhat");
 import { expect } from "chai";
 import { BigNumber } from "ethers";
+import { RubyStaker } from "../typechain";
+import { RubyBar__factory } from "../typechain/factories/RubyBar__factory";
 import { ADDRESS_ZERO, advanceTimeByTimestamp, advanceTimeToTimestamp, latest, assertStakerBalances } from "./utilities";
 
 describe("RubyStaker", function () {
@@ -19,6 +21,7 @@ describe("RubyStaker", function () {
     this.rubyStaker = await ethers.getContractFactory("RubyStaker");
     this.RubyToken = await ethers.getContractFactory("RubyTokenMintable");
     this.USDPtoken = await ethers.getContractFactory("MockUSDP");
+    this.DAItoken = await ethers.getContractFactory("MockDAI");
 
   });
 
@@ -29,6 +32,9 @@ describe("RubyStaker", function () {
 
     this.usdp = await this.USDPtoken.deploy(); 
     await this.usdp.deployed();
+
+    this.dai = await this.DAItoken.deploy(); 
+    await this.dai.deployed();
 
     const ownerBalance = await this.ruby.balanceOf(this.owner.address);
 
@@ -952,8 +958,6 @@ describe("RubyStaker", function () {
   });
 
   it("regular rewards should work as expected", async function () {
- 
-
 
     await this.staker.addReward(this.ruby.address, this.owner.address);
     await this.staker.addReward(this.usdp.address, this.owner.address);
@@ -1038,7 +1042,124 @@ describe("RubyStaker", function () {
   });
 
 
+  it("regular and lock rewards should work as expected", async function () {
 
+    const carolInitialBalanceBuby = await this.ruby.balanceOf(this.carol.address);
+
+    await this.staker.addReward(this.dai.address, this.owner.address);
+    await this.staker.addReward(this.usdp.address, this.owner.address);
+
+
+    await this.dai.approve(this.staker.address, ethers.constants.MaxUint256);
+    await this.usdp.approve(this.staker.address, ethers.constants.MaxUint256);
+
+    const mintAmount = ethers.utils.parseUnits("5", 18);
+    const stakeAmounts = [
+      ethers.utils.parseUnits("1", 18),
+      ethers.utils.parseUnits("5", 18),
+      ethers.utils.parseUnits("1", 18)
+    ];
+    
+
+    expect (await this.staker.connect(this.bob).stake(stakeAmounts[0], true)).to.emit(this.staker, "Staked").withArgs(this.bob.address, stakeAmounts[0]);
+    expect (await this.staker.connect(this.carol).stake(stakeAmounts[1], false)).to.emit(this.staker, "Staked").withArgs(this.carol.address, stakeAmounts[1]);
+
+    await advanceTimeByTimestamp(this.rewardDuration);
+    expect (await this.staker.connect(this.bob).stake(stakeAmounts[2], true)).to.emit(this.staker, "Staked").withArgs(this.bob.address, stakeAmounts[2]);
+
+    expect(await this.staker.setRewardMinter(this.owner.address)).to.emit(this.staker, "RewardMinterSet").withArgs(this.owner.address);
+    expect (await this.staker.mint(this.carol.address, mintAmount)).to.emit(this.staker, "Staked").withArgs(this.carol.address, mintAmount);
+    await this.ruby.transfer(this.staker.address, mintAmount);
+
+    await advanceTimeByTimestamp(this.rewardDuration - 1);
+
+    expect (await this.staker.mint(this.bob.address, mintAmount)).to.emit(this.staker, "Staked").withArgs(this.bob.address, mintAmount);
+    await this.ruby.transfer(this.staker.address, mintAmount);
+
+    await this.staker.connect(this.bob).exit();
+
+    const rewardAmounts = [
+      ethers.utils.parseUnits("100000", 18),
+      ethers.utils.parseUnits("500000", 18),
+    ]
+
+    await this.staker.notifyRewardAmount(1, rewardAmounts[0])
+    await this.staker.notifyRewardAmount(2, rewardAmounts[1])
+    await advanceTimeByTimestamp(this.rewardDuration);
+
+    const bobInitialBalanceToken1 = await this.dai.balanceOf(this.bob.address);
+    const carolInitialBalanceToken1 = await this.dai.balanceOf(this.carol.address);
+    const bobInitialBalanceToken2 = await this.usdp.balanceOf(this.bob.address);
+    const carolInitialBalanceToken2 = await this.usdp.balanceOf(this.carol.address);
+
+    const initialBalanceBobRuby = await this.ruby.balanceOf(this.bob.address)
+
+    const pendingBob = await this.staker.claimableRewards(this.bob.address);
+
+    await this.staker.connect(this.bob).getReward();
+
+    await this.staker.connect(this.carol).exit();
+
+    const actualBalanceBobRuby = (await this.ruby.balanceOf(this.bob.address)).sub(initialBalanceBobRuby) 
+
+    const actualBalanceBobToken1 = (await this.dai.balanceOf(this.bob.address)).sub(bobInitialBalanceToken1);
+    const actualBalanceBobToken2 = (await this.usdp.balanceOf(this.bob.address)).sub(bobInitialBalanceToken2);
+
+
+    expect(pendingBob[0].token).to.be.eq(this.ruby.address);
+    expect(pendingBob[0].amount).to.be.eq(actualBalanceBobRuby);
+
+    expect(pendingBob[1].token).to.be.eq(this.dai.address);
+    expect(pendingBob[1].amount).to.be.eq(actualBalanceBobToken1);
+
+    expect(pendingBob[2].token).to.be.eq(this.usdp.address);
+    expect(pendingBob[2].amount).to.be.eq(actualBalanceBobToken2);
+
+    const currentBalanceCarolToken1 = await this.dai.balanceOf(this.carol.address);
+    const currentBalanceCarolToken2 = await this.usdp.balanceOf(this.carol.address);
+
+
+    expect((currentBalanceCarolToken1.sub(carolInitialBalanceToken1)).div(actualBalanceBobToken1)).to.be.eq(5);
+    expect((currentBalanceCarolToken2.sub(carolInitialBalanceToken2)).div(actualBalanceBobToken2)).to.be.eq(5);
+
+    const currentBalanceCarolRuby = await this.ruby.balanceOf(this.carol.address);
+    const currentBalanceBobRuby = await this.ruby.balanceOf(this.bob.address);
+
+
+    const oneUnit =  ethers.utils.parseUnits("1", 18);
+    expect(currentBalanceCarolRuby).to.be.eq(carolInitialBalanceBuby.add(mintAmount.div(2)))
+    expect(currentBalanceBobRuby).to.be.lt(initialBalanceBobRuby.add(mintAmount.div(2)))
+    expect(currentBalanceBobRuby).to.be.gt((initialBalanceBobRuby.add(mintAmount.div(2))).sub(oneUnit))
+  });
+
+
+  it("notify many times should work as expected", async function () {
+
+    await this.staker.addReward(this.dai.address, this.owner.address);
+    await this.dai.approve(this.staker.address, ethers.constants.MaxUint256);
+
+    const stakeAmount = ethers.utils.parseUnits("1", 18);
+    const rewardAmount = ethers.utils.parseUnits("10000", 18);
+
+
+    expect (await this.staker.connect(this.bob).stake(stakeAmount, true)).to.emit(this.staker, "Staked").withArgs(this.bob.address, stakeAmount);
+
+    for(let i = 0; i < 20; i++) {
+      await this.staker.notifyRewardAmount(1, rewardAmount)
+      await advanceTimeByTimestamp(3);
+    }
+
+    await advanceTimeByTimestamp(this.rewardDuration + 1);
+
+    const initialBalanceBobDai = await this.dai.balanceOf(this.bob.address);
+    await this.staker.connect(this.bob).getReward();
+    const currentBalanceBobDai = await this.dai.balanceOf(this.bob.address);
+
+    const oneUnit =  ethers.utils.parseUnits("1", 18);
+    expect (currentBalanceBobDai).to.be.lt(initialBalanceBobDai.add(rewardAmount.mul(20)));
+    expect (currentBalanceBobDai).to.be.gt(initialBalanceBobDai.add(rewardAmount.mul(20)).sub(oneUnit));
+   
+  });
 
 
 });
