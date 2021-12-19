@@ -419,7 +419,12 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     function getReward() public nonReentrant updateReward(msg.sender) {
         for (uint256 i; i <= numRewards; i++) {
             address _rewardsToken = rewardData[i].rewardToken;
+
             uint256 reward = rewards[msg.sender][i];
+
+            console.log("_rewardsToken %s", _rewardsToken);
+            console.log("reward %s", reward);
+
             if (reward > 0) {
                 rewards[msg.sender][i] = 0;
                 IERC20(_rewardsToken).safeTransfer(msg.sender, reward);
@@ -493,7 +498,9 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         require(reward > 0, "RubyStaking: No reward.");
         // handle the transfer of reward tokens via `transferFrom` to reduce the number
         // of transactions required and ensure correctness of the reward amount
-        rubyToken.safeTransferFrom(msg.sender, address(this), reward);
+        address rewardToken = rewardData[rewardId].rewardToken;
+        IERC20(rewardToken).safeTransferFrom(msg.sender, address(this), reward);
+
         // Staking rewards
         _notifyReward(rewardId, reward);
         emit RewardAdded(reward);
