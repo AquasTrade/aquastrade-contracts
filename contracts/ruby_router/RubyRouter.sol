@@ -48,10 +48,8 @@ contract RubyRouter is OwnableUpgradeable {
 
     function swap(SwapDetails calldata swapDetails) public returns (uint256 outputAmount) {
         require(swapDetails.order.length <= _maxSwapHops, "Invalid number of swap calls");
-        console.log("Swapping tokens...");
         _handleInputToken(swapDetails);
 
-        console.log("Input token handled...");
         uint256 ammSwapIndex = 0;
         uint256 stableSwapIndex = 0;
         for (uint256 i = 0; i < swapDetails.order.length; i++) {
@@ -61,21 +59,15 @@ contract RubyRouter is OwnableUpgradeable {
             );
 
             if (swapDetails.order[i] == SwapType.AMM) {
-                console.log("Performing amm swap...");
                 outputAmount = _swapAmm(swapDetails.ammSwaps[ammSwapIndex]);
-                console.log("Amm swap done, output amount: %s", outputAmount);
                 ammSwapIndex++;
             } else {
-                console.log("Performing stable swap...");
                 outputAmount = _swapStablePool(swapDetails.stableSwaps[stableSwapIndex]);
-                console.log("Stable swap done, output amount: %s", outputAmount);
                 stableSwapIndex++;
             }
         }
 
-        console.log("Handling output token");
         _handleOutputToken(swapDetails, outputAmount);
-        console.log("Output token handled");
     }
 
     // Approves and transfers the input token to the AMM Router or the StableSwap pool
@@ -153,7 +145,7 @@ contract RubyRouter is OwnableUpgradeable {
                 swapDetails.deadline
             );
         } else {
-            outputAmounts = ammRouter.swapTokensForExactETH(
+            outputAmounts = ammRouter.swapTokensForExactTokens(
                 swapDetails.amountOut,
                 swapDetails.amountIn,
                 swapDetails.path,
@@ -187,9 +179,7 @@ contract RubyRouter is OwnableUpgradeable {
     ) private {
         IERC20 tokenIn = IERC20(token);
         uint256 tokenAllowance = tokenIn.allowance(address(this), spender);
-        console.log("token allowance...", tokenAllowance, spender);
         if (tokenAllowance < amountIn) {
-            console.log("increasing tokenAllowance...");
             tokenIn.safeIncreaseAllowance(spender, amountIn);
         }
     }
