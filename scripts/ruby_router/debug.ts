@@ -117,26 +117,26 @@ const main = async () => {
   const usdpTokenIndex = await rubyUsdPool.getTokenIndex(usdpAddr);
   const usdpAmountOut = await rubyUsdPool.calculateSwap(usdcTokenIndex, usdpTokenIndex, usdcAmountIn);
 
-  // const swapDetails = {
-  //   ammSwaps: [{
-  //       swapType: AMMSwapType.EXACT_TOKENS_FOR_TOKENS,
-  //       amountIn: rubyAmount,
-  //       amountOut: usdcAmountIn,
-  //       path: [rubyAddr, usdcAddr],
-  //       to: rubyRouterAddr,
-  //       deadline: deadline
-  //   }
-  //   ],
-  //   stableSwaps: [{
-  //       stablePool: rubyUsdPoolAddr,
-  //       tokenIndexFrom: usdcTokenIndex,
-  //       tokenIndexTo: usdpTokenIndex,
-  //       dx: usdcAmountIn,
-  //       minDy: usdpAmountOut,
-  //       deadline: deadline
-  //   }],
-  //   order: [SwapType.AMM, SwapType.STABLE_POOL]
-  // };
+  const swapDetails = {
+    ammSwaps: [{
+        swapType: AMMSwapType.EXACT_TOKENS_FOR_TOKENS,
+        amountIn: rubyAmount,
+        amountOut: usdcAmountIn,
+        path: [rubyAddr, usdcAddr],
+        to: rubyRouterAddr,
+        deadline: deadline
+    }
+    ],
+    stableSwaps: [{
+        stablePool: rubyUsdPoolAddr,
+        tokenIndexFrom: usdcTokenIndex,
+        tokenIndexTo: usdpTokenIndex,
+        dx: usdcAmountIn,
+        minDy: usdpAmountOut,
+        deadline: deadline
+    }],
+    order: [SwapType.AMM, SwapType.STABLE_POOL]
+  };
 
   // await rubyRouter.swap(swapDetails);
 

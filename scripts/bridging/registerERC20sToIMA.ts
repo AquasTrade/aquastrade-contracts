@@ -12,11 +12,13 @@ require("dotenv").config();
 import { address as USDC } from "../../deployments/rinkeby/MockUSDC.json";
 import { address as USDT } from "../../deployments/rinkeby/MockUSDT.json";
 import { address as USDP } from "../../deployments/rinkeby/MockUSDP.json";
+import { address as DAI } from "../../deployments/rinkeby/MockDAI.json";
 import { address as RubyMainnet } from "../../deployments/rinkeby/RubyTokenMainnet.json";
 
 import { address as rubyUSDC } from "../../deployments/skaleTestnet/RubyUSDC.json";
 import { address as rubyUSDT } from "../../deployments/skaleTestnet/RubyUSDT.json";
 import { address as rubyUSDP } from "../../deployments/skaleTestnet/RubyUSDP.json";
+import { address as rubyDAI } from "../../deployments/skaleTestnet/RubyDAI.json";
 import { address as Ruby } from "../../deployments/skaleTestnet/RubyToken.json";
 
 const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
@@ -26,26 +28,31 @@ const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
 
   console.log("tokenManagerContract", tokenManagerContract);
 
-  // let res = await tokenManagerContract.addERC20TokenByOwner(USDC, rubyUSDC);
-  // await res.wait(1);
-  // res = await tokenManagerContract.addERC20TokenByOwner(USDT, rubyUSDT);
-  // await res.wait(1);
-  // res = await tokenManagerContract.addERC20TokenByOwner(USDP, rubyUSDP);
-  // await res.wait(1);
+  let res = await tokenManagerContract.addERC20TokenByOwner(USDC, rubyUSDC);
+  await res.wait(1);
+  res = await tokenManagerContract.addERC20TokenByOwner(USDT, rubyUSDT);
+  await res.wait(1);
+  res = await tokenManagerContract.addERC20TokenByOwner(USDP, rubyUSDP);
+  await res.wait(1);
 
-  let res;
   res = await tokenManagerContract.addERC20TokenByOwner(RubyMainnet, Ruby);
+  await res.wait(1);
+
+
+  res = await tokenManagerContract.addERC20TokenByOwner(DAI, rubyDAI);
   await res.wait(1);
 
   const rubyUSDCaddress = await tokenManagerContract.clonesErc20(USDC);
   const rubyUSDTaddress = await tokenManagerContract.clonesErc20(USDT);
   const rubyUSDPaddress = await tokenManagerContract.clonesErc20(USDP);
   const rubyAddress = await tokenManagerContract.clonesErc20(RubyMainnet);
+  const rubyDAIaddress = await tokenManagerContract.clonesErc20(DAI);
 
   console.log("TokenManager registered tokens: ");
   console.log(`RubyUSDC, original: ${rubyUSDC}, registered: ${rubyUSDCaddress}`);
   console.log(`RubyUSDT, original: ${rubyUSDT}, registered: ${rubyUSDTaddress}`);
   console.log(`RubyUSDP, original: ${rubyUSDP}, registered: ${rubyUSDPaddress}`);
+  console.log(`RubyDAI, original: ${rubyDAI}, registered: ${rubyDAIaddress}`);
   console.log(`Ruby, original: ${Ruby}, registered: ${rubyAddress}`);
 };
 
@@ -58,6 +65,7 @@ const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
   const usdtExists = await depositBoxContract.getSchainToERC20("melodic-murzim", USDT);
   const usdpExists = await depositBoxContract.getSchainToERC20("melodic-murzim", USDT);
   const rubyExists = await depositBoxContract.getSchainToERC20("melodic-murzim", RubyMainnet);
+  const daiExists = await depositBoxContract.getSchainToERC20("melodic-murzim", DAI);
 
   let res;
   if (!usdcExists) {
@@ -84,18 +92,26 @@ const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
     await res.wait(1);
   }
 
+
+    if (!daiExists) {
+    console.log("Registering DAI...");
+    res = await depositBoxContract.addERC20TokenByOwner(process.env.TESTNET_CHAINNAME, DAI);
+    await res.wait(1);
+  }
   const sChainHash = "0x7cef6e298b91c11477b769ff449417928f4d2bcf03594bb34bbc24ed08d3fdf0";
 
   const registeredUSDCaddress = await depositBoxContract.schainToERC20(sChainHash, USDC);
   const registeredUSDTaddress = await depositBoxContract.schainToERC20(sChainHash, USDT);
   const registeredUSDPaddress = await depositBoxContract.schainToERC20(sChainHash, USDP);
   const registeredRubyAddress = await depositBoxContract.schainToERC20(sChainHash, RubyMainnet);
+  const registeredDAIAddress = await depositBoxContract.schainToERC20(sChainHash, DAI);
 
   console.log("Deposit box registered tokens: ");
   console.log(`RubyUSDC, original: ${USDC}, registered: ${registeredUSDCaddress}`);
   console.log(`RubyUSDT, original: ${USDT}, registered: ${registeredUSDTaddress}`);
   console.log(`RubyUSDP, original: ${USDP}, registered: ${registeredUSDPaddress}`);
   console.log(`Ruby, original: ${RubyMainnet}, registered: ${registeredRubyAddress}`);
+  console.log(`RubyDAI, original: ${DAI}, registered: ${registeredDAIAddress}`);
 };
 
 const main = async () => {

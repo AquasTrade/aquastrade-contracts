@@ -709,7 +709,6 @@ describe("RubyStaker", function () {
     const bobInitialBalance = await this.ruby.balanceOf(this.bob.address);
     const mintAmounts = [30000, 60000];
     
-    const totalMintAmount = mintAmounts[0] + mintAmounts[1];
 
     expect(await this.staker.setRewardMinter(this.owner.address)).to.emit(this.staker, "RewardMinterSet").withArgs(this.owner.address);
 

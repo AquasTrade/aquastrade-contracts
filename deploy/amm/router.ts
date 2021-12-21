@@ -6,18 +6,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const wethAddress = (await ethers.getContract("WETH")).address;
   const factoryAddress = (await ethers.getContract("UniswapV2Factory")).address;
 
   await deploy("UniswapV2Router02", {
     from: deployer,
-    args: [factoryAddress, wethAddress],
+    args: [factoryAddress],
     log: true,
     deterministicDeployment: false,
   });
 };
 
 func.tags = ["UniswapV2Router02", "AMM"];
-func.dependencies = ["UniswapV2Factory", "WETH"];
+func.dependencies = ["UniswapV2Factory"];
 
 export default func;

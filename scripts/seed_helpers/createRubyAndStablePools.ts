@@ -43,25 +43,6 @@ const addLiquidity = async (
   }
 };
 
-const addLiquidityETH = async (
-  token: string,
-  amountToken: BigNumber,
-  amountETH: BigNumber,
-  to: string,
-  deadline: BigNumber,
-) => {
-  const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
-  const res = await router.addLiquidityETH(token, amountToken, amountToken, amountETH, to, deadline);
-
-  const receipt = await res.wait(1);
-
-  if (receipt.status) {
-    console.log(`Liquidity added successfully for token: ${token}, WETH.`);
-  } else {
-    console.log(`Could not add liquidity for tokens: ${token}, WETH.`);
-  }
-};
-
 const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
   const pairLength = (await factory.allPairsLength()).toNumber();
 

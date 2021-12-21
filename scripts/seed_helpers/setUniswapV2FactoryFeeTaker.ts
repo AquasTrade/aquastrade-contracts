@@ -2,12 +2,12 @@
 import fs from "fs";
 import { ethers, network } from "hardhat";
 
-import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair } from "../../typechain";
+import { UniswapV2Factory } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { assert } from "console";
 
-const factoryAddr = require(`../deployments/${network.name}/UniswapV2Factory.json`).address;
-const rubyMakerAddr = require(`../deployments/${network.name}/RubyMaker.json`).address;
+const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
+const rubyMakerAddr = require(`../../deployments/${network.name}/RubyMaker.json`).address;
 
 const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
