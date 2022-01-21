@@ -122,9 +122,6 @@ contract RubyMaker is Ownable {
 
         uint256 rubyRewards = totalConvertedRuby - rubyToBurn;
 
-        console.log("Ruby to burn %s", rubyToBurn);
-        console.log("RubyRewards %s", rubyRewards);
-
         // Burn ruby
         RubyToken(ruby).burn(rubyToBurn);
 

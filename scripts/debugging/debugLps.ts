@@ -8,9 +8,9 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
 
 const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
-  const pair = await factory.allPairs(1);
-  console.log("pair", pair);
   const pairLength = (await factory.allPairsLength()).toNumber();
+
+  console.log("factory pairs length", pairLength);
 
   for (let i = 0; i < pairLength; i++) {
     const pairAddr = await factory.allPairs(i);

@@ -300,7 +300,7 @@ describe("RubyMasterChef", function () {
       );
       await this.rewarder.deployed();
 
-      await this.chef.add("100", this.lp.address, ADDRESS_ZERO);
+      await expect(this.chef.add("100", this.lp.address, ADDRESS_ZERO)).to.emit(this.chef, "AddPool");
       expect((await this.chef.poolInfo(0)).allocPoint).to.equal("100");
       expect((await this.chef.poolInfo(0)).rewarder).to.equal(ADDRESS_ZERO);
 

@@ -110,7 +110,10 @@
     "depositWETH": "hardhat run --no-compile scripts/seed_helpers/depositWETH.ts",
     "depositMC": "hardhat run --no-compile scripts/masterChef/deposit.ts --network skaleTestnet",
     "withdrawMC": "hardhat run --no-compile scripts/masterChef/withdraw.ts --network skaleTestnet",
-    "seedMC": "hardhat run --no-compile scripts/masterChef/seed.ts --network skaleTestnet"
+    "seedMC": "hardhat run --no-compile scripts/masterChef/seed.ts --network skaleTestnet",
+    "debugMC": "hardhat run --no-compile scripts/masterChef/debug.ts --network skaleTestnet",
+    "withdrawRubyMC": "hardhat run --no-compile scripts/masterChef/withdrawRubyTokens.ts --network skaleTestnet",
+    "debugStaker": "hardhat run --no-compile scripts/staker/debug.ts --network skaleTestnet"
   },
   "files": [
     "/contracts"
