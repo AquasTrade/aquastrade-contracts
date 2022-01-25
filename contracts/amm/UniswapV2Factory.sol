@@ -7,16 +7,17 @@ import "./UniswapV2Pair.sol";
 
 contract UniswapV2Factory is IUniswapV2Factory {
     address public override feeTo;
-    address public override feeToSetter;
+    address public override admin;
     address public override migrator;
-
+    mapping(address => bool) public override pairCreators;
+    
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
 
-    constructor(address _feeToSetter) public {
-        feeToSetter = _feeToSetter;
+    constructor(address _admin) public {
+        admin = _admin;
     }
 
     function allPairsLength() external view override returns (uint256) {
@@ -28,6 +29,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     }
 
     function createPair(address tokenA, address tokenB) external override returns (address pair) {
+        require(pairCreators[msg.sender], "UniswapV2: FORBIDDEN");
         require(tokenA != tokenB, "UniswapV2: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), "UniswapV2: ZERO_ADDRESS");
@@ -45,17 +47,22 @@ contract UniswapV2Factory is IUniswapV2Factory {
     }
 
     function setFeeTo(address _feeTo) external override {
-        require(msg.sender == feeToSetter, "UniswapV2: FORBIDDEN");
+        require(msg.sender == admin, "UniswapV2: FORBIDDEN");
         feeTo = _feeTo;
     }
 
     function setMigrator(address _migrator) external override {
-        require(msg.sender == feeToSetter, "UniswapV2: FORBIDDEN");
+        require(msg.sender == admin, "UniswapV2: FORBIDDEN");
         migrator = _migrator;
     }
 
-    function setFeeToSetter(address _feeToSetter) external override {
-        require(msg.sender == feeToSetter, "UniswapV2: FORBIDDEN");
-        feeToSetter = _feeToSetter;
+    function setPairCreator(address _pairCreator) external override {
+        require(msg.sender == admin, "UniswapV2: FORBIDDEN");
+        pairCreators[_pairCreator] = !pairCreators[_pairCreator];
+    }
+
+    function setAdmin(address _admin) external override {
+        require(msg.sender == admin, "UniswapV2: FORBIDDEN");
+        admin = _admin;
     }
 }

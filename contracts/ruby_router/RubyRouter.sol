@@ -70,8 +70,6 @@ contract RubyRouter is OwnableUpgradeable {
         _handleOutputToken(swapDetails, outputAmount);
     }
 
-    // Approves and transfers the input token to the AMM Router or the StableSwap pool
-    // TODO: Handle approval better...
     function _handleInputToken(SwapDetails calldata swapDetails) private {
         address tokenInAddr;
         uint256 amountIn;

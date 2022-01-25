@@ -23,17 +23,19 @@ const addLiquidity = async (
   to: string,
   deadline: BigNumber,
 ) => {
+
+
   const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
   const res = await router.addLiquidity(
     tokenA,
     tokenB,
     amountTokenA,
     amountTokenB,
-    amountTokenA,
-    amountTokenB,
+    ethers.constants.Zero,
+    ethers.constants.Zero,
     to,
     deadline,
-  );
+  )
 
   const receipt = await res.wait(1);
 
@@ -74,19 +76,9 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
 const writeRubyPoolAddrs = async (factory: UniswapV2Factory) => {
   const rubyPoolAddrs: Record<string, string> = {};
 
-  rubyPoolAddrs.usdcUsdt = await factory.getPair(usdcAddr, usdtAddr);
-  rubyPoolAddrs.usdcUsdp = await factory.getPair(usdcAddr, usdpAddr);
-  rubyPoolAddrs.usdcDai = await factory.getPair(usdcAddr, daiAddr);
-  rubyPoolAddrs.usdtUsdp = await factory.getPair(usdtAddr, usdpAddr);
-  rubyPoolAddrs.usdtDai = await factory.getPair(usdtAddr, daiAddr);
-  rubyPoolAddrs.usdpDai = await factory.getPair(usdpAddr, daiAddr);
+  rubyPoolAddrs.usdpRUBY = await factory.getPair(usdpAddr, rubyAddr);
+  rubyPoolAddrs.usdpETHC = await factory.getPair(usdpAddr, ethcAddr);
 
-  rubyPoolAddrs.usdcRuby = await factory.getPair(usdcAddr, rubyAddr);
-  rubyPoolAddrs.usdtRuby = await factory.getPair(usdtAddr, rubyAddr);
-  rubyPoolAddrs.usdpRuby = await factory.getPair(usdpAddr, rubyAddr);
-  rubyPoolAddrs.daiRuby = await factory.getPair(daiAddr, rubyAddr);
-
-  rubyPoolAddrs.usdtEthc = await factory.getPair(usdtAddr, ethcAddr);
   fs.writeFileSync("./deployment_addresses/new_pools_addr.json", JSON.stringify(rubyPoolAddrs));
 };
 
@@ -108,68 +100,35 @@ const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
   // approve tokens
-  await approveTokens([usdpAddr, usdcAddr, usdtAddr, daiAddr, rubyAddr, ethcAddr]);
+  await approveTokens([usdpAddr, rubyAddr, ethcAddr]);
 
   const blockNumber = await ethers.provider.getBlockNumber();
   const blockData = await ethers.provider.getBlock(blockNumber);
   const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
 
   // PRICING
-  // 1 RUBY = 5 USD
-  // 1 RUBY = 5 USDC
-  // 1 RUBY = 5 USDT
-  // 1 RUBY = 5 USDP
-  // 1 RUBY = 5 DAI
-  // 1 USDC = 1 USDT
-  // 1 USDC = 1 USDP
-  // 1 USDC = 1 DAI
-  // 1 USDT = 1 USDP
-  // 1 USDT = 1 DAI
-  // 1 USDP = 1 DAI
-  // 1 ETHC = 3000 USDT
+  // 1 ETHC = 10,000,000 RUBY
+  // 1 ETHC = 10,000,000 USDP
+  // 1 RUBY = 1 USDP
 
-  const amountRuby = ethers.utils.parseUnits("2000000", 18); // 2,000,000
-  const amountEthc = ethers.utils.parseUnits("1", 18); // 1
+  console.log("rubyAddr", rubyAddr);
+  console.log("usdpAddr", usdpAddr);
+  console.log("ethcAddr", ethcAddr);
 
-  const amountUsdtUsdcRuby = ethers.utils.parseUnits("10000000", 6); // 10,000,000
-  const amountUsdtUsdcEthc = ethers.utils.parseUnits("3000", 6); // 3,000
-  const amountUsdDaiRuby = ethers.utils.parseUnits("10000000", 18); // 10,000,000
 
-  const amountUsdtUsdcStable = ethers.utils.parseUnits("10000000", 6); // 10,000,000
-  const amountUsdpDaiStable = ethers.utils.parseUnits("10000000", 18); // 1,000,000
 
-  // USDC-RUBY
-  await addLiquidity(usdcAddr, rubyAddr, amountUsdtUsdcRuby, amountRuby, deployer.address, deadline);
+  const amountRUBY = ethers.utils.parseUnits("10000000", 18); // 10,000,000
+  const amountETHC = ethers.utils.parseUnits("1", 18); // 1
 
-  // USDT-RUBY
-  await addLiquidity(usdtAddr, rubyAddr, amountUsdtUsdcRuby, amountRuby, deployer.address, deadline);
+  const amountUSDPRUBY = ethers.utils.parseUnits("10000000", 18); // 10,000,000
+  const amountUSDPETHC = ethers.utils.parseUnits("10000000", 18); // 10,000,000
+
 
   // USDP-RUBY
-  await addLiquidity(usdpAddr, rubyAddr, amountUsdDaiRuby, amountRuby, deployer.address, deadline);
+  await addLiquidity(usdpAddr, rubyAddr, amountUSDPRUBY, amountRUBY, deployer.address, deadline);
 
-  // DAI-RUBY
-  await addLiquidity(daiAddr, rubyAddr, amountUsdDaiRuby, amountRuby, deployer.address, deadline);
-
-  // USDC-USDT
-  await addLiquidity(usdcAddr, usdtAddr, amountUsdtUsdcStable, amountUsdtUsdcStable, deployer.address, deadline);
-
-  // USDC-USDP
-  await addLiquidity(usdcAddr, usdpAddr, amountUsdtUsdcStable, amountUsdpDaiStable, deployer.address, deadline);
-
-  // USDC-DAI
-  await addLiquidity(usdcAddr, daiAddr, amountUsdtUsdcStable, amountUsdpDaiStable, deployer.address, deadline);
-
-  // USDT-USDP
-  await addLiquidity(usdtAddr, usdpAddr, amountUsdtUsdcStable, amountUsdpDaiStable, deployer.address, deadline);
-
-  // USDT-DAI
-  await addLiquidity(usdtAddr, daiAddr, amountUsdtUsdcStable, amountUsdpDaiStable, deployer.address, deadline);
-
-  // USDP-DAI
-  await addLiquidity(usdpAddr, daiAddr, amountUsdpDaiStable, amountUsdpDaiStable, deployer.address, deadline);
-
-  // USDT-ETHC
-  await addLiquidity(usdtAddr, ethcAddr, amountUsdtUsdcEthc, amountEthc, deployer.address, deadline);
+  // USDP-ETH
+  await addLiquidity(usdpAddr, ethcAddr, amountUSDPETHC, amountETHC, deployer.address, deadline);
 
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
 

@@ -1,9 +1,9 @@
 import { BigNumber } from "ethers";
 import { expect } from "chai";
 
-import { ethers, network, deployments } from "hardhat";
-import { RubyRouter, UniswapV2Router02 } from "../../typechain";
-import { deployAMM, deployRubyRouter, addStablePoolLiquidity, deployMockTokens, approveTokens, deployRubyStablePool, deployStablePoolTokens, createMockLPs } from "./utils"
+import { ethers, network } from "hardhat";
+import { RubyRouter } from "../../typechain";
+import { deployAMM, deployRubyRouter, addStablePoolLiquidity, deployMockTokens, approveTokens, deployRubyStablePool, deployStablePoolTokens, createMockLPs } from "../utilities/deployment"
 import {SwapType, AMMSwapType} from "./types";
 describe("RubyRouter", function () {
   before(async function () {
@@ -53,11 +53,6 @@ describe("RubyRouter", function () {
 
 
 
-  });
-
-  beforeEach(async function () {
-    // deploys the ruby token and sends funds to the deployer
-   
   });
 
  

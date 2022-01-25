@@ -15,7 +15,7 @@ const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.
 const addSingleRewardFarms = async (masterChef: RubyMasterChef, lpTokenAddr: string, allocPoints: number) => {
   const zeroAddress = "0x0000000000000000000000000000000000000000";
   const res = await masterChef.add(allocPoints, lpTokenAddr, zeroAddress);
-  const receipt = await res.wait(3);
+  const receipt = await res.wait(2);
 
   if (receipt.status) {
     console.log(`Adding to RubyMasterChef successful, LP: ${lpTokenAddr}`);
@@ -43,13 +43,12 @@ const debug = async (masterChef: RubyMasterChef) => {
 const main = async () => {
   const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", masterChefAddr)) as RubyMasterChef;
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
-  console.log("masterChefAddr", masterChefAddr);
 
   // Need to generate Mock LP addresses first (hardhat run createMockLPs.ts)
   const pools = JSON.parse(fs.readFileSync("./deployment_addresses/new_pools_addr.json", {encoding: "utf-8"}));
   let poolAddresses: string[] = Object.values(pools);
 
-  poolAddresses = poolAddresses.slice(0, 3);
+  // poolAddresses = poolAddresses.slice(0, 3);
   
   console.log("masterChefAddr", masterChefAddr);
 

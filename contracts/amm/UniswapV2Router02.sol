@@ -35,6 +35,8 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     ) internal virtual returns (uint256 amountA, uint256 amountB) {
         // create the pair if it doesn't exist yet
         if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
+            bool isPairCreator = IUniswapV2Factory(factory).pairCreators(msg.sender);
+            require(isPairCreator, "UniswapV2Router: PAIR_NOT_CREATED");
             IUniswapV2Factory(factory).createPair(tokenA, tokenB);
         }
         (uint256 reserveA, uint256 reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);

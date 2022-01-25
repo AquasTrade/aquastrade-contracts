@@ -26,15 +26,33 @@ const debug = async (staker: RubyStaker) => {
       const rewardData = await staker.rewardData(i);
       console.log(`reward data ${i}: `, rewardData);
   }
-
 };
 
+
+const debugUserData = async (staker: RubyStaker, user: string) => {
+  console.log("user address", user)
+  const earningsData = await staker.earnedBalances(user);
+  console.log("earningsData", earningsData)
+  let total = ethers.utils.formatUnits(earningsData.total, 18);
+  for (let i = 0; i < earningsData.earningsData.length; i++ ) { 
+    let earningData = earningsData.earningsData[i];
+    let amount = ethers.utils.formatUnits(earningData.amount, 18);
+    let unlockTime = earningData.unlockTime.toString();
+    console.log("earningData amount", amount);
+    console.log("earningData unlockTime", unlockTime);
+  }
+
+  console.log("total earned", total);
+
+  const claimableRewards = await staker.claimableRewards(user);
+  console.log("user claimable rewards", claimableRewards);
+
+}
 
 const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
   const staker: RubyStaker = (await ethers.getContractAt("RubyStaker", stakerAddr)) as RubyStaker;
-
-    await debug(staker);
+    await debugUserData(staker, deployer.address);
 
 };
 
