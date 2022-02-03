@@ -29,11 +29,12 @@ const main = async () => {
 
     const rubyToken = await getRubyToken();
 
+    console.log("ruby master chef", masterChefAddr);
     let tx = await rubyStaker.setRewardMinter(masterChefAddr);
     await tx.wait(1);
 
-    tx = await rubyStaker.addReward(rubyToken.address, makerAddr);
-    await tx.wait(1);
+    // tx = await rubyStaker.addReward(rubyToken.address, makerAddr);
+    // await tx.wait(1);
 
 };
 

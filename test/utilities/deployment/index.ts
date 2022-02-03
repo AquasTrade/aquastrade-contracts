@@ -1,14 +1,13 @@
-const { ethers, network, deployments } = require("hardhat");
+const { ethers } = require("hardhat");
 import { BigNumber } from "ethers";
-import { getHeapStatistics } from "v8";
-import { UniswapV2Router02, UniswapV2Pair, UniswapV2Factory, MockERC20, MockUSDT, MockUSDC, MockUSDP, MockDAI, SwapUtils, AmplificationUtils, SwapDeployer, Swap, LPToken, ERC20, RubyRouter} from "../../typechain"
+import { UniswapV2Router02, UniswapV2Pair, UniswapV2Factory, MockERC20, MockUSDT, MockUSDC, MockUSDP, MockDAI, SwapUtils, AmplificationUtils, SwapDeployer, Swap, LPToken, ERC20, RubyRouter} from "../../../typechain"
 
-export const deployAMM = async (feeToSetter: string) => {
+export const deployAMM = async (admin: string) => {
 
     let UniswapV2Factory  = await ethers.getContractFactory("UniswapV2Factory");
     let UniswapV2Router  = await ethers.getContractFactory("UniswapV2Router02");
 
-    let factory: UniswapV2Factory = await UniswapV2Factory.deploy(feeToSetter);
+    let factory: UniswapV2Factory = await UniswapV2Factory.deploy(admin);
     await factory.deployed();
     
     let ammRouter: UniswapV2Router02 = await UniswapV2Router.deploy(factory.address);

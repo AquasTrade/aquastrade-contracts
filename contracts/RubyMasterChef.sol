@@ -75,13 +75,13 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
     // The timestamp when RUBY mining starts.
     uint256 public startTimestamp;
 
-    event Add(
+    event AddPool(
         uint256 indexed pid,
         uint256 allocPoint,
         IERC20 indexed lpToken,
         IRubyMasterChefRewarder indexed rewarder
     );
-    event Set(uint256 indexed pid, uint256 allocPoint, IRubyMasterChefRewarder indexed rewarder, bool overwrite);
+    event SetPool(uint256 indexed pid, uint256 allocPoint, IRubyMasterChefRewarder indexed rewarder, bool overwrite);
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event UpdatePool(uint256 indexed pid, uint256 lastRewardTimestamp, uint256 lpSupply, uint256 accRubyPerShare);
@@ -147,7 +147,12 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
             })
         );
         lpTokens.add(address(_lpToken));
-        emit Add(poolInfo.length.sub(1), _allocPoint, _lpToken, _rewarder);
+        console.log("adding pool");
+        console.log("%s", poolInfo.length.sub(1));
+        console.log("%s", _allocPoint);
+        console.log("%s", address(_lpToken));
+        console.log("%s", address(_rewarder));
+        emit AddPool(poolInfo.length.sub(1), _allocPoint, _lpToken, _rewarder);
     }
 
     // Update the given pool's RUBY allocation point. Can only be called by the owner.
@@ -167,7 +172,7 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
         if (overwrite) {
             poolInfo[_pid].rewarder = _rewarder;
         }
-        emit Set(_pid, _allocPoint, overwrite ? _rewarder : poolInfo[_pid].rewarder, overwrite);
+        emit SetPool(_pid, _allocPoint, overwrite ? _rewarder : poolInfo[_pid].rewarder, overwrite);
     }
 
     // View function to see pending RUBYs on frontend.

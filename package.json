@@ -81,9 +81,9 @@
     "debug": "node scripts/debug.js",
     "generateInitCodeHash": "hardhat run scripts/seed_helpers/generateInitCodeHash.ts",
     "bridge": "node scripts/bridging.js",
-    "createLPs": "hardhat run scripts/createMockLPs.ts",
+    "createMockLPs": "hardhat run scripts/createMockLPs.ts",
     "createRubyStablePools": "hardhat run scripts/seed_helpers/createRubyAndStablePools.ts",
-    "createPoolsFromMappedTokens": "hardhat run scripts/seed_helpers/createPoolsFromMappedTokens.ts",
+    "createLPs": "hardhat run scripts/seed_helpers/createAmmLPs.ts",
     "seedMasterChef": "hardhat run scripts/seed_helpers/seedMasterChef.ts",
     "setupMappedERC20s": "node scripts/setupMappedERC20tokens.js",
     "setupMappedERC721s": "node scripts/setupMappedERC721tokens.js",
@@ -110,7 +110,11 @@
     "depositWETH": "hardhat run --no-compile scripts/seed_helpers/depositWETH.ts",
     "depositMC": "hardhat run --no-compile scripts/masterChef/deposit.ts --network skaleTestnet",
     "withdrawMC": "hardhat run --no-compile scripts/masterChef/withdraw.ts --network skaleTestnet",
-    "seedMC": "hardhat run --no-compile scripts/masterChef/seed.ts --network skaleTestnet"
+    "seedMC": "hardhat run --no-compile scripts/masterChef/seed.ts --network skaleTestnet",
+    "debugMC": "hardhat run --no-compile scripts/masterChef/debug.ts --network skaleTestnet",
+    "withdrawRubyMC": "hardhat run --no-compile scripts/masterChef/withdrawRubyTokens.ts --network skaleTestnet",
+    "debugStaker": "hardhat run --no-compile scripts/staker/debug.ts --network skaleTestnet",
+    "setAMMPairCreators": "hardhat run --no-compile scripts/seed_helpers/setAMMPairCreators.ts"
   },
   "files": [
     "/contracts"

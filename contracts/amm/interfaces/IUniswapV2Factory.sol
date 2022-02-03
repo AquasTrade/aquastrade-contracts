@@ -7,7 +7,9 @@ interface IUniswapV2Factory {
 
     function feeTo() external view returns (address);
 
-    function feeToSetter() external view returns (address);
+    function admin() external view returns (address);
+
+    function pairCreators(address) external view returns (bool);
 
     function migrator() external view returns (address);
 
@@ -21,7 +23,9 @@ interface IUniswapV2Factory {
 
     function setFeeTo(address) external;
 
-    function setFeeToSetter(address) external;
+    function setPairCreator(address) external;
+
+    function setAdmin(address) external;
 
     function setMigrator(address) external;
 }

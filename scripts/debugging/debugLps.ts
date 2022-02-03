@@ -8,9 +8,9 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
 
 const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
-  const pair = await factory.allPairs(1);
-  console.log("pair", pair);
   const pairLength = (await factory.allPairsLength()).toNumber();
+
+  console.log("factory pairs length", pairLength);
 
   for (let i = 0; i < pairLength; i++) {
     const pairAddr = await factory.allPairs(i);
@@ -20,6 +20,7 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
     const token0addr = await univ2Pair.token0();
     const token1addr = await univ2Pair.token1();
     const reserves = await univ2Pair.getReserves();
+    const totalSupply = ethers.utils.formatUnits(await univ2Pair.totalSupply(), 18);
     const balance = ethers.utils.formatUnits(await univ2Pair.balanceOf(deployerAddr), 18);
     const token0contract: ERC20 = (await ethers.getContractAt("ERC20", token0addr)) as ERC20;
     const token1contract: ERC20 = (await ethers.getContractAt("ERC20", token1addr)) as ERC20;
@@ -42,6 +43,7 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
     console.log(`Token 0: ${token0name} (${token0symbol}) - ${token0addr}`);
     console.log(`Token 1: ${token1name} (${token1symbol}) - ${token1addr}`);
     console.log(`Reserves : [${reserve0}, ${reserve1}]`);
+    console.log(`Total supply : ${totalSupply}`);
     console.log(`Deployer balance : ${balance}`);
     console.log(`========================================`);
   }

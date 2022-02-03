@@ -8,7 +8,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Manually check if the ruby router is already deployed
   const RubyRouter = await getOrNull("RubyRouter");
-  console.log("ruby router", RubyRouter);
   if (RubyRouter) {
     log(`reusing "RubyRouter" at ${RubyRouter.address}`);
   } else {

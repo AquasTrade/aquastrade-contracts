@@ -422,9 +422,6 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
 
             uint256 reward = rewards[msg.sender][i];
 
-            console.log("_rewardsToken %s", _rewardsToken);
-            console.log("reward %s", reward);
-
             if (reward > 0) {
                 rewards[msg.sender][i] = 0;
                 IERC20(_rewardsToken).safeTransfer(msg.sender, reward);
