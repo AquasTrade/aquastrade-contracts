@@ -147,11 +147,6 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
             })
         );
         lpTokens.add(address(_lpToken));
-        console.log("adding pool");
-        console.log("%s", poolInfo.length.sub(1));
-        console.log("%s", _allocPoint);
-        console.log("%s", address(_lpToken));
-        console.log("%s", address(_rewarder));
         emit AddPool(poolInfo.length.sub(1), _allocPoint, _lpToken, _rewarder);
     }
 
