@@ -510,21 +510,4 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         IERC20(tokenAddress).safeTransfer(owner(), tokenAmount);
         emit Recovered(tokenAddress, tokenAmount);
     }
-
-    /**
-     * @notice Owner should be able to withdraw all the Reward tokens in case of emergency.
-     * The owner should be able to withdraw the tokens to himself or another address
-     * The RubyStaker contract will be placed behind a timelock, and the owner/deployer will be a multisig,
-     * so this should not raise trust concerns.
-     * This function is needed because the RubyStaker will be pre-fed with all of the
-     * reward tokens (RUBY) tokens dedicated for liquidity mining incentives, and incase
-     * of unfortunate situation they should be retreived.
-     */
-    function emergencyWithdrawRubyToken(address _receiver, uint256 _amount) external override onlyOwner {
-        require(_receiver != address(0), "RubyStaker: Invalid withdrawal address.");
-        require(_amount != 0, "RubyStaker: Invalid withdrawal amount.");
-        require(rubyToken.balanceOf(address(this)) >= _amount, "RubyStaker: Not enough balance to withdraw.");
-        rubyToken.safeTransfer(_receiver, _amount);
-        emit RubyTokenEmergencyWithdrawal(address(rubyToken), _receiver, _amount);
-    }
 }
