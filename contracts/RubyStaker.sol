@@ -65,8 +65,10 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     IERC20 public rubyToken;
     address public rewardMinter; // RubyMasterChef
 
+
     // rewardTypeId => rewardDistributor => bool
-    mapping(uint256 => mapping(address => bool)) public rewardDistributors; //RubyMaker and RubyFeeSwapper (for Stable pool fees in the future)
+    // RubyMaker and RubyFeeSwapper (for Stable pool fees in the future)
+    mapping(uint256 => mapping(address => bool)) public rewardDistributors; 
 
     // registered reward tokens
     mapping(address => bool) public registeredRewardTokens;

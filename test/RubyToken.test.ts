@@ -1,6 +1,7 @@
 const { ethers, network } = require("hardhat");
 import { expect } from "chai";
 import { utils } from "ethers";
+import { RubyDAI } from "../typechain";
 
 describe("RubyToken", function () {
   before(async function () {
@@ -14,6 +15,10 @@ describe("RubyToken", function () {
   beforeEach(async function () {
     this.ruby = await this.RubyToken.deploy();
     await this.ruby.deployed();
+
+    const minterRole = await this.ruby.MINTER_ROLE();
+    await this.ruby.grantRole(minterRole, this.alice.address);
+
   });
 
   it("should have correct name and symbol and decimal", async function () {
@@ -25,12 +30,12 @@ describe("RubyToken", function () {
     expect(decimals, "18");
   });
 
-  it("should only allow owner to mint token", async function () {
+  it("should only allow minter to mint token", async function () {
     await this.ruby.mint(this.alice.address, "100");
     await this.ruby.mint(this.bob.address, "1000");
     await expect(
       this.ruby.connect(this.bob).mint(this.carol.address, "1000", { from: this.bob.address }),
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+    ).to.be.revertedWith("RUBY::mint: Caller is not a minter");
     const totalSupply = await this.ruby.totalSupply();
     const aliceBal = await this.ruby.balanceOf(this.alice.address);
     const bobBal = await this.ruby.balanceOf(this.bob.address);

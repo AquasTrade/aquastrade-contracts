@@ -990,9 +990,7 @@ describe("RubyStaker", function () {
     ]
 
     await this.staker.notifyRewardAmount(1, rewardAmounts[0])
-    console.log("ruby reward notified");
     await this.staker.notifyRewardAmount(2, rewardAmounts[1])
-    console.log("usdp reward notified");
     await advanceTimeByTimestamp(this.rewardDuration + 1);
 
     const bobInitialBalanceToken1 = await this.ruby.balanceOf(this.bob.address);
@@ -1000,16 +998,12 @@ describe("RubyStaker", function () {
     const bobInitialBalanceToken2 = await this.usdp.balanceOf(this.bob.address);
     const carolInitialBalanceToken2 = await this.usdp.balanceOf(this.carol.address);
 
-    console.log("this.usdp.address", this.usdp.address);
-    console.log("this.usdp.balance", await this.usdp.balanceOf(this.staker.address));
 
     const pendingBob = await this.staker.claimableRewards(this.bob.address);
     const pendingCarol = await this.staker.claimableRewards(this.carol.address);
 
     await this.staker.connect(this.bob).getReward();
-    console.log("get reward bob");
     await this.staker.connect(this.carol).getReward();
-    console.log("get reward carol");
 
     const actualBalanceBobToken1 = (await this.ruby.balanceOf(this.bob.address)).sub(bobInitialBalanceToken1);
     const actualBalanceBobToken2 = (await this.usdp.balanceOf(this.bob.address)).sub(bobInitialBalanceToken2);

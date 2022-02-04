@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
- * @title Mintable RubyToken with Governance, (to be used only for testing purposes)
+ * @title Mintable RubyToken with Governance, (TO BE USED ONLY FOR TESTINT PURPOSES)
  * @notice This version of the RubyToken is to be used on the SChain
  * It features access control needed for the IMA TokenManager contract (bridging),
  * and also for the RubyMaker contract (distribute and burn mechanism)

@@ -7,10 +7,10 @@ import { RubyMaker, RubyTokenMintable } from "../typechain";
 
 describe("RubyMaker", function () {
   const burnPercent = 20; // 20%
-  const makerBurnAllowance = ethers.utils.parseUnits((200_000_000).toString(), 18);
 
   before(async function () {
     this.signers = await ethers.getSigners();
+    this.owner = this.signers[0];
     await prepare(this, [
       "RubyMaker",
       "RubyStaker",
@@ -18,6 +18,7 @@ describe("RubyMaker", function () {
       "MockRubyMakerExploit",
       "MockERC20",
       "UniswapV2Factory",
+      "UniswapV2Router02",
       "UniswapV2Pair",
     ]);
   });
@@ -30,11 +31,19 @@ describe("RubyMaker", function () {
       ["usdc", this.MockERC20, ["USDC", "USDC", getBigNumber("10000000"), 18]],
       ["weth", this.MockERC20, ["WETH", "ETH", getBigNumber("10000000"), 18]],
       ["strudel", this.MockERC20, ["$TRDL", "$TRDL", getBigNumber("10000000"), 18]],
-      ["factory", this.UniswapV2Factory, [this.alice.address]],
+      ["factory", this.UniswapV2Factory, [this.owner.address]],
     ]);
+
+    await deploy(this, [
+      ["router", this.UniswapV2Router02, [this.factory.address]],
+    ])
+
     this.ruby = <RubyTokenMintable>this.ruby;
 
-    // await this.ruby.mint(this.signers[0].address, getBigNumber("10000000"));
+    // set pair creators
+    await this.factory.setPairCreator(this.owner.address);
+    await this.factory.setPairCreator(this.router.address);
+
 
     // deploy the staker with dummy addresses, not really relevant for these tests
     await deploy(this, [["staker", this.RubyStaker, [this.ruby.address]]]);
