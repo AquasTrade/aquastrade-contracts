@@ -114,7 +114,9 @@
     "debugMC": "hardhat run --no-compile scripts/masterChef/debug.ts --network skaleTestnet",
     "withdrawRubyMC": "hardhat run --no-compile scripts/masterChef/withdrawRubyTokens.ts --network skaleTestnet",
     "debugStaker": "hardhat run --no-compile scripts/staker/debug.ts --network skaleTestnet",
-    "setAMMPairCreators": "hardhat run --no-compile scripts/seed_helpers/setAMMPairCreators.ts"
+    "setAMMPairCreators": "hardhat run --no-compile scripts/seed_helpers/setAMMPairCreators.ts",
+    "seedFaucet": "hardhat run --no-compile scripts/seed_helpers/seedFaucet.ts --network skaleTestnet",
+    "faucetMintPow": "hardhat run --no-compile scripts/debugging/faucetMintPow.ts --network skaleTestnet"
   },
   "files": [
     "/contracts"
