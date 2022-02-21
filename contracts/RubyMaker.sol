@@ -195,12 +195,12 @@ contract RubyMaker is Ownable {
         if (fromToken == pair.token0()) {
             amountOut = amountInWithFee.mul(reserve1) / reserve0.mul(1000).add(amountInWithFee);
             IERC20(fromToken).safeTransfer(address(pair), amountIn);
-            pair.swap(0, amountOut, to, new bytes(0));
+            pair.swap(0, amountOut, to, 997, new bytes(0));
             // TODO: Add maximum slippage?
         } else {
             amountOut = amountInWithFee.mul(reserve0) / reserve1.mul(1000).add(amountInWithFee);
             IERC20(fromToken).safeTransfer(address(pair), amountIn);
-            pair.swap(amountOut, 0, to, new bytes(0));
+            pair.swap(amountOut, 0, to, 997, new bytes(0));
             // TODO: Add maximum slippage?
         }
     }

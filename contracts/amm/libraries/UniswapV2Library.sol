@@ -63,11 +63,13 @@ library UniswapV2Library {
     function getAmountOut(
         uint256 amountIn,
         uint256 reserveIn,
-        uint256 reserveOut
+        uint256 reserveOut,
+        uint256 feeMultiplicator
     ) internal pure returns (uint256 amountOut) {
         require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
         require(reserveIn > 0 && reserveOut > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
-        uint256 amountInWithFee = amountIn.mul(997);
+        require(feeMultiplicator >= 997 && feeMultiplicator <= 1000, "UniswapV2Library: FEE_MULTIPLICATOR");
+        uint256 amountInWithFee = amountIn.mul(feeMultiplicator);
         uint256 numerator = amountInWithFee.mul(reserveOut);
         uint256 denominator = reserveIn.mul(1000).add(amountInWithFee);
         amountOut = numerator / denominator;
@@ -77,12 +79,14 @@ library UniswapV2Library {
     function getAmountIn(
         uint256 amountOut,
         uint256 reserveIn,
-        uint256 reserveOut
+        uint256 reserveOut,
+        uint256 feeMultiplicator
     ) internal pure returns (uint256 amountIn) {
         require(amountOut > 0, "UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT");
         require(reserveIn > 0 && reserveOut > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+        require(feeMultiplicator >= 997 && feeMultiplicator <= 1000, "UniswapV2Library: FEE_MULTIPLICATOR");
         uint256 numerator = reserveIn.mul(amountOut).mul(1000);
-        uint256 denominator = reserveOut.sub(amountOut).mul(997);
+        uint256 denominator = reserveOut.sub(amountOut).mul(feeMultiplicator);
         amountIn = (numerator / denominator).add(1);
     }
 
@@ -90,14 +94,15 @@ library UniswapV2Library {
     function getAmountsOut(
         address factory,
         uint256 amountIn,
-        address[] memory path
+        address[] memory path,
+        uint256 feeMultiplicator
     ) internal view returns (uint256[] memory amounts) {
         require(path.length >= 2, "UniswapV2Library: INVALID_PATH");
         amounts = new uint256[](path.length);
         amounts[0] = amountIn;
         for (uint256 i; i < path.length - 1; i++) {
             (uint256 reserveIn, uint256 reserveOut) = getReserves(factory, path[i], path[i + 1]);
-            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut, feeMultiplicator);
         }
     }
 
@@ -105,14 +110,15 @@ library UniswapV2Library {
     function getAmountsIn(
         address factory,
         uint256 amountOut,
-        address[] memory path
+        address[] memory path,
+        uint256 feeMultiplicator
     ) internal view returns (uint256[] memory amounts) {
         require(path.length >= 2, "UniswapV2Library: INVALID_PATH");
         amounts = new uint256[](path.length);
         amounts[amounts.length - 1] = amountOut;
         for (uint256 i = path.length - 1; i > 0; i--) {
             (uint256 reserveIn, uint256 reserveOut) = getReserves(factory, path[i - 1], path[i]);
-            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut, feeMultiplicator);
         }
     }
 }

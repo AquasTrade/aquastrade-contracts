@@ -8,21 +8,39 @@ import "./libraries/TransferHelper.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IERC20.sol";
+import "../interfaces/IRubyNFT.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract UniswapV2Router02 is IUniswapV2Router02 {
+contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
     using SafeMathUniswap for uint256;
 
-    address public immutable override factory;
+    address public override factory;
+    IRubyFeeAdmin public override feeAdmin;
+    IRubyNFTFactory public override nftFactory;
 
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
         _;
     }
 
-    constructor(address _factory) public {
-        factory = _factory;
-    }
+    function initialize(
+        address owner,
+        address _factory,
+        IRubyFeeAdmin _feeAdmin,
+        IRubyNFTFactory _nftFactory
+    ) public initializer {
+        require(owner != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        require(_factory != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        require(address(_feeAdmin) != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        require(address(_nftFactory) != address(0), "UniswapV2: INVALID_INIT_PARAM");
 
+        __Ownable_init();
+        transferOwnership(owner);
+
+        factory = _factory;
+        feeAdmin = _feeAdmin;
+        nftFactory = _nftFactory;
+    }
 
     // **** ADD LIQUIDITY ****
     function _addLiquidity(
@@ -81,9 +99,9 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = IUniswapV2Pair(pair).mint(to);
+
+        nftFactory.mintInitial(tx.origin);
     }
-
-
 
     // **** REMOVE LIQUIDITY ****
     function removeLiquidity(
@@ -104,7 +122,6 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         require(amountB >= amountBMin, "UniswapV2Router: INSUFFICIENT_B_AMOUNT");
     }
 
-
     function removeLiquidityWithPermit(
         address tokenA,
         address tokenB,
@@ -124,17 +141,13 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         (amountA, amountB) = removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline);
     }
 
-
-
-
-
-
     // **** SWAP ****
     // requires the initial amount to have already been sent to the first pair
     function _swap(
         uint256[] memory amounts,
         address[] memory path,
-        address _to
+        address _to,
+        uint256 feeMultiplicator
     ) internal virtual {
         for (uint256 i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
@@ -148,6 +161,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
                 amount0Out,
                 amount1Out,
                 to,
+                feeMultiplicator,
                 new bytes(0)
             );
         }
@@ -160,7 +174,9 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint256 deadline
     ) external virtual override ensure(deadline) returns (uint256[] memory amounts) {
-        amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path);
+        uint256 feeMultiplicator = feeAdmin.calculateAmmSwapFeeDeduction(tx.origin);
+
+        amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path, feeMultiplicator);
         require(amounts[amounts.length - 1] >= amountOutMin, "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0],
@@ -168,7 +184,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             UniswapV2Library.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
-        _swap(amounts, path, to);
+        _swap(amounts, path, to, feeMultiplicator);
+
+        // mint initial nfts
+        nftFactory.mintInitial(tx.origin);
     }
 
     function swapTokensForExactTokens(
@@ -178,7 +197,9 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint256 deadline
     ) external virtual override ensure(deadline) returns (uint256[] memory amounts) {
-        amounts = UniswapV2Library.getAmountsIn(factory, amountOut, path);
+        uint256 feeMultiplicator = feeAdmin.calculateAmmSwapFeeDeduction(tx.origin);
+
+        amounts = UniswapV2Library.getAmountsIn(factory, amountOut, path, feeMultiplicator);
         require(amounts[0] <= amountInMax, "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0],
@@ -186,7 +207,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             UniswapV2Library.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
-        _swap(amounts, path, to);
+        _swap(amounts, path, to, feeMultiplicator);
+
+        // mint initial nfts
+        nftFactory.mintInitial(tx.origin);
     }
 
     // **** SWAP (supporting fee-on-transfer tokens) ****
@@ -196,6 +220,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             (address input, address output) = (path[i], path[i + 1]);
             (address token0, ) = UniswapV2Library.sortTokens(input, output);
             IUniswapV2Pair pair = IUniswapV2Pair(UniswapV2Library.pairFor(factory, input, output));
+            uint256 feeMultiplicator = feeAdmin.calculateAmmSwapFeeDeduction(tx.origin);
             uint256 amountInput;
             uint256 amountOutput;
             {
@@ -205,13 +230,18 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
                     ? (reserve0, reserve1)
                     : (reserve1, reserve0);
                 amountInput = IERC20Uniswap(input).balanceOf(address(pair)).sub(reserveInput);
-                amountOutput = UniswapV2Library.getAmountOut(amountInput, reserveInput, reserveOutput);
+                amountOutput = UniswapV2Library.getAmountOut(
+                    amountInput,
+                    reserveInput,
+                    reserveOutput,
+                    feeMultiplicator
+                );
             }
             (uint256 amount0Out, uint256 amount1Out) = input == token0
                 ? (uint256(0), amountOutput)
                 : (amountOutput, uint256(0));
             address to = i < path.length - 2 ? UniswapV2Library.pairFor(factory, output, path[i + 2]) : _to;
-            pair.swap(amount0Out, amount1Out, to, new bytes(0));
+            pair.swap(amount0Out, amount1Out, to, feeMultiplicator, new bytes(0));
         }
     }
 
@@ -234,6 +264,9 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             IERC20Uniswap(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >= amountOutMin,
             "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT"
         );
+
+        // mint initial nfts
+        nftFactory.mintInitial(tx.origin);
     }
 
     // **** LIBRARY FUNCTIONS ****
@@ -248,36 +281,50 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     function getAmountOut(
         uint256 amountIn,
         uint256 reserveIn,
-        uint256 reserveOut
+        uint256 reserveOut,
+        uint256 feeMultiplier
     ) public pure virtual override returns (uint256 amountOut) {
-        return UniswapV2Library.getAmountOut(amountIn, reserveIn, reserveOut);
+        return UniswapV2Library.getAmountOut(amountIn, reserveIn, reserveOut, feeMultiplier);
     }
 
     function getAmountIn(
         uint256 amountOut,
         uint256 reserveIn,
-        uint256 reserveOut
+        uint256 reserveOut,
+        uint256 feeMultiplier
     ) public pure virtual override returns (uint256 amountIn) {
-        return UniswapV2Library.getAmountIn(amountOut, reserveIn, reserveOut);
+        return UniswapV2Library.getAmountIn(amountOut, reserveIn, reserveOut, feeMultiplier);
     }
 
-    function getAmountsOut(uint256 amountIn, address[] memory path)
-        public
-        view
-        virtual
-        override
-        returns (uint256[] memory amounts)
-    {
-        return UniswapV2Library.getAmountsOut(factory, amountIn, path);
+    function getAmountsOut(
+        uint256 amountIn,
+        address[] memory path,
+        uint256 feeMultiplier
+    ) public view virtual override returns (uint256[] memory amounts) {
+        return UniswapV2Library.getAmountsOut(factory, amountIn, path, feeMultiplier);
     }
 
-    function getAmountsIn(uint256 amountOut, address[] memory path)
-        public
-        view
-        virtual
-        override
-        returns (uint256[] memory amounts)
-    {
-        return UniswapV2Library.getAmountsIn(factory, amountOut, path);
+    function getAmountsIn(
+        uint256 amountOut,
+        address[] memory path,
+        uint256 feeMultiplier
+    ) public view virtual override returns (uint256[] memory amounts) {
+        return UniswapV2Library.getAmountsIn(factory, amountOut, path, feeMultiplier);
+    }
+
+    /// ADMIN FUNCTIONS
+    function setFactory(address newFactory) external override onlyOwner {
+        require(address(newFactory) != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        factory = newFactory;
+    }
+
+    function setFeeAdmin(IRubyFeeAdmin newFeeAdmin) external override onlyOwner {
+        require(address(newFeeAdmin) != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        feeAdmin = newFeeAdmin;
+    }
+
+    function setNFTFactory(IRubyNFTFactory newNftFactory) external override onlyOwner {
+        require(address(newNftFactory) != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        nftFactory = newNftFactory;
     }
 }

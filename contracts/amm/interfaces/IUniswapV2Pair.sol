@@ -87,6 +87,7 @@ interface IUniswapV2Pair {
         uint256 amount0Out,
         uint256 amount1Out,
         address to,
+        uint256 feeMultiplicator,
         bytes calldata data
     ) external;
 

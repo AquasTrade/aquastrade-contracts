@@ -22,7 +22,6 @@ interface IUniswapV2Router01 {
             uint256 liquidity
         );
 
-  
     function removeLiquidity(
         address tokenA,
         address tokenB,
@@ -32,8 +31,6 @@ interface IUniswapV2Router01 {
         address to,
         uint256 deadline
     ) external returns (uint256 amountA, uint256 amountB);
-
-   
 
     function removeLiquidityWithPermit(
         address tokenA,
@@ -48,8 +45,6 @@ interface IUniswapV2Router01 {
         bytes32 r,
         bytes32 s
     ) external returns (uint256 amountA, uint256 amountB);
-
-   
 
     function swapExactTokensForTokens(
         uint256 amountIn,
@@ -67,7 +62,6 @@ interface IUniswapV2Router01 {
         uint256 deadline
     ) external returns (uint256[] memory amounts);
 
-    
     function quote(
         uint256 amountA,
         uint256 reserveA,
@@ -77,16 +71,26 @@ interface IUniswapV2Router01 {
     function getAmountOut(
         uint256 amountIn,
         uint256 reserveIn,
-        uint256 reserveOut
+        uint256 reserveOut,
+        uint256 feeMultiplier
     ) external pure returns (uint256 amountOut);
 
     function getAmountIn(
         uint256 amountOut,
         uint256 reserveIn,
-        uint256 reserveOut
+        uint256 reserveOut,
+        uint256 feeMultiplier
     ) external pure returns (uint256 amountIn);
 
-    function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts);
+    function getAmountsOut(
+        uint256 amountIn,
+        address[] calldata path,
+        uint256 feeMultiplier
+    ) external view returns (uint256[] memory amounts);
 
-    function getAmountsIn(uint256 amountOut, address[] calldata path) external view returns (uint256[] memory amounts);
+    function getAmountsIn(
+        uint256 amountOut,
+        address[] calldata path,
+        uint256 feeMultiplier
+    ) external view returns (uint256[] memory amounts);
 }

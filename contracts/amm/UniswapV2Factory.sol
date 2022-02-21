@@ -10,13 +10,14 @@ contract UniswapV2Factory is IUniswapV2Factory {
     address public override admin;
     address public override migrator;
     mapping(address => bool) public override pairCreators;
-    
+
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
 
     constructor(address _admin) public {
+        require(_admin != address(0), "UniswapV2: INVALID_INITIALIZATION_PARAM");
         admin = _admin;
     }
 

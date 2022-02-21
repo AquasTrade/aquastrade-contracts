@@ -33,6 +33,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 func.tags = ["RubyMaker", "Staking"];
-func.dependencies = ["RubyStaker", "Factory"];
+func.dependencies = ["RubyStaker", "UniswapV2Factory"];
 
 export default func;
