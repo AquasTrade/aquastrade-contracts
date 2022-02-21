@@ -10,7 +10,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     from: deployer,
     log: true,
   });
-
 };
 
 func.tags = ["MockETH"];

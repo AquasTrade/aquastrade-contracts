@@ -8,7 +8,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   let RUBY_TOKEN_ADDRESS = "";
 
-  if(network.name === "localhost") {
+  if (network.name === "localhost") {
     RUBY_TOKEN_ADDRESS = (await get("RubyTokenMainnet")).address;
   } else {
     RUBY_TOKEN_ADDRESS = (await get("RubyToken")).address;
@@ -16,8 +16,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const RUBY_STAKER_ADDRESS = (await get("RubyStaker")).address;
 
-  const RUBY_PER_SECOND = ethers.utils.parseUnits("2", 18)
-
+  const RUBY_PER_SECOND = ethers.utils.parseUnits("2", 18);
 
   const { address } = await deploy("RubyMasterChef", {
     from: deployer,
@@ -34,7 +33,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 };
 
-func.dependencies = ["RubyStaker"]
+func.dependencies = ["RubyStaker"];
 func.tags = ["RubyMasterChef"];
 
 export default func;

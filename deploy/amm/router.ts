@@ -28,9 +28,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       skipIfAlreadyDeployed: true,
     });
   }
-  
 };
-
 
 func.dependencies = ["UniswapV2Factory", "RubyFeeAdmin", "RubyNFTFactory"];
 func.tags = ["UniswapV2Router02", "AMM"];

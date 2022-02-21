@@ -14,7 +14,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   tx = await UniswapV2Factory.setFeeTo(RubyMaker.address);
   await tx.wait(1);
-
 };
 export default func;
 

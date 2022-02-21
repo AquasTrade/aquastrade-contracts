@@ -13,11 +13,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let RUBY_TOKEN_ADDRESS = "";
 
   let ETH_TOKEN_ADDRESS = "";
-  if(network.name === 'localhost') {
-    ETH_TOKEN_ADDRESS = (await ethers.getContract("MockETH")).address
-    RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyTokenMainnet")).address
+  if (network.name === "localhost") {
+    ETH_TOKEN_ADDRESS = (await ethers.getContract("MockETH")).address;
+    RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyTokenMainnet")).address;
   } else {
-    ETH_TOKEN_ADDRESS = <string> process.env.ETHC_TOKEN_ADDRESS;
+    ETH_TOKEN_ADDRESS = <string>process.env.ETHC_TOKEN_ADDRESS;
     RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyToken")).address;
   }
 
@@ -29,7 +29,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
     deterministicDeployment: false,
   });
-
 };
 
 func.tags = ["RubyMaker", "Staking"];

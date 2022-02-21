@@ -76,27 +76,22 @@ export const assertRubyConversion = async (
 };
 
 export const assertStakerBalances = async (stakerContract: RubyStaker, user: string, range: Array<number>) => {
-
-
   const earningsResult = await stakerContract.earnedBalances(user);
   const unlockedBalance = await stakerContract.unlockedBalance(user);
   const [amount, penaltyAmount] = await stakerContract.withdrawableBalance(user);
 
   // console.log("earningsResult", earningsResult);
 
-expect(earningsResult.total).to.be.to.be.within(range[0], range[1]);
-expect(earningsResult.earningsData[0].amount).to.be.within(range[0], range[1]);
-expect(unlockedBalance).to.be.eq(0);
+  expect(earningsResult.total).to.be.to.be.within(range[0], range[1]);
+  expect(earningsResult.earningsData[0].amount).to.be.within(range[0], range[1]);
+  expect(unlockedBalance).to.be.eq(0);
 
+  const expectedClaimableMin = Math.floor(range[0] / 2);
+  const expectedClaimableMax = Math.floor(range[1] / 2);
+  expect(amount).to.be.within(expectedClaimableMin, expectedClaimableMax);
+  expect(penaltyAmount).to.be.within(expectedClaimableMin, expectedClaimableMax);
 
-const expectedClaimableMin = Math.floor(range[0] / 2);
-const expectedClaimableMax = Math.floor(range[1] / 2);
-expect(amount).to.be.within(expectedClaimableMin, expectedClaimableMax)
-expect(penaltyAmount).to.be.within(expectedClaimableMin, expectedClaimableMax)
-
-      // TODO: Expect earningsResult.earningsData[0].unlockTime
-
-
-}
+  // TODO: Expect earningsResult.earningsData[0].unlockTime
+};
 
 export * from "./time";

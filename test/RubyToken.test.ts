@@ -18,7 +18,6 @@ describe("RubyToken", function () {
 
     const minterRole = await this.ruby.MINTER_ROLE();
     await this.ruby.grantRole(minterRole, this.alice.address);
-
   });
 
   it("should have correct name and symbol and decimal", async function () {

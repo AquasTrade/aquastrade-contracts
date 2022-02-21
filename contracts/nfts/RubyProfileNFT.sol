@@ -5,7 +5,4 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "./RubyNFT.sol";
 
-contract RubyProfileNFT is RubyNFT {
-
-
-}
+contract RubyProfileNFT is RubyNFT {}

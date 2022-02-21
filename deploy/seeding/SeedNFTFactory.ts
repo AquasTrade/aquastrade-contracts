@@ -9,14 +9,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const UniswapV2Router02 = await get("UniswapV2Router02");
   const RubyProfileNFT = await get("RubyProfileNFT");
 
-
   const initialNft = await RubyNFTFactory.initialNfts(0);
-  if(initialNft === ethers.constants.AddressZero) {
-    const tx = await RubyNFTFactory.setInitialNfts(UniswapV2Router02.address, [RubyProfileNFT.address])
+  if (initialNft === ethers.constants.AddressZero) {
+    const tx = await RubyNFTFactory.setInitialNfts(UniswapV2Router02.address, [RubyProfileNFT.address]);
     await tx.wait(1);
   }
-
-
 };
 export default func;
 

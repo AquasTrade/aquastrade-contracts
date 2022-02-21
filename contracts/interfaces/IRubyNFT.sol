@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 interface IRubyNFT is IERC721Upgradeable {
-
     function nftIds() external view returns (uint256);
 
     function nftFactory() external view returns (address);
@@ -11,5 +10,4 @@ interface IRubyNFT is IERC721Upgradeable {
     function mint(address to) external;
 
     function setNftFactory(address newNftFactory) external;
-
 }

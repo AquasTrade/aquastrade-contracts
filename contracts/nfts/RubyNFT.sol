@@ -6,17 +6,16 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/IRubyNFT.sol";
 
 contract RubyNFT is ERC721Upgradeable, OwnableUpgradeable, IRubyNFT {
-
     uint256 public override nftIds;
 
     address public override nftFactory;
 
     function initialize(
         address _owner,
-        string memory name, 
+        string memory name,
         string memory symbol,
         address _nftFactory
-        ) external virtual initializer {
+    ) external virtual initializer {
         require(_nftFactory != address(0), "RubyNFT: Invalid NFT factory address");
         require(_owner != address(0), "RubyNFT: Invalid owner address");
         ERC721Upgradeable.__ERC721_init(name, symbol);
@@ -26,8 +25,7 @@ contract RubyNFT is ERC721Upgradeable, OwnableUpgradeable, IRubyNFT {
         transferOwnership(_owner);
     }
 
-
-    function mint(address to) override virtual external {
+    function mint(address to) external virtual override {
         require(msg.sender == nftFactory, "RubyNFT: Minting not allowed");
         require(to != address(0), "RubyNFT: Invalid Receiver");
         uint256 tokenId = nftIds;
@@ -35,10 +33,8 @@ contract RubyNFT is ERC721Upgradeable, OwnableUpgradeable, IRubyNFT {
         nftIds = tokenId + 1;
     }
 
-
-    function setNftFactory(address newNftFactory) override onlyOwner virtual external {
+    function setNftFactory(address newNftFactory) external virtual override onlyOwner {
         require(newNftFactory != address(0), "RubyNFT: Invalid new factory address");
         nftFactory = newNftFactory;
-    }    
-
+    }
 }

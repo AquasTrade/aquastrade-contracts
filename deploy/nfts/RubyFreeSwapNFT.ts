@@ -28,7 +28,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       skipIfAlreadyDeployed: true,
     });
   }
-
 };
 export default func;
 

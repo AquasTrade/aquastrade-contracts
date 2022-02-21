@@ -4,7 +4,7 @@ This document describes the contract architecture of the Ruby protocol.
 
 ## Introduction
 
-The Ruby contract architecture is currently composed of few different components, such as: 
+The Ruby contract architecture is currently composed of few different components, such as:
 
 - Generic AMM exchange (Uniswap v2 style exchange, forked from Sushiswap)
 - StablePool exchange (Curve finance style pool for like assets, forked from Saddle finance )
@@ -17,14 +17,14 @@ The Ruby contract architecture is currently composed of few different components
 
 ### Generic AMM exchange
 
-The generic AMM exchange, represents a Uniswap V2 style exchange. It's used for swapping different types of assets, based on the provided liquidity. The contracts are foked from the [Sushiswap contracts repo](https://github.com/sushiswap/sushiswap/tree/bef474629c6ab75f0efc511234f32d760db241aa). 
+The generic AMM exchange, represents a Uniswap V2 style exchange. It's used for swapping different types of assets, based on the provided liquidity. The contracts are foked from the [Sushiswap contracts repo](https://github.com/sushiswap/sushiswap/tree/bef474629c6ab75f0efc511234f32d760db241aa).
 Some slight changes have been made:
 
 1. ETH related functions have been removed. Functions such as: `addLiquidityETH`, `removeLiquidityETH`, `removeLiquidityETHWithPermit`, `removeLiquidityETHSupportingFeeOnTransferTokens`, `removeLiquidityETHWithPermitSupportingFeeOnTransferTokens`, `swapExactETHForTokens`, `swapTokensForExactETH`, `swapExactTokensForETH`, `swapETHForExactTokens`, have been removed. This means that swaps cannot be initiated from ETH, and the output can't be ETH. This is because the native token on Skale Chains is worthless (skETH), and the ETH token is represented as ERC20 token. The AMM works with ERC20 tokens only.
 
 2. Permisssions for creating Pools added. Only a previously whitelisted actors can create liquidity pools. Anyone can add liquidity to an already created pool.
 
-As per the original Uniswap V2 design, a fee is charged on each swap. The swap fee is set to be 0.30% of the swap amount (30 BIPS). If a protocol fee is enabled (the `feeTo` address is set at the `UniswapV2Factory.sol` contract), 0.25% of the swap amount (83.3% of the total fee) goes to the liquidity providers, while 0.05% of the swap amount (16.7% of the total fee) goes to the `feeTo` address. 
+As per the original Uniswap V2 design, a fee is charged on each swap. The swap fee is set to be 0.30% of the swap amount (30 BIPS). If a protocol fee is enabled (the `feeTo` address is set at the `UniswapV2Factory.sol` contract), 0.25% of the swap amount (83.3% of the total fee) goes to the liquidity providers, while 0.05% of the swap amount (16.7% of the total fee) goes to the `feeTo` address.
 In the Ruby protocol, the `feeTo` address is set to the address of the `RubyMaker` contract.
 
 #### RubyMaker
@@ -41,11 +41,9 @@ The fee math is as follows:
 
 The RubyMaker contract is a fork from the `SushiMaker` contract, but is modified so that it burns the converted RUBY, and also is integrated with the `RubyStaker` contract.
 
-
-
 ### Stable pool exchange
 
-The stable pool exchange represents a single pool for likewise assets. The assets are stablecoins, in particular: USDP, USDT, USDC, DAI. 
+The stable pool exchange represents a single pool for likewise assets. The assets are stablecoins, in particular: USDP, USDT, USDC, DAI.
 The StablePool contracts are forked from [Saddle Finance](https://github.com/saddle-finance/saddle-contract/tree/6f37f97b9600196c75416e2f579165e74906eb76), and no changes are applied to them. The StablePool is deployed with the following parameters:
 
 - Tokens: USDP, DAI, USDC, USDT
@@ -67,18 +65,19 @@ Changes are made from the Trader Joe's MasterChef contract:
 1. Only a single fee recepeint is present in our MasterChef (`treasuryAddr`), and fee to the fee recepient is specified via the `treasuryPercent` variable. Thus the LP percent when calculating RUBY rewards is dependent only on the `treasuryPercent` variable.
 
 2. The RubyMasterChef needs to be pre-seeded with RUBY tokens in order to be able to pay RUBY rewards. The RubyMasterChef transfers RUBY tokens upon rewards, but does not mint them. This is because the RUBY token will be launched on Ethereum Mainnet, and then bridger over to the SChain. The IMA bridge will be used for this. The IMA bridge works by minting and burning tokens. Thus the IMA bridge contracts need to be assigned `minter` role to the RUBY token contract.
-Having multiple minters, could leave to insolvencies in our case.
+   Having multiple minters, could leave to insolvencies in our case.
 
 3. The RubyMasterChef is made to work in collaboration with the `RubyStaker` contract. Upon claiming RUBY rewards, the (that is when `withdraw`, `deposit` and `claim` functions are called), the `mint` function on the RubyStaker contract is called with the user's address and amount that need to be rewarded. After that the amount of RUBY that needs to be sent, is transfered to the RubyStaker contract. All of this is done by the `_mintRubyRewards` internal function.
 
 4. Additional admin/management functions have been added, for:
+
 - Updating the address of the RubyStaker
-- Emeregency witdrawing RUBY tokens 
+- Emeregency witdrawing RUBY tokens
 
 ### Ruby Staking
 
-The Ruby protocol features staking and locking functionality, which allows the users (RUBY holders) to stake and lock their tokens, and earn platform rewards. The staking and locking feature is forked from [Elipsis finance's EpsStaker contract](https://github.com/ellipsis-finance/ellipsis/tree/6bdf7788020695b72034f5c9f1fda11c5e3cefb7). 
-The staking and locking functionality is implemented by the RubyStaker contract. Additionally the rewards from the RubyMasterChef are paid by the RubyStaker contract. 
+The Ruby protocol features staking and locking functionality, which allows the users (RUBY holders) to stake and lock their tokens, and earn platform rewards. The staking and locking feature is forked from [Elipsis finance's EpsStaker contract](https://github.com/ellipsis-finance/ellipsis/tree/6bdf7788020695b72034f5c9f1fda11c5e3cefb7).
+The staking and locking functionality is implemented by the RubyStaker contract. Additionally the rewards from the RubyMasterChef are paid by the RubyStaker contract.
 The Lock period is 13 weeks.
 Users that are staking their tokens are earning trading fees from the AMM exchange (the fee that is distributed via the RubyMaker contract), and also will be earning trading fees from the StablePool in the future.
 Users that are locking their tokens are earning the same fees, but additionally they earn the penalty rewards, which are collected from the user's that do not want to wait their RubyMasterChef rewards to fully mature.
@@ -90,7 +89,7 @@ The following changes have been made from The Elipsis finance's EpsStaker contra
 1. `rewardDistributors` mapping has been changed because we have two different types of rewards with the same reward token (RUBY). The first type of rewards are the RUBY rewards from the RubyMasterChef contract, while the second type of the rewards are from the `RubyMaker` contract and `RubyFeeSwapper` (in the future).
 2. `rewardToken` has been added to the `Reward` struct, because of the same reason as above.
 3. `setRewardMinter` function has been added as the `rewardMinter` has not been set in the constructor. Also there is only one `rewardMinter` in our architecutre. The `rewardMinter` is the RubyMasterChef contract.
-4. Changes in the code to accomodate the `rewardDistributors` change, so that uint256 rewardIds are used instead of reward token addresses. 
+4. Changes in the code to accomodate the `rewardDistributors` change, so that uint256 rewardIds are used instead of reward token addresses.
 
 ### Ruby Router
 
@@ -103,16 +102,16 @@ The Ruby Protocol enables swapping between different type of pools in a single t
 
 Currently the base token on the AMM is USDP, and everything is routed through it. For example for the ETH -> USDC swap, the route looks like:
 
-Swaps: 
+Swaps:
 ETH -> USDP (AMM)
 USDP -> USDC (StablePool)
-Execution order: 
+Execution order:
 [Amm, StablePool]
 
 ### Ruby Token (RUBY)
 
-The Ruby Token (`token_mappings/RubyToken.sol`) is the implementation of the Ruby token on the SChain. The `RubyTokenMainnet.sol` is the implementation on Ethereum mainnet. 
-Upon launch on mainnet, the total supply of the token (200M) will be minted to the deployer. 
+The Ruby Token (`token_mappings/RubyToken.sol`) is the implementation of the Ruby token on the SChain. The `RubyTokenMainnet.sol` is the implementation on Ethereum mainnet.
+Upon launch on mainnet, the total supply of the token (200M) will be minted to the deployer.
 The implementation on the SChain is based on the SushiToken, but few things are changed:
 
 1. AccessControl is implemented instead of Ownable. `DEFAUL_ADMIN_ROLE` is set to the deployer, while `MINTER` and `BURNER` roles should be set to the IMA bridge contracts by the deployer. The `BURNER` role should be set to the RubyMaker too, so that fee tokens can be burned.
@@ -124,5 +123,3 @@ Sushiswap: https://github.com/sushiswap/sushiswap/tree/bef474629c6ab75f0efc51123
 Saddle finance: https://github.com/saddle-finance/saddle-contract/tree/6f37f97b9600196c75416e2f579165e74906eb76
 Trader Joe: https://github.com/traderjoe-xyz/joe-core/tree/ec25d93533427328c576c38e7987485ba0ffd27d
 Elipsis finance: https://github.com/ellipsis-finance/ellipsis/tree/6bdf7788020695b72034f5c9f1fda11c5e3cefb7
-
-

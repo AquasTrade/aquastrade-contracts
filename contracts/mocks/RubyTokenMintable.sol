@@ -26,7 +26,6 @@ contract RubyTokenMintable is ERC20Capped, AccessControl {
     constructor() public ERC20("RubyTokenMintable", "Ruby") ERC20Capped(MAX_SUPPLY) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _mint(msg.sender, MAX_SUPPLY);
-
     }
 
     /// @notice Creates `amount` token to `to`. Must only be called by the IMA TokenManager contract

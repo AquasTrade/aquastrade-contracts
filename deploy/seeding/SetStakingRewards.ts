@@ -11,19 +11,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   let RubyToken;
 
-  if(network.name === "localhost") {
+  if (network.name === "localhost") {
     RubyToken = await get("RubyTokenMainnet");
   } else {
     RubyToken = await get("RubyToken");
   }
-
 
   let tx = await RubyStaker.setRewardMinter(RubyMasterChef.address);
   await tx.wait(1);
 
   tx = await RubyStaker.addReward(RubyToken.address, RubyMaker.address);
   await tx.wait(1);
-
 };
 export default func;
 

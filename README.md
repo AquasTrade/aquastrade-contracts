@@ -21,7 +21,7 @@ The default network specified in `hardhat.config.ts` would be used for the deplo
 3. `yarn deploy --tags MockUSDT`
 4. `yarn deploy --tags MockDAI`
 5. `yarn deploy --tags MockETH` (only for localhost testing)
-or
+   or
 
 `yarn deploy --tags MockTokens`
 `yarn deploy --tags MockETH` (only for localhost testing)
@@ -31,7 +31,7 @@ or
 1. `yarn deploy --tags RubyUSDC`
 2. `yarn deploy --tags RubyUSDP`
 3. `yarn deploy --tags RubyUSDT`
-3. `yarn deploy --tags RubyDAI`
+4. `yarn deploy --tags RubyDAI`
 
 or
 
@@ -70,7 +70,6 @@ or
 2. Deploy RubyMasterChef `yarn deploy --tags RubyMasterChef`
 3. Seed RubyMasterChef with RUBY tokens `yarn transferRubyTokensToMasterChef`
 
-
 ##### Setup staking rewards:
 
 1. `yarn setRubyStakerRewards`;
@@ -90,6 +89,7 @@ or
 `yarn deploy --tags StableSwap`
 
 ##### Seed the stable pool:
+
 1. `yarn seedRubyStablePool`
 
 ##### Ruby router:

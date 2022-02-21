@@ -6,13 +6,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
- let RUBY_TOKEN_ADDRESS = "";
+  let RUBY_TOKEN_ADDRESS = "";
 
- if(network.name === "localhost") {
-  RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyTokenMainnet")).address
- } else {
-  RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyToken")).address
- }
+  if (network.name === "localhost") {
+    RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyTokenMainnet")).address;
+  } else {
+    RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyToken")).address;
+  }
 
   await deploy("RubyStaker", {
     from: deployer,
@@ -20,7 +20,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
     deterministicDeployment: false,
   });
-
 };
 
 func.tags = ["RubyStaker", "Staking"];

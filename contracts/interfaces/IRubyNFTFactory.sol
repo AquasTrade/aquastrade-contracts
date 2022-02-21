@@ -2,7 +2,6 @@
 pragma solidity 0.6.12;
 
 interface IRubyNFTFactory {
-
     function enabledNfts(address nft) external view returns (bool);
 
     function minterNftAllowances(address minter, address nft) external view returns (bool);
@@ -17,10 +16,13 @@ interface IRubyNFTFactory {
 
     function disableNft(address nft) external;
 
-    function setMinter(address nft, address minter, bool allowance) external;
+    function setMinter(
+        address nft,
+        address minter,
+        bool allowance
+    ) external;
 
     function mint(address receiver, address[] calldata nfts) external;
 
     function mintInitial(address receiver) external;
-
 }

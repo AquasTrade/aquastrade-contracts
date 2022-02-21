@@ -30,7 +30,6 @@ export async function advanceTimeByTimestamp(time: number) {
 export async function advanceTimeToTimestamp(time: number) {
   await ethers.provider.send("evm_setNextBlockTimestamp", [time]);
   await ethers.provider.send("evm_mine", []);
-
 }
 
 export async function advanceTime(time: number) {

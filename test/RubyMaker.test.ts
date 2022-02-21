@@ -34,16 +34,13 @@ describe("RubyMaker", function () {
       ["factory", this.UniswapV2Factory, [this.owner.address]],
     ]);
 
-    await deploy(this, [
-      ["router", this.UniswapV2Router02, [this.factory.address]],
-    ])
+    await deploy(this, [["router", this.UniswapV2Router02, [this.factory.address]]]);
 
     this.ruby = <RubyTokenMintable>this.ruby;
 
     // set pair creators
     await this.factory.setPairCreator(this.owner.address);
     await this.factory.setPairCreator(this.router.address);
-
 
     // deploy the staker with dummy addresses, not really relevant for these tests
     await deploy(this, [["staker", this.RubyStaker, [this.ruby.address]]]);
@@ -56,15 +53,15 @@ describe("RubyMaker", function () {
     ]);
 
     const burnerRole = await this.ruby.BURNER_ROLE();
-  
+
     if ((await this.ruby.hasRole(burnerRole, this.rubyMaker.address)) === false) {
-        let res = await this.ruby.grantRole(burnerRole, this.rubyMaker.address);
+      let res = await this.ruby.grantRole(burnerRole, this.rubyMaker.address);
       await res.wait(1);
     }
 
     // await this.staker.approveRewardDistributor(0, this.rubyMaker.address, true);
     await this.staker.addReward(this.ruby.address, this.rubyMaker.address);
-    await this.ruby.a
+    await this.ruby.a;
 
     await deploy(this, [["exploiter", this.MockRubyMakerExploit, [this.rubyMaker.address]]]);
     await createSLP(this, "rubyEth", this.ruby, this.weth, getBigNumber(10));

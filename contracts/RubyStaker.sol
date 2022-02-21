@@ -65,10 +65,9 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
     IERC20 public rubyToken;
     address public rewardMinter; // RubyMasterChef
 
-
     // rewardTypeId => rewardDistributor => bool
     // RubyMaker and RubyFeeSwapper (for Stable pool fees in the future)
-    mapping(uint256 => mapping(address => bool)) public rewardDistributors; 
+    mapping(uint256 => mapping(address => bool)) public rewardDistributors;
 
     // registered reward tokens
     mapping(address => bool) public registeredRewardTokens;
@@ -167,7 +166,6 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         numRewards++;
 
         emit RewardDataRegistered(_rewardsToken, _distributor);
-
     }
 
     // Modify approval for an address to call notifyRewardAmount
@@ -180,7 +178,6 @@ contract RubyStaker is Ownable, ReentrancyGuard, IRubyStaker {
         require(rewardData[_rewardId].lastUpdateTime > 0, "RubyStaker: Invalid reward distributor approval request");
         rewardDistributors[_rewardId][_distributor] = _approved;
         emit RewardDistributorApproved(rewardData[_rewardId].rewardToken, _distributor, _approved);
-
     }
 
     /* ========== VIEW FUNCTIONS ========== */
