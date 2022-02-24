@@ -9,7 +9,7 @@ import "../amm/interfaces/IUniswapV2Router02.sol";
 import "../amm/libraries/TransferHelper.sol";
 import "../amm/libraries/UniswapV2Library.sol";
 import "../stable_swap/interfaces/ISwap.sol";
-import "../interfaces/IRubyFeeAdmin.sol";
+import "../interfaces/IRubyNFTAdmin.sol";
 import "hardhat/console.sol";
 
 import { SwapType, AMMSwapType, AMMSwapDetails, StableSwapDetails, SwapDetails } from "./RoutingUtils.sol";
@@ -19,7 +19,7 @@ contract RubyRouter is OwnableUpgradeable {
     using SafeMath for uint256;
 
     IUniswapV2Router02 public ammRouter;
-    IRubyFeeAdmin public feeAdmin;
+    IRubyNFTAdmin public nftAdmin;
     mapping(ISwap => bool) public enabledStablePools;
 
     // Should be set to 3 with a single stable pool.
@@ -34,30 +34,32 @@ contract RubyRouter is OwnableUpgradeable {
     event MaxSwapHopsSet(uint256 maxSwapHops);
 
     function initialize(
-        address owner,
-        IUniswapV2Router02 ammRouter_,
-        ISwap stablePool,
-        IRubyFeeAdmin feeAdmin_,
+        address _owner,
+        IUniswapV2Router02 _ammRouter,
+        ISwap _stablePool,
+        IRubyNFTAdmin _nftAdmin,
         uint256 maxSwapHops_
     ) public initializer {
-        require(owner != address(0), "RubyRouter: Invalid owner.");
-        require(address(ammRouter_) != address(0), "RubyRouter: Invalid AMM router address address.");
-        require(address(stablePool) != address(0), "RubyRouter: Invalid Stable Pool address.");
-        require(address(feeAdmin_) != address(0), "RubyRouter: Invalid Fee admin address.");
+        require(_owner != address(0), "RubyRouter: Invalid owner.");
+        require(address(_ammRouter) != address(0), "RubyRouter: Invalid AMM router address.");
+        require(address(_stablePool) != address(0), "RubyRouter: Invalid Stable Pool address.");
+        require(address(_nftAdmin) != address(0), "RubyRouter: Invalid NFT admin address.");
         require(maxSwapHops_ != 0, "RubyRouter: Invalid max swap hops.");
 
         __Ownable_init();
-        transferOwnership(owner);
+        transferOwnership(_owner);
 
-        ammRouter = ammRouter_;
-        feeAdmin = feeAdmin_;
-        enableStablePool(stablePool);
-        enabledStablePools[stablePool] = true;
+        ammRouter = _ammRouter;
+        nftAdmin = _nftAdmin;
         _maxSwapHops = maxSwapHops_;
+
+        enableStablePool(_stablePool);
+        enabledStablePools[_stablePool] = true;
     }
 
     function swap(SwapDetails calldata swapDetails) public returns (uint256 outputAmount) {
         require(swapDetails.order.length <= _maxSwapHops, "Invalid number of swap calls");
+                
         _handleInputToken(swapDetails);
 
         uint256 ammSwapIndex = 0;
@@ -78,6 +80,11 @@ contract RubyRouter is OwnableUpgradeable {
         }
 
         _handleOutputToken(swapDetails, outputAmount);
+
+
+        // mint a profile NFT if the user does not hold any Profile NFT already
+        nftAdmin.mintProfileNFT(tx.origin);
+
     }
 
     function _handleInputToken(SwapDetails calldata swapDetails) private {
@@ -91,14 +98,14 @@ contract RubyRouter is OwnableUpgradeable {
                     ammRouter.factory(),
                     swapDetails.ammSwaps[0].amountIn,
                     swapDetails.ammSwaps[0].path,
-                    feeAdmin.calculateAmmSwapFeeDeduction(tx.origin)
+                    nftAdmin.calculateAmmSwapFeeDeduction(tx.origin)
                 );
             } else {
                 amounts = UniswapV2Library.getAmountsIn(
                     ammRouter.factory(),
                     swapDetails.ammSwaps[0].amountOut,
                     swapDetails.ammSwaps[0].path,
-                    feeAdmin.calculateAmmSwapFeeDeduction(tx.origin)
+                    nftAdmin.calculateAmmSwapFeeDeduction(tx.origin)
                 );
             }
             tokenInAddr = swapDetails.ammSwaps[0].path[0];
@@ -206,8 +213,21 @@ contract RubyRouter is OwnableUpgradeable {
         emit StablePoolDisabled(stablePool);
     }
 
+
+    function setAmmRouter(IUniswapV2Router02 newAmmRouter) public onlyOwner {
+        require(address(newAmmRouter) != address(0), "RubyRouter: Invalid AMM router address.");
+        ammRouter = newAmmRouter;
+    }
+
+    function setNftAdmin(IRubyNFTAdmin newNftAdmin) public onlyOwner {
+        require(address(newNftAdmin) != address(0), "RubyRouter: Invalid NFT admin address.");
+        nftAdmin = newNftAdmin;
+    }
+
     function setMaxHops(uint256 maxSwapHops) public onlyOwner {
         require(maxSwapHops > 0, "RubyRouter: Invalid max swap hops;");
         _maxSwapHops = maxSwapHops;
     }
+
+
 }

@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 import { BigNumber } from "ethers";
 import {
   UniswapV2Router02,
@@ -16,17 +16,50 @@ import {
   LPToken,
   ERC20,
   RubyRouter,
+  RubyNFTAdmin,
+  RubyProfileNFT,
+  RubyFreeSwapNFT,
+  RubyMaker
 } from "../../../typechain";
 
-export const deployAMM = async (admin: string) => {
+
+export const deployRubyFreeSwapNFT = async (owner: string, name: string, symbol: string, description: string, visualAppearance: string) => {
+  let RubyFreeSwap = await ethers.getContractFactory("RubyFreeSwapNFT");
+
+  let rubyFreeSwapNFT: RubyFreeSwapNFT = await upgrades.deployProxy(RubyFreeSwap, [owner, name, symbol, description, visualAppearance]);
+  await rubyFreeSwapNFT.deployed();
+
+  return rubyFreeSwapNFT;
+}
+
+export const deployRubyProfileNFT = async (owner: string, name: string, symbol: string, description: string, visualAppearance: string) => {
+  let RubyProfile = await ethers.getContractFactory("RubyProfileNFT");
+
+  let rubyProfileNFT: RubyProfileNFT = await upgrades.deployProxy(RubyProfile, [owner, name, symbol, description, visualAppearance]);
+  await rubyProfileNFT.deployed();
+
+  return rubyProfileNFT;
+}
+
+
+export const deployNFTAdmin = async (owner: string, rubyProfileNFT: string) => {
+  let RubyNFTAdmin = await ethers.getContractFactory("RubyNFTAdmin");
+
+  let nftAdmin: RubyNFTAdmin = await upgrades.deployProxy(RubyNFTAdmin, [owner, rubyProfileNFT])
+  await nftAdmin.deployed();
+
+  return nftAdmin;
+}
+
+export const deployAMM = async (admin: string, nftAdmin: string) => {
   let UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
   let UniswapV2Router = await ethers.getContractFactory("UniswapV2Router02");
 
   let factory: UniswapV2Factory = await UniswapV2Factory.deploy(admin);
   await factory.deployed();
 
-  let ammRouter: UniswapV2Router02 = await UniswapV2Router.deploy(factory.address);
-  await ammRouter.deployed();
+  let ammRouter: UniswapV2Router02 = await upgrades.deployProxy(UniswapV2Router, [admin, factory.address, nftAdmin]) 
+  await ammRouter.deployed()
 
   return {
     factory,
@@ -47,12 +80,6 @@ export const deployMockTokens = async (tokenSupply: BigNumber): Promise<Array<Mo
   return mockTokens;
 };
 
-export const approveTokens = async (mockTokens: Array<MockERC20>, spender: string, amount: BigNumber) => {
-  for (let i = 0; i < mockTokens.length; i++) {
-    let tx = await mockTokens[i].approve(spender, amount);
-    await tx.wait(1);
-  }
-};
 
 export const createMockLPs = async (
   ammRouter: UniswapV2Router02,
@@ -161,33 +188,28 @@ export const deployRubyStablePool = async (tokens: Array<MockERC20>): Promise<Sw
   return rubyStablePool;
 };
 
-export const addStablePoolLiquidity = async (
-  rubyStablePool: Swap,
-  tokens: Array<ERC20>,
-  liquidityAmounts: Array<BigNumber>,
-) => {
-  const blockNumber = await ethers.provider.getBlockNumber();
-  const blockData = await ethers.provider.getBlock(blockNumber);
-  const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
-
-  for (let i = 0; i < tokens.length; i++) {
-    const tx = await tokens[i].approve(rubyStablePool.address, liquidityAmounts[i]);
-    await tx.wait(1);
-  }
-
-  const tx = await rubyStablePool.addLiquidity(liquidityAmounts, 0, deadline);
-  await tx.wait(1);
-};
 
 export const deployRubyRouter = async (
-  ammRouterAddress: string,
-  stablePoolAddress: string,
+  owner: string,
+  ammRouter: string,
+  stablePool: string,
+  nftAdmin: string,
   maxHops: number,
 ): Promise<RubyRouter> => {
-  let RubyRouter = await ethers.getContractFactory("RubyRouter");
-  let rubyRouter: RubyRouter = await RubyRouter.deploy();
-  let tx = await rubyRouter.initialize(ammRouterAddress, stablePoolAddress, maxHops);
-  await tx.wait(1);
+  let Router = await ethers.getContractFactory("RubyRouter");
+  let rubyRouter: RubyRouter = await upgrades.deployProxy(Router, [owner, ammRouter, stablePool, nftAdmin, maxHops])
+
+  await rubyRouter.deployed()
 
   return rubyRouter;
 };
+
+
+export const deployRubyMaker = async (factory: string, staker: string, ruby: string, weth: string, burnPercent: number): Promise<RubyMaker> => {
+
+  let Maker = await ethers.getContractFactory("RubyMaker");
+  const rubyMaker: RubyMaker = await Maker.deploy(factory, staker, ruby, weth, burnPercent);
+  await rubyMaker.deployed();
+  return rubyMaker;
+
+}

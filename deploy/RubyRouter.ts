@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, getChainId } = hre;
-  const { deploy, execute, get, getOrNull, log, read, save } = deployments;
+  const { deployments, getNamedAccounts } = hre;
+  const { deploy, get, getOrNull, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
   const RubyRouter = await getOrNull("RubyRouter");
@@ -12,7 +12,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   } else {
     const ammRouterAddress = (await get("UniswapV2Router02")).address;
     const stablePoolAddress = (await get("RubyUSD4Pool")).address;
-    const feeAdminAddress = (await get("RubyFeeAdmin")).address;
+    const nftAdminAddress = (await get("RubyNFTAdmin")).address;
     const maxSwapHops = 3;
 
     await deploy("RubyRouter", {
@@ -23,7 +23,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         proxyContract: "OpenZeppelinTransparentProxy",
         execute: {
           methodName: "initialize",
-          args: [deployer, ammRouterAddress, stablePoolAddress, feeAdminAddress, maxSwapHops],
+          args: [deployer, ammRouterAddress, stablePoolAddress, nftAdminAddress, maxSwapHops],
         },
       },
       skipIfAlreadyDeployed: true,
@@ -32,5 +32,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["UniswapV2Router02", "RubyUSD4Pool", "RubyFeeAdmin"];
+func.dependencies = ["UniswapV2Router02", "RubyUSD4Pool", "RubyNFTAdmin"];
 func.tags = ["RubyRouter"];

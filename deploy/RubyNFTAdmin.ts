@@ -6,13 +6,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, getOrNull, get, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const RubyFreeSwapNFT = await get("RubyFreeSwapNFT");
-  const RubyFeeAdmin = await getOrNull("RubyFeeAdmin");
+  const RubyNFTAdmin = await getOrNull("RubyNFTAdmin");
+  const RubyProfileNFT = await get("RubyProfileNFT");
 
-  if (RubyFeeAdmin) {
-    log(`reusing "RubyFeeAdmin" at ${RubyFeeAdmin.address}`);
+  if (RubyNFTAdmin) {
+    log(`reusing "RubyNFTAdmin" at ${RubyNFTAdmin.address}`);
   } else {
-    await deploy("RubyFeeAdmin", {
+    await deploy("RubyNFTAdmin", {
       from: deployer,
       log: true,
       proxy: {
@@ -20,7 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         proxyContract: "OpenZeppelinTransparentProxy",
         execute: {
           methodName: "initialize",
-          args: [deployer, RubyFreeSwapNFT.address],
+          args: [deployer, RubyProfileNFT.address],
         },
       },
       skipIfAlreadyDeployed: true,
@@ -29,5 +29,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["RubyProxyAdmin", "RubyFreeSwapNFT"];
+func.dependencies = ["RubyProxyAdmin", "RubyProfileNFT"];
 func.tags = ["RubyFeeAdmin"];

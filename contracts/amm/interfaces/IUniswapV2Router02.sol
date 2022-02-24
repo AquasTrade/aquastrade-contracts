@@ -3,13 +3,11 @@
 pragma solidity >=0.6.2;
 
 import "./IUniswapV2Router01.sol";
-import "../../interfaces/IRubyFeeAdmin.sol";
+import "../../interfaces/IRubyNFTAdmin.sol";
 import "../../interfaces/IRubyNFTFactory.sol";
 
 interface IUniswapV2Router02 is IUniswapV2Router01 {
-    function feeAdmin() external pure returns (IRubyFeeAdmin);
-
-    function nftFactory() external pure returns (IRubyNFTFactory);
+    function nftAdmin() external pure returns (IRubyNFTAdmin);
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -21,7 +19,5 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
 
     function setFactory(address newFactory) external;
 
-    function setFeeAdmin(IRubyFeeAdmin newFeeAdmin) external;
-
-    function setNFTFactory(IRubyNFTFactory newNftFactory) external;
+    function setNftAdmin(IRubyNFTAdmin newNftAdmin) external;
 }

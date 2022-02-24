@@ -4,6 +4,7 @@ import { BigNumber } from "ethers";
 import { prepare, deploy, getBigNumber, createSLP, assertRubyConversion } from "./utilities";
 
 import { RubyMaker, RubyTokenMintable } from "../typechain";
+import { deployAMM, deployNFTAdmin, deployRubyFreeSwapNFT, deployRubyMaker, deployRubyProfileNFT, deployRubyRouter } from "./utilities/deployment";
 
 describe("RubyMaker", function () {
   const burnPercent = 20; // 20%
@@ -31,10 +32,39 @@ describe("RubyMaker", function () {
       ["usdc", this.MockERC20, ["USDC", "USDC", getBigNumber("10000000"), 18]],
       ["weth", this.MockERC20, ["WETH", "ETH", getBigNumber("10000000"), 18]],
       ["strudel", this.MockERC20, ["$TRDL", "$TRDL", getBigNumber("10000000"), 18]],
-      ["factory", this.UniswapV2Factory, [this.owner.address]],
     ]);
 
-    await deploy(this, [["router", this.UniswapV2Router02, [this.factory.address]]]);
+
+    const rubyProfileNFTDescription = JSON.stringify({
+      "randomMetadata": {}
+    });
+
+    const rubyFreeSwapNFTDescription = JSON.stringify({
+      "description": "swap fees",
+      "feeReduction": 1000, 
+      "lpFeeDeduction": 3,
+      "randomMetadata": {}
+    });
+  
+    const rubyProfileNFTVisualAppearance = JSON.stringify({
+      "att1": 1,
+      "att2": 2, 
+      "att3": 3,
+    });
+
+
+    this.rubyFreeSwapNft = await deployRubyFreeSwapNFT(this.owner.address, "Ruby Free Swap NFT", "RFSNFT", rubyFreeSwapNFTDescription, rubyProfileNFTVisualAppearance)
+
+    this.rubyProfileNft = await deployRubyProfileNFT(this.owner.address, "Ruby Profile NFT", "RPNFT", rubyProfileNFTDescription, rubyProfileNFTVisualAppearance)
+
+    this.nftAdmin = await deployNFTAdmin(this.owner.address, this.rubyProfileNft.address)
+
+
+    let {factory, ammRouter } = await deployAMM(this.owner.address, this.nftAdmin.address)
+
+    this.router = ammRouter;
+    this.factory = factory;
+
 
     this.ruby = <RubyTokenMintable>this.ruby;
 
@@ -44,13 +74,8 @@ describe("RubyMaker", function () {
 
     // deploy the staker with dummy addresses, not really relevant for these tests
     await deploy(this, [["staker", this.RubyStaker, [this.ruby.address]]]);
-    await deploy(this, [
-      [
-        "rubyMaker",
-        this.RubyMaker,
-        [this.factory.address, this.staker.address, this.ruby.address, this.weth.address, burnPercent],
-      ],
-    ]);
+
+    this.rubyMaker = await deployRubyMaker(this.factory.address, this.staker.address, this.ruby.address, this.weth.address, burnPercent)
 
     const burnerRole = await this.ruby.BURNER_ROLE();
 

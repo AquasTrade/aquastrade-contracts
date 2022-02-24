@@ -192,13 +192,13 @@ contract UniswapV2Pair is UniswapV2ERC20 {
         uint256 amount0Out,
         uint256 amount1Out,
         address to,
-        uint16 feeMultiplicator,
+        uint256 feeMultiplier,
         bytes calldata data
     ) external lock {
         require(amount0Out > 0 || amount1Out > 0, "UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT");
         (uint112 _reserve0, uint112 _reserve1, ) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, "UniswapV2: INSUFFICIENT_LIQUIDITY");
-        require(feeMultiplicator >= 997 && feeMultiplicator <= 1000, "UniswapV2: FEE_MULTIPLICATOR");
+        require(feeMultiplier >= 997 && feeMultiplier <= 1000, "UniswapV2: FEE_MULTIPLIER");
 
         uint256 balance0;
         uint256 balance1;
@@ -214,7 +214,7 @@ contract UniswapV2Pair is UniswapV2ERC20 {
             balance1 = IERC20Uniswap(_token1).balanceOf(address(this));
         }
         // function split to avoid stack too deep errors
-        _updateSwap(balance0, balance1, amount0Out, amount1Out, to, feeMultiplicator);
+        _updateSwap(balance0, balance1, amount0Out, amount1Out, to, feeMultiplier);
     }
 
     function _updateSwap(
@@ -223,14 +223,14 @@ contract UniswapV2Pair is UniswapV2ERC20 {
         uint256 amount0Out,
         uint256 amount1Out,
         address to,
-        uint256 feeMultiplicator
+        uint256 feeMultiplier
     ) private {
         (uint112 _reserve0, uint112 _reserve1, ) = getReserves(); // gas savings
         uint256 amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
         uint256 amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, "UniswapV2: INSUFFICIENT_INPUT_AMOUNT");
         // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-        uint256 feeBpAmount = 1000 - feeMultiplicator; // fee basis points
+        uint256 feeBpAmount = 1000 - feeMultiplier; // fee basis points
         uint256 balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(feeBpAmount));
         uint256 balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(feeBpAmount));
         require(balance0Adjusted.mul(balance1Adjusted) >= uint256(reserve0).mul(reserve1).mul(1000**2), "UniswapV2: K");

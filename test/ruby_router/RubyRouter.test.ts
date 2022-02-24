@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { expect } from "chai";
 
 import { ethers, network } from "hardhat";
@@ -6,13 +5,15 @@ import { RubyRouter } from "../../typechain";
 import {
   deployAMM,
   deployRubyRouter,
-  addStablePoolLiquidity,
   deployMockTokens,
-  approveTokens,
   deployRubyStablePool,
   deployStablePoolTokens,
+  deployNFTAdmin,
+  deployRubyProfileNFT,
   createMockLPs,
+  deployRubyFreeSwapNFT,
 } from "../utilities/deployment";
+import { addStablePoolLiquidity, approveTokens } from "../utilities/seeding";
 import { SwapType, AMMSwapType } from "./types";
 describe("RubyRouter", function () {
   before(async function () {
@@ -25,8 +26,34 @@ describe("RubyRouter", function () {
     this.token2liquidity = ethers.utils.parseUnits("500000", 18);
     this.token2liquidity6 = ethers.utils.parseUnits("500000", 6);
 
+    const rubyProfileNFTDescription = JSON.stringify({
+      "randomMetadata": {}
+    });
+
+    const rubyFreeSwapNFTDescription = JSON.stringify({
+      "description": "swap fees",
+      "feeReduction": 1000, 
+      "lpFeeDeduction": 3,
+      "randomMetadata": {}
+    });
+  
+    const rubyProfileNFTVisualAppearance = JSON.stringify({
+      "att1": 1,
+      "att2": 2, 
+      "att3": 3,
+    });
+
+
+    this.rubyFreeSwapNft = await deployRubyFreeSwapNFT(this.owner.address, "Ruby Free Swap NFT", "RFSNFT", rubyFreeSwapNFTDescription, rubyProfileNFTVisualAppearance)
+
+    this.rubyProfileNft = await deployRubyProfileNFT(this.owner.address, "Ruby Profile NFT", "RPNFT", rubyProfileNFTDescription, rubyProfileNFTVisualAppearance)
+
+    this.nftAdmin = await deployNFTAdmin(this.owner.address, this.rubyProfileNft.address)
+
+    await this.rubyProfileNft.setMinter(this.nftAdmin.address, true);
+
     // AMM
-    let { factory, ammRouter } = await deployAMM(this.owner.address);
+    let { factory, ammRouter } = await deployAMM(this.owner.address, this.nftAdmin.address);
     this.factory = factory;
     this.ammRouter = ammRouter;
 
@@ -81,7 +108,9 @@ describe("RubyRouter", function () {
       this.owner.address,
     );
 
-    this.rubyRouter = <RubyRouter>await deployRubyRouter(this.ammRouter.address, this.rubyStablePool.address, 3);
+    this.rubyRouter = <RubyRouter>await deployRubyRouter(this.owner.address, this.ammRouter.address, this.rubyStablePool.address, this.nftAdmin.address, 3);
+
+    await this.nftAdmin.setMinter(this.rubyRouter.address, true);
   });
 
   it("RubyRouter should be deployed correctly", async function () {
@@ -98,8 +127,9 @@ describe("RubyRouter", function () {
     const stableTokenOut = this.usdp;
 
     const tokenInAmount = ethers.utils.parseUnits("100", 18);
+    const feeMultiplier = await this.nftAdmin.calculateAmmSwapFeeDeduction(this.owner.address);
 
-    const amountsOut = await this.ammRouter.getAmountsOut(tokenInAmount, [tokenIn.address, stableTokenIn.address]);
+    const amountsOut = await this.ammRouter.getAmountsOut(tokenInAmount, [tokenIn.address, stableTokenIn.address], feeMultiplier);
     const stableTokenInAmount = amountsOut[amountsOut.length - 1];
 
     const stableTokenInIndex = await this.rubyStablePool.getTokenIndex(stableTokenIn.address);
@@ -174,7 +204,7 @@ describe("RubyRouter", function () {
     await tx.wait(1);
   });
 
-  it("routing should work as expected starting from the StablePool", async function () {
+  it("Routing should work as expected starting from the StablePool", async function () {
     const stableTokenIn = this.dai;
     const stableTokenOut = this.usdp;
     const tokenOut = this.mockTokens[1];
@@ -190,10 +220,12 @@ describe("RubyRouter", function () {
       stableTokenInAmount,
     );
 
+    const feeMultiplier = await this.nftAdmin.calculateAmmSwapFeeDeduction(this.owner.address);
+
     const amountsOut = await this.ammRouter.getAmountsOut(stableTokenOutAmount, [
       stableTokenOut.address,
-      tokenOut.address,
-    ]);
+      tokenOut.address
+    ], feeMultiplier);
     const tokenOutAmount = amountsOut[amountsOut.length - 1];
 
     const blockNumber = await ethers.provider.getBlockNumber();
@@ -264,8 +296,9 @@ describe("RubyRouter", function () {
     const tokenOut = this.mockTokens[1];
 
     const tokenInAmount = ethers.utils.parseUnits("100", 18);
+    const feeMultiplier = await this.nftAdmin.calculateAmmSwapFeeDeduction(this.owner.address);
 
-    const amountsOut = await this.ammRouter.getAmountsOut(tokenInAmount, [tokenIn.address, tokenOut.address]);
+    const amountsOut = await this.ammRouter.getAmountsOut(tokenInAmount, [tokenIn.address, tokenOut.address], feeMultiplier);
     const tokenOutAmount = amountsOut[amountsOut.length - 1];
 
     const blockNumber = await ethers.provider.getBlockNumber();
@@ -311,8 +344,9 @@ describe("RubyRouter", function () {
     const tokenOut = this.mockTokens[1];
 
     const tokenOutAmount = ethers.utils.parseUnits("100", 18);
+    const feeMultiplier = await this.nftAdmin.calculateAmmSwapFeeDeduction(this.owner.address);
 
-    const amountsIn = await this.ammRouter.getAmountsIn(tokenOutAmount, [tokenIn.address, tokenOut.address]);
+    const amountsIn = await this.ammRouter.getAmountsIn(tokenOutAmount, [tokenIn.address, tokenOut.address], feeMultiplier);
     const tokenInAmount = amountsIn[0];
 
     const blockNumber = await ethers.provider.getBlockNumber();

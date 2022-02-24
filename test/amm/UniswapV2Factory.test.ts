@@ -1,15 +1,40 @@
 import { expect } from "chai";
 
 import { ethers, network } from "hardhat";
-import { deployAMM } from "../utilities/deployment";
+import { deployAMM, deployNFTAdmin, deployRubyFreeSwapNFT, deployRubyProfileNFT } from "../utilities/deployment";
 describe("UniswapV2Factory", function () {
   beforeEach(async function () {
     this.signers = await ethers.getSigners();
     this.owner = this.signers[0];
     this.user2 = this.signers[1];
 
+
+    const rubyProfileNFTDescription = JSON.stringify({
+      "randomMetadata": {}
+    });
+
+    const rubyFreeSwapNFTDescription = JSON.stringify({
+      "description": "swap fees",
+      "feeReduction": 1000, 
+      "lpFeeDeduction": 3,
+      "randomMetadata": {}
+    });
+  
+    const rubyProfileNFTVisualAppearance = JSON.stringify({
+      "att1": 1,
+      "att2": 2, 
+      "att3": 3,
+    });
+
+
+    this.rubyFreeSwapNft = await deployRubyFreeSwapNFT(this.owner.address, "Ruby Free Swap NFT", "RFSNFT", rubyFreeSwapNFTDescription, rubyProfileNFTVisualAppearance)
+
+    this.rubyProfileNft = await deployRubyProfileNFT(this.owner.address, "Ruby Profile NFT", "RPNFT", rubyProfileNFTDescription, rubyProfileNFTVisualAppearance)
+
+    this.nftAdmin = await deployNFTAdmin(this.owner.address, this.rubyProfileNft.address)
+
     // AMM
-    let { factory, ammRouter } = await deployAMM(this.owner.address);
+    let { factory, ammRouter } = await deployAMM(this.owner.address, this.nftAdmin.address);
     this.factory = factory;
     this.router = ammRouter;
   });
