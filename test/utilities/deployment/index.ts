@@ -213,3 +213,43 @@ export const deployRubyMaker = async (factory: string, staker: string, ruby: str
   return rubyMaker;
 
 }
+
+export const deployNftsAndNftAdmin = async (ownerAddress: string) => {
+
+  const description = JSON.stringify({
+    "description": "swap fees",
+    "feeReduction": 1000, 
+    "lpFeeDeduction": 3,
+    "randomMetadata": {}
+  });
+
+  const visualAppearance = JSON.stringify({
+    "att1": 1,
+    "att2": 2, 
+    "att3": 3,
+  });
+
+
+  let rubyFreeSwapNft = await deployRubyFreeSwapNFT(ownerAddress, "Ruby Free Swap NFT", "RFSNFT", description, visualAppearance)
+  let rubyProfileNft = await deployRubyProfileNFT(ownerAddress, "Ruby Profile NFT", "RPNFT", description, visualAppearance)
+  let nftAdmin = await deployNFTAdmin(ownerAddress, rubyProfileNft.address)
+
+  return {
+    rubyFreeSwapNft,
+    rubyProfileNft,
+    nftAdmin
+  }
+
+}
+
+
+export const deployRubyNFT = async (ownerAddress: string, name: string, symbol: string, details: string, visualAppearance: string) => {
+    
+  let RubyNFT = await ethers.getContractFactory("RubyNFT");
+
+  let rubyNft: RubyProfileNFT = await upgrades.deployProxy(RubyNFT, [ownerAddress, name, symbol, details, visualAppearance]);
+  await rubyNft.deployed();
+
+  return rubyNft;
+
+}

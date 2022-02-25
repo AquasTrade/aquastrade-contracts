@@ -12,11 +12,12 @@ import {
   deployRubyProfileNFT,
   createMockLPs,
   deployRubyFreeSwapNFT,
+  deployNftsAndNftAdmin,
 } from "../utilities/deployment";
 import { addStablePoolLiquidity, approveTokens } from "../utilities/seeding";
 import { SwapType, AMMSwapType } from "./types";
 describe("RubyRouter", function () {
-  before(async function () {
+  beforeEach(async function () {
     this.signers = await ethers.getSigners();
     this.owner = this.signers[0];
 
@@ -26,34 +27,17 @@ describe("RubyRouter", function () {
     this.token2liquidity = ethers.utils.parseUnits("500000", 18);
     this.token2liquidity6 = ethers.utils.parseUnits("500000", 6);
 
-    const rubyProfileNFTDescription = JSON.stringify({
-      "randomMetadata": {}
-    });
+    let {rubyFreeSwapNft, rubyProfileNft, nftAdmin} = await deployNftsAndNftAdmin(this.owner.address)
 
-    const rubyFreeSwapNFTDescription = JSON.stringify({
-      "description": "swap fees",
-      "feeReduction": 1000, 
-      "lpFeeDeduction": 3,
-      "randomMetadata": {}
-    });
-  
-    const rubyProfileNFTVisualAppearance = JSON.stringify({
-      "att1": 1,
-      "att2": 2, 
-      "att3": 3,
-    });
+    this.rubyProfileNft = rubyProfileNft;
+    this.rubyFreeSwapNft = rubyFreeSwapNft;
+    this.nftAdmin = nftAdmin;
 
 
-    this.rubyFreeSwapNft = await deployRubyFreeSwapNFT(this.owner.address, "Ruby Free Swap NFT", "RFSNFT", rubyFreeSwapNFTDescription, rubyProfileNFTVisualAppearance)
-
-    this.rubyProfileNft = await deployRubyProfileNFT(this.owner.address, "Ruby Profile NFT", "RPNFT", rubyProfileNFTDescription, rubyProfileNFTVisualAppearance)
-
-    this.nftAdmin = await deployNFTAdmin(this.owner.address, this.rubyProfileNft.address)
-
-    await this.rubyProfileNft.setMinter(this.nftAdmin.address, true);
+    await rubyProfileNft.setMinter(nftAdmin.address, true);
 
     // AMM
-    let { factory, ammRouter } = await deployAMM(this.owner.address, this.nftAdmin.address);
+    let { factory, ammRouter } = await deployAMM(this.owner.address, nftAdmin.address);
     this.factory = factory;
     this.ammRouter = ammRouter;
 
@@ -110,7 +94,7 @@ describe("RubyRouter", function () {
 
     this.rubyRouter = <RubyRouter>await deployRubyRouter(this.owner.address, this.ammRouter.address, this.rubyStablePool.address, this.nftAdmin.address, 3);
 
-    await this.nftAdmin.setMinter(this.rubyRouter.address, true);
+    await nftAdmin.setMinter(this.rubyRouter.address, true);
   });
 
   it("RubyRouter should be deployed correctly", async function () {
@@ -182,11 +166,18 @@ describe("RubyRouter", function () {
     const stableSwapTokenInBalanceBefore = await this.rubyStablePool.getTokenBalance(stableTokenInIndex);
     const stableSwapTokenOutBalanceBefore = await this.rubyStablePool.getTokenBalance(stableTokenOutIndex);
 
-    const tx = await this.rubyRouter.swap(swapDetails);
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(0);
 
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(0);
+    const tx = await this.rubyRouter.swap(swapDetails);
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(1);
+
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(1);
     expect(await tokenIn.balanceOf(this.rubyRouter.address)).to.be.eq(0);
     expect(await stableTokenIn.balanceOf(this.rubyRouter.address)).to.be.eq(0);
     expect(await stableTokenOut.balanceOf(this.rubyRouter.address)).to.be.eq(0);
+
+
 
     expect(await tokenIn.balanceOf(this.owner.address)).to.be.eq(tokenInBalanceBefore.sub(tokenInAmount));
     expect(await stableTokenOut.balanceOf(this.owner.address)).to.be.eq(
@@ -269,7 +260,10 @@ describe("RubyRouter", function () {
     const stableSwapTokenInBalanceBefore = await this.rubyStablePool.getTokenBalance(stableTokenInIndex);
     const stableSwapTokenOutBalanceBefore = await this.rubyStablePool.getTokenBalance(stableTokenOutIndex);
 
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(0);
     const tx = await this.rubyRouter.swap(swapDetails);
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(1);
+
 
     expect(await tokenOut.balanceOf(this.rubyRouter.address)).to.be.eq(0);
     expect(await stableTokenIn.balanceOf(this.rubyRouter.address)).to.be.eq(0);
@@ -328,7 +322,12 @@ describe("RubyRouter", function () {
     const tokenInBalanceBefore = await tokenIn.balanceOf(this.owner.address);
     const tokenOutBalanceBefore = await tokenOut.balanceOf(this.owner.address);
 
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(0);
+
     const tx = await this.rubyRouter.swap(swapDetails);
+
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(1);
+
 
     expect(await tokenIn.balanceOf(this.rubyRouter.address)).to.be.eq(0);
     expect(await tokenOut.balanceOf(this.rubyRouter.address)).to.be.eq(0);
@@ -376,7 +375,10 @@ describe("RubyRouter", function () {
     const tokenInBalanceBefore = await tokenIn.balanceOf(this.owner.address);
     const tokenOutBalanceBefore = await tokenOut.balanceOf(this.owner.address);
 
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(0);
     const tx = await this.rubyRouter.swap(swapDetails);
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(1);
+
 
     expect(await tokenIn.balanceOf(this.rubyRouter.address)).to.be.eq(0);
     expect(await tokenOut.balanceOf(this.rubyRouter.address)).to.be.eq(0);
@@ -432,7 +434,10 @@ describe("RubyRouter", function () {
     const stableTokenInBalanceBefore = await stableTokenIn.balanceOf(this.owner.address);
     const stableTokenOutBalanceBefore = await stableTokenOut.balanceOf(this.owner.address);
 
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(0);
     const tx = await this.rubyRouter.swap(swapDetails);
+    expect(await this.rubyProfileNft.balanceOf(this.owner.address)).to.be.eq(1);
+
 
     expect(await stableTokenIn.balanceOf(this.rubyRouter.address)).to.be.eq(0);
     expect(await stableTokenOut.balanceOf(this.rubyRouter.address)).to.be.eq(0);
@@ -454,7 +459,7 @@ describe("RubyRouter", function () {
     await tx.wait(1);
   });
 
-  after(async function () {
+  afterEach(async function () {
     await network.provider.request({
       method: "hardhat_reset",
       params: [],

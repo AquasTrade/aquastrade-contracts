@@ -5,8 +5,6 @@ import { BigNumber } from "ethers";
 import {
     Swap,
     ERC20,
-    UniswapV2Factory,
-    RubyMaker,
     MockERC20
   } from "../../typechain";
   
