@@ -47,17 +47,20 @@ contract RubyNFT is ERC721Upgradeable, OwnableUpgradeable, IRubyNFT {
     function setMinter(address minter, bool allowance) external virtual override onlyOwner {
         require(minter != address(0), "RubyNFT: Invalid minter address");
         minters[minter] = allowance;
+        emit MinterSet(minter, allowance);
     }
 
 
     function setDescription(string memory _description) external virtual override onlyOwner {
         require(bytes(_description).length != 0, "RubyNFT: Invalid description");
         description = _description;
+        emit DescriptionSet(description);
     }
 
     function setVisualAppearance(string memory _visualAppearance) external virtual override onlyOwner {
         require(bytes(_visualAppearance).length != 0, "RubyNFT: Invalid visual appearance");
         visualAppearance = _visualAppearance;
+        emit VisualAppearanceSet(visualAppearance);
     }
 
     // avoid storage collisions

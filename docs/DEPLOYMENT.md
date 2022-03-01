@@ -8,33 +8,23 @@ If deploying for the first time, please follow the steps in order.
 
 ```
 yarn deploy --tags RubyProxyAdmin
-yarn deploy --tags RubyNFTFactory
 yarn deploy --tags RubyFreeSwapNFT
 yarn deploy --tags RubyProfileNFT
-yarn deploy --tags RubyFeeAdmin
+yarn deploy --tags RubyNFTAdmin
 ```
 
 2. AMM:
+
+Before deploying AMM, ensure that the `initCodeHash` is correct for the correct network: `yarn initCodeHash --network $network`.
+This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at line 33, where the "// init code hash" comment is set. (NOTE: without the `0x` symbol)
 
 ```
 yarn deploy --network localhost --tags UniswapV2Factory
 yarn deploy --network localhost --tags UniswapV2Router02
 ```
 
-3. Seed RubyNFTFactory:
 
-```
-yarn deploy --network localhost --tags SeedNFTFactory
-```
-
-4. Staking:
-
-```
-yarn deploy --tags RubyStaker
-yarn deploy --tags RubyMaker
-```
-
-4. Staking:
+3. Staking:
 
 ```
 yarn deploy --tags RubyStaker
@@ -43,25 +33,25 @@ yarn deploy --tags RubyMaker
 
 or `yarn deploy --tags Staking`
 
-5. Seed AMM:
+4. Seed AMM:
 
 ```
 yarn deploy --tags SeedAMM
 ```
 
-6. Farm
+5. Farm
 
 a) Deploy ruby token if not deployed `yarn deploy --tags RubyTokenMainnet` or `yarn deploy --tags RubyToken`
 b) Deploy RubyMasterChef `yarn deploy --tags RubyMasterChef`
-c) Seed RubyMasterChef with RUBY tokens `yarn transferRubyTokensToMasterChef`
+c) Seed RubyMasterChef with RUBY tokens `yarn transferRUBYtoMS`
 
-7. Set staking rewards
+6. Set staking rewards
 
 ```
 yarn deploy --tags SetStakingRewards
 ```
 
-8. StableSwap:
+7. StableSwap:
 
 ```
 yarn deploy --tags Allowlist
@@ -75,25 +65,37 @@ yarn deploy --tags RubyUSD4Pool
 
 or: `yarn deploy --tags StableSwap`
 
-9. Seed the stablePool:
+8. Seed the stablePool:
 
 ```
 yarn deploy --tags SeedStablePool`
 ```
 
-10. Ruby Router:
+9. Ruby Router:
 
 ```
 yarn deploy --tags RubyRouter
 ```
 
-11. Utils:
+10. Seed RubyNFTAdmin:
+
+```
+yarn deploy --network localhost --tags SeedNFTAdmin
+```
+
+11. Seed RubyProfileNFT:
+
+```
+yarn deploy --tags SeedRubyProfileNFT
+```
+
+12. Utils:
 
 ```
 yarn deploy --tags Multicall2`
 ```
 
-12. Governance:
+13. Governance:
 
 ```
 yarn deploy --tags Timelock

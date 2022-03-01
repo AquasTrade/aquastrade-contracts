@@ -2,7 +2,16 @@
 pragma solidity 0.6.12;
 
 interface IRubyNFTAdmin {
+
+    event MinterSet(address indexed minter, bool allowance);
+
+    event FreeSwapNFTSet(address indexed freeSwapNFT);
+
+    event RubyProfileNFTset(address indexed profileNFT);
+
     function profileNFT() external view returns (address);
+
+    function freeSwapNFT() external view returns (address);
 
     function minters(address minter) external view returns (bool);
 
@@ -12,5 +21,7 @@ interface IRubyNFTAdmin {
 
     function setProfileNFT(address newProfileNFT) external;
 
-    function setMinter(address minter, bool isAllowed) external;
+    function setFreeSwapNFT(address newFreeSwapNFT) external;
+
+    function setMinter(address minter, bool allowance) external;
 }

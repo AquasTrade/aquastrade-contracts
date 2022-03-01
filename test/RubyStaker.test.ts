@@ -1,14 +1,10 @@
-const { ethers, network } = require("hardhat");
+const { ethers } = require("hardhat");
 import { expect } from "chai";
-import { BigNumber } from "ethers";
-import { RubyStaker } from "../typechain";
-import { RubyBar__factory } from "../typechain/factories/RubyBar__factory";
+
 import {
   ADDRESS_ZERO,
   advanceTimeByTimestamp,
   advanceTimeToTimestamp,
-  latest,
-  assertStakerBalances,
 } from "./utilities";
 
 describe("RubyStaker", function () {

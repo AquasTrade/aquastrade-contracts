@@ -20,13 +20,6 @@ describe("RubyMasterChef", function () {
     this.MockERC20 = await ethers.getContractFactory("MockERC20", this.minter);
     this.SushiToken = await ethers.getContractFactory("SushiToken");
 
-    //     this.ruby = <RubyTokenMintable>this.ruby;
-
-    //     // await this.ruby.mint(this.signers[0].address, getBigNumber("10000000"));
-
-    //     // deploy the staker with dummy addresses, not really relevant for these tests
-    //     await deploy(this, [["staker", this.RubyStaker, [this.ruby.address, this.ruby.address]]]);
-
     this.treasuryPercent = 100;
     this.lpPercent = 1000 - this.treasuryPercent;
     this.rubyPerSec = 10;
@@ -591,7 +584,6 @@ describe("RubyMasterChef", function () {
       await assertStakerBalances(this.staker, this.bob.address, [135, 145]);
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.be.within(2720, 2760);
       expect(await this.ruby.balanceOf(this.treasury.address)).to.be.within(15, 16);
-      // expect(await this.ruby.totalSupply()).to.be.within(150, 160);
     });
 
     it("should not distribute RUBYs if no one deposit", async function () {
@@ -625,14 +617,11 @@ describe("RubyMasterChef", function () {
       await this.lp.connect(this.bob).approve(this.chef.address, "1000"); // t-53
       await advanceTimeByTimestamp(107); // t+54
 
-      // expect(await this.ruby.totalSupply()).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
       await advanceTimeByTimestamp(5); // t+59
-      // expect(await this.ruby.totalSupply()).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
       await advanceTimeByTimestamp(5); // t+64
       await this.chef.connect(this.bob).deposit(0, "10"); // t+65
-      // expect(await this.ruby.totalSupply()).to.equal("0");
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
       expect(await this.lp.balanceOf(this.bob.address)).to.equal("990");
@@ -641,7 +630,6 @@ describe("RubyMasterChef", function () {
       await expect(this.chef.connect(this.bob).withdraw(0, "11")).to.be.revertedWith("withdraw: not good"); // t+76
       await this.chef.connect(this.bob).withdraw(0, "10"); // t+77
 
-      // expect(await this.ruby.balanceOf(this.bob.address)).to.be.within(108, 113);
       expect(await this.ruby.balanceOf(this.bob.address)).to.be.eq(0);
       await assertStakerBalances(this.staker, this.bob.address, [108, 113]);
 
@@ -707,7 +695,6 @@ describe("RubyMasterChef", function () {
       //   MasterChef should have: 1000 - 51 - 10 = 939 (+10)
       await advanceTimeByTimestamp(1); // t+19
       await this.chef.connect(this.alice).deposit(0, "10", { from: this.alice.address }); // t+20,
-      // expect(await this.ruby.totalSupply()).to.be.within(100, 110);
       // Because LP rewards are divided among participants and rounded down, we account
       // for rounding errors with an offset
 
@@ -717,7 +704,6 @@ describe("RubyMasterChef", function () {
       let aliceRubyBalanceMin = aliceDistributedTokens - this.tokenOffset;
       let aliceRubyBalanceMax = aliceDistributedTokens + 5 + this.tokenOffset;
 
-      // expect(await this.ruby.balanceOf(this.alice.address)).to.be.within(aliceRubyBalanceMin, aliceRubyBalanceMax);
       expect(await this.ruby.balanceOf(this.alice.address)).to.be.eq(aliceRubyBalanceAfterTransfer);
       await assertStakerBalances(this.staker, this.alice.address, [aliceRubyBalanceMin, aliceRubyBalanceMax]);
       expect(await this.partnerToken.balanceOf(this.alice.address)).to.be.within(
@@ -726,13 +712,10 @@ describe("RubyMasterChef", function () {
       );
 
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
-      // await assertStakerBalances(this.staker, this.bob.address, [0, 0]);
 
       expect(await this.partnerToken.balanceOf(this.bob.address)).to.equal("0");
 
-      // expect(await this.ruby.balanceOf(this.carol.address)).to.equal("0");
       expect(await this.ruby.balanceOf(this.carol.address)).to.equal("0");
-      // await assertStakerBalances(this.staker, this.carol.address, [0, 0]);
 
       expect(await this.partnerToken.balanceOf(this.carol.address)).to.equal("0");
 
@@ -758,7 +741,6 @@ describe("RubyMasterChef", function () {
       //   MasterChef should have: 939 - 55.7 - 10 = 873.3 (+10)
       await advanceTimeByTimestamp(9); // t+29
       await this.chef.connect(this.bob).withdraw(0, "5", { from: this.bob.address }); // t+30
-      // expect(await this.ruby.totalSupply()).to.be.within(200, 210);
       // Because of rounding errors, we use token offsets
 
       expect(await this.ruby.balanceOf(this.alice.address)).to.equal(aliceRubyBalanceAfterTransfer);
@@ -772,10 +754,6 @@ describe("RubyMasterChef", function () {
       let bobDistributedTokens = 55;
       treasuryDistributedTokens += 10;
 
-      // expect(await this.ruby.balanceOf(this.bob.address)).to.be.within(
-      //   bobDistributedTokens - this.tokenOffset,
-      //   bobDistributedTokens + 5 + this.tokenOffset,
-      // );
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
       await assertStakerBalances(this.staker, this.bob.address, [
         bobDistributedTokens - this.tokenOffset,
@@ -787,9 +765,7 @@ describe("RubyMasterChef", function () {
         287 + this.tokenOffset,
       );
 
-      // expect(await this.ruby.balanceOf(this.carol.address)).to.equal("0");
       expect(await this.ruby.balanceOf(this.carol.address)).to.equal("0");
-      // await assertStakerBalances(this.staker, this.carol.address, [0, 0]);
 
       expect(await this.partnerToken.balanceOf(this.carol.address)).to.equal("0");
 
@@ -816,7 +792,6 @@ describe("RubyMasterChef", function () {
       await this.chef.connect(this.bob).withdraw(0, "15", { from: this.bob.address }); // t+50
       await advanceTimeByTimestamp(9); // t+59
       await this.chef.connect(this.carol).withdraw(0, "30", { from: this.carol.address }); // t+60
-      // expect(await this.ruby.totalSupply()).to.be.within(500, 510);
       // Alice should have:
       //  - 51 + 10*9*2/7 + 10*9*20/65 = 104.39(+5) RubyToken
       //  - 226 + 10*40*2/7 + 10*40*20/65 = 463 (+40) PartnerToken
@@ -841,8 +816,6 @@ describe("RubyMasterChef", function () {
 
       bobDistributedTokens += 46;
 
-      // expect(await this.ruby.balanceOf(this.bob.address)).to.be.within(102 - this.tokenOffset, 112 + this.tokenOffset);
-
       expect(await this.ruby.balanceOf(this.bob.address)).to.equal("0");
       await assertStakerBalances(this.staker, this.bob.address, [102 - this.tokenOffset, 112 + this.tokenOffset]);
 
@@ -855,11 +828,6 @@ describe("RubyMasterChef", function () {
       //  - 2*40*1/2 + 10*40*3/7 + 10*40*30/65 + 10*40*30/45 + 10*40 = 1062 (+40) PartnerToken
 
       let carolDistributedTokens = 239;
-
-      // expect(await this.ruby.balanceOf(this.carol.address)).to.be.within(
-      //   carolDistributedTokens - this.tokenOffset,
-      //   carolDistributedTokens + 5 + this.tokenOffset,
-      // );
 
       expect(await this.ruby.balanceOf(this.carol.address)).to.equal("0");
       await assertStakerBalances(this.staker, this.carol.address, [

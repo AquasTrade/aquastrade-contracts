@@ -8,6 +8,7 @@ import "./interfaces/IRubyNFT.sol";
 
 contract RubyNFTAdmin is IRubyNFTAdmin, OwnableUpgradeable {
     address public override profileNFT;
+    address public override freeSwapNFT;
 
     // profile NFT minters
     mapping(address => bool) public override minters;
@@ -17,10 +18,12 @@ contract RubyNFTAdmin is IRubyNFTAdmin, OwnableUpgradeable {
         _;
     }
 
-    function initialize(address _owner, address _profileNFT) public initializer {
-        require(_owner != address(0), "RubyNFTAdmin: Invalid owner address.");
-        require(_profileNFT != address(0), "RubyNFTAdmin: Invalid RUBY profile nft.");
+    function initialize(address _owner, address _profileNFT, address _freeSwapNFT) public initializer {
+        require(_owner != address(0), "RubyNFTAdmin: Invalid owner address");
+        require(_profileNFT != address(0), "RubyNFTAdmin: Invalid RUBY profile NFT");
+        require(_freeSwapNFT != address(0), "RubyNFTAdmin: Invalid RUBY free swap NFT");
         profileNFT = _profileNFT;
+        freeSwapNFT = _freeSwapNFT;
 
         OwnableUpgradeable.__Ownable_init();
         transferOwnership(_owner);
@@ -38,8 +41,6 @@ contract RubyNFTAdmin is IRubyNFTAdmin, OwnableUpgradeable {
         @param user - the address of the user
      */
     function calculateAmmSwapFeeDeduction(address user) external view override returns (uint256 feeMultiplier) {
-        // TODO: REPLACE with the RubyFreeSwapNFT address
-        address freeSwapNFT = 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0;
         if (IRubyNFT(freeSwapNFT).balanceOf(user) > 0) {
             return 1000; // no fee
         }
@@ -60,14 +61,23 @@ contract RubyNFTAdmin is IRubyNFTAdmin, OwnableUpgradeable {
     }
 
     // ADMIN FUNCTIONS
+
     function setProfileNFT(address newProfileNFT) external override onlyOwner {
-        require(newProfileNFT != address(0), "RubyNFTAdmin: Invalid profile NFT address");
+        require(newProfileNFT != address(0), "RubyNFTAdmin: Invalid profile NFT");
         profileNFT = newProfileNFT;
+        emit RubyProfileNFTset(profileNFT);
     }
 
-    function setMinter(address minter, bool isAllowed) external override onlyOwner {
+    function setFreeSwapNFT(address newFreeSwapNFT) external override onlyOwner {
+        require(newFreeSwapNFT != address(0), "RubyNFTAdmin: Invalid free swap NFT");
+        freeSwapNFT = newFreeSwapNFT;
+        emit FreeSwapNFTSet(freeSwapNFT);
+    }
+
+    function setMinter(address minter, bool allowance) external override onlyOwner {
         require(minter != address(0), "RubyNFTAdmin: Invalid minter address");
-        minters[minter] = isAllowed;
+        minters[minter] = allowance;
+        emit MinterSet(minter, allowance);
     }
 
 

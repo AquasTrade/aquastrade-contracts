@@ -56,7 +56,6 @@ describe("RubyRouter", function () {
     );
 
     // StableSwap  params
-
     this.liquidityStableToken18 = ethers.utils.parseUnits("1000000", 18);
     this.liquidityStableToken6 = ethers.utils.parseUnits("1000000", 6);
 

@@ -42,10 +42,10 @@ export const deployRubyProfileNFT = async (owner: string, name: string, symbol: 
 }
 
 
-export const deployNFTAdmin = async (owner: string, rubyProfileNFT: string) => {
+export const deployNFTAdmin = async (owner: string, rubyProfileNFT: string, rubyFreeSwapNFT: string) => {
   let RubyNFTAdmin = await ethers.getContractFactory("RubyNFTAdmin");
 
-  let nftAdmin: RubyNFTAdmin = await upgrades.deployProxy(RubyNFTAdmin, [owner, rubyProfileNFT])
+  let nftAdmin: RubyNFTAdmin = await upgrades.deployProxy(RubyNFTAdmin, [owner, rubyProfileNFT, rubyFreeSwapNFT])
   await nftAdmin.deployed();
 
   return nftAdmin;
@@ -232,7 +232,7 @@ export const deployNftsAndNftAdmin = async (ownerAddress: string) => {
 
   let rubyFreeSwapNft = await deployRubyFreeSwapNFT(ownerAddress, "Ruby Free Swap NFT", "RFSNFT", description, visualAppearance)
   let rubyProfileNft = await deployRubyProfileNFT(ownerAddress, "Ruby Profile NFT", "RPNFT", description, visualAppearance)
-  let nftAdmin = await deployNFTAdmin(ownerAddress, rubyProfileNft.address)
+  let nftAdmin = await deployNFTAdmin(ownerAddress, rubyProfileNft.address, rubyFreeSwapNft.address);
 
   return {
     rubyFreeSwapNft,
