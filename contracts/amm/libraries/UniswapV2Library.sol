@@ -30,7 +30,7 @@ library UniswapV2Library {
                         hex"ff",
                         factory,
                         keccak256(abi.encodePacked(token0, token1)),
-                        hex"7617d311291bf22d02712f6e1cf7172770a0933538c399992a5b0d87439a24f7" // init code hash
+                        hex"4b6e3f04a65175af5d559dd210b36595895c63e4cab1da600a6063ee12336e32" // init code hash
                     )
                 )
             )
@@ -59,7 +59,10 @@ library UniswapV2Library {
         amountB = amountA.mul(reserveB) / reserveA;
     }
 
-    // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+    // 1. Given an input amount of an asset, pair reserves and trading fee multiplier, 
+    //    returns the maximum output amount of the other asset
+    // 2. The calculation takes in feeMultiplier argument, which is used to calculate amountOut based on
+    //    the trading fee used. 
     function getAmountOut(
         uint256 amountIn,
         uint256 reserveIn,
@@ -75,7 +78,10 @@ library UniswapV2Library {
         amountOut = numerator / denominator;
     }
 
-    // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
+    // 1. Given an output amount of an asset, pair reserves and trading fee multiplier, 
+    //    returns a required input amount of the other asset
+    // 2. The calculation takes in feeMultiplier argument, which is used to calculate amountIn based on
+    //    the trading fee used. 
     function getAmountIn(
         uint256 amountOut,
         uint256 reserveIn,
@@ -90,7 +96,9 @@ library UniswapV2Library {
         amountIn = (numerator / denominator).add(1);
     }
 
-    // performs chained getAmountOut calculations on any number of pairs
+    // 1. Performs chained getAmountOut calculations on any number of pairs
+    // 2. The calculation takes in feeMultiplier argument, which is used to calculate amounts out based on
+    //    the trading fee used. The feeMultiplier is the same for all pairs
     function getAmountsOut(
         address factory,
         uint256 amountIn,
@@ -106,7 +114,9 @@ library UniswapV2Library {
         }
     }
 
-    // performs chained getAmountIn calculations on any number of pairs
+    // 1. Performs chained getAmountIn calculations on any number of pairs
+    // 2. The calculation takes in feeMultiplier argument, which is used to calculate amounts in based on
+    //    the trading fee used. The feeMultiplier is the same for all pairs
     function getAmountsIn(
         address factory,
         uint256 amountOut,

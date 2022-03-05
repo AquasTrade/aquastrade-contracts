@@ -14,7 +14,6 @@ import "./interfaces/IRubyStaker.sol";
 import "./token_mappings/RubyToken.sol";
 import "./libraries/BoringERC20.sol";
 
-import "hardhat/console.sol";
 
 // RubyStaker based on EpsStaker.sol from Ellipsis finance
 // (https://github.com/ellipsis-finance/ellipsis/blob/master/contracts/EpsStaker.sol)

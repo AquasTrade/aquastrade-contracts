@@ -24,12 +24,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const adminRole = await tokenContract.DEFAULT_ADMIN_ROLE();
 
   if ((await tokenContract.hasRole(minterRole, tokenManagerErc20Address)) === false) {
-    let res = await tokenContract.grantRole(minterRole, tokenManagerErc20Address);
+    const res = await tokenContract.grantRole(minterRole, tokenManagerErc20Address);
     await res.wait(1);
   }
 
   if ((await tokenContract.hasRole(burnerRole, tokenManagerErc20Address)) === false) {
-    let res = await tokenContract.grantRole(burnerRole, tokenManagerErc20Address);
+    const res = await tokenContract.grantRole(burnerRole, tokenManagerErc20Address);
     await res.wait(1);
   }
 

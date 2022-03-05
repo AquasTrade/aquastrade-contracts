@@ -1,7 +1,0 @@
-npx hardhat verify --network rinkeby 0x180339F385399CC8BbE2c5d53ce4f9e7014700D1 "TestERC721" "t721"
-
-npx hardhat verify --contract contracts/mocks/MockUSDC.sol:MockUSDC --network rinkeby 0xF7Ef09660B71fD18A56AA913207Ebfa6727874C1
-
-npx hardhat verify --contract contracts/mocks/MockUSDP.sol:MockUSDP --network rinkeby 0x3595E2f313780cb2f23e197B8e297066fd410d30
-
-npx hardhat verify --contract contracts/mocks/MockUSDT.sol:MockUSDT --network rinkeby 0x2Fc800Cf8c219DD07866f883F8f25a346F92d07b

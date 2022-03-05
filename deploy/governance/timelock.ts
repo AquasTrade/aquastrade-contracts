@@ -2,13 +2,13 @@ import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { ethers, deployments, getNamedAccounts } = hre;
+  const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const chef = await ethers.getContract("RubyMasterChef");
 
-  const { address } = await deploy("Timelock", {
+  // const { address } = 
+  await deploy("Timelock", {
     from: deployer,
     args: [
       deployer,
@@ -19,11 +19,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     gasLimit: 4000000,
   });
 
-  if ((await chef.owner()) !== address) {
-    // Transfer RubyMasterChef Ownership to timelock
-    console.log("Transfer RubyMasterChef Ownership to timelock");
-    await (await chef.transferOwnership(address)).wait();
-  }
+  // if ((await chef.owner()) !== address) {
+  //   // Transfer RubyMasterChef Ownership to timelock
+  //   console.log("Transfer RubyMasterChef Ownership to timelock");
+  //   await (await chef.transferOwnership(address)).wait();
+  // }
 };
 
 func.tags = ["Timelock"];

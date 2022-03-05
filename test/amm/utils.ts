@@ -9,8 +9,8 @@ export const addLiquidity = async (ownerAddress: string, router: UniswapV2Router
     expect(await factory.pairCreators(ownerAddress)).to.be.eq(false);
     expect(await factory.pairCreators(router.address)).to.be.eq(false);
 
-    await factory.setPairCreator(ownerAddress);
-    await factory.setPairCreator(router.address);
+    await factory.setPairCreator(ownerAddress, true);
+    await factory.setPairCreator(router.address, true);
 
     expect(await factory.pairCreators(ownerAddress)).to.be.eq(true);
     expect(await factory.pairCreators(router.address)).to.be.eq(true);

@@ -27,9 +27,9 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
         address _factory,
         IRubyNFTAdmin _nftAdmin
     ) public initializer {
-        require(owner != address(0), "UniswapV2: INVALID_INIT_PARAM");
-        require(_factory != address(0), "UniswapV2: INVALID_INIT_PARAM");
-        require(address(_nftAdmin) != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        require(owner != address(0), "UniswapV2: INVALID_INIT_ARG");
+        require(_factory != address(0), "UniswapV2: INVALID_INIT_ARG");
+        require(address(_nftAdmin) != address(0), "UniswapV2: INVALID_INIT_ARG");
 
         __Ownable_init();
         transferOwnership(owner);
@@ -48,6 +48,7 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
         uint256 amountBMin
     ) internal virtual returns (uint256 amountA, uint256 amountB) {
         // create the pair if it doesn't exist yet
+        // user can only add liquidity to created pairs
         if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
             bool isPairCreator = IUniswapV2Factory(factory).pairCreators(msg.sender);
             require(isPairCreator, "UniswapV2Router: PAIR_NOT_CREATED");
@@ -169,8 +170,8 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
         uint256 deadline
     ) external virtual override ensure(deadline) returns (uint256[] memory amounts) {
         uint256 feeMultiplier = nftAdmin.calculateAmmSwapFeeDeduction(tx.origin);
-
         amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path, feeMultiplier);
+        
         require(amounts[amounts.length - 1] >= amountOutMin, "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0],
@@ -300,12 +301,14 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
 
     /// ADMIN FUNCTIONS
     function setFactory(address newFactory) external override onlyOwner {
-        require(address(newFactory) != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        require(newFactory != address(0), "UniswapV2: INVALID_INIT_ARG");
         factory = newFactory;
+        emit FactorySet(newFactory);
     }
 
     function setNftAdmin(IRubyNFTAdmin newNftAdmin) external override onlyOwner {
-        require(address(newNftAdmin) != address(0), "UniswapV2: INVALID_INIT_PARAM");
+        require(address(newNftAdmin) != address(0), "UniswapV2: INVALID_INIT_ARG");
         nftAdmin = newNftAdmin;
+        emit NFTAdminSet(address(newNftAdmin));
     }
 }

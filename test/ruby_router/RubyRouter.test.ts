@@ -41,8 +41,8 @@ describe("RubyRouter", function () {
     this.factory = factory;
     this.ammRouter = ammRouter;
 
-    await this.factory.setPairCreator(this.owner.address);
-    await this.factory.setPairCreator(this.ammRouter.address);
+    await this.factory.setPairCreator(this.owner.address, true);
+    await this.factory.setPairCreator(this.ammRouter.address, true);
 
     this.mockTokens = await deployMockTokens(this.mockTokenSupply);
     await approveTokens(this.mockTokens, this.ammRouter.address, ethers.constants.MaxUint256);

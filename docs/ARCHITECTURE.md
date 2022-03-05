@@ -12,6 +12,7 @@ The Ruby contract architecture is currently composed of few different components
 - Ruby staking (Elipsis finance staking/rewards implementation)
 - Ruby router (original implementation)
 - RubyToken (based on SushiToken implementation, changes made because of bridging)
+- RubyNFTAdmin and RUBY NFTs
 
 ## Components
 
@@ -24,8 +25,12 @@ Some slight changes have been made:
 
 2. Permisssions for creating Pools added. Only a previously whitelisted actors can create liquidity pools. Anyone can add liquidity to an already created pool.
 
-As per the original Uniswap V2 design, a fee is charged on each swap. The swap fee is set to be 0.30% of the swap amount (30 BIPS). If a protocol fee is enabled (the `feeTo` address is set at the `UniswapV2Factory.sol` contract), 0.25% of the swap amount (83.3% of the total fee) goes to the liquidity providers, while 0.05% of the swap amount (16.7% of the total fee) goes to the `feeTo` address.
+3. Swap functions `swapTokensForExactTokens`, `swapExactTokensForTokens`,`swapExactTokensForTokensSupportingFeeOnTransferTokens` in the `UniswapV2Router02.sol` contract have been changed to work with variable feeMultiplier. We've implemented a feature that allows for dynamic fee (0% or 0.30% currently) to be applied to the trades, based on the logic implemented in the NftAdmin contract (more on that below). 
+
+As per the original Uniswap V2 design, a fixed fee was charged on each swap. The swap fee was set to be 0.30% of the swap amount (30 BIPS) - Currently 0 or 30 BIPS depending on the tx.origin. If a protocol fee is enabled and a 30 BIPS fee is charged (the `feeTo` address is set at the `UniswapV2Factory.sol` contract), 0.25% of the swap amount (83.3% of the total fee) goes to the liquidity providers, while 0.05% of the swap amount (16.7% of the total fee) goes to the `feeTo` address.
 In the Ruby protocol, the `feeTo` address is set to the address of the `RubyMaker` contract.
+
+4. `UniswapV2Library.sol` functions - `getAmountOut`, `getAmountIn`, `getAmountsOut`, `getAmountsIn`, have been changed to accept a feeMultiplier parameter. This parameter serves to get the output or input amount also considering the fee applied for the swap.
 
 #### RubyMaker
 
@@ -108,6 +113,9 @@ USDP -> USDC (StablePool)
 Execution order:
 [Amm, StablePool]
 
+Upon performing a swap (the `swap` function), the `RubyRouter.sol` contract calls the `mintProfileNFT` function of the `RubyNFTAdmin.sol` contract. This function mints a `RubyProfileNFT` to the transaction initiator (EOA - tx.origin), if the initiator does have balance of 0 `RubyProfileNFT`s.
+The `RubyRouter` contract should be set as minter for the `RubyNFTAdmin` contract.
+
 ### Ruby Token (RUBY)
 
 The Ruby Token (`token_mappings/RubyToken.sol`) is the implementation of the Ruby token on the SChain. The `RubyTokenMainnet.sol` is the implementation on Ethereum mainnet.
@@ -116,6 +124,29 @@ The implementation on the SChain is based on the SushiToken, but few things are 
 
 1. AccessControl is implemented instead of Ownable. `DEFAUL_ADMIN_ROLE` is set to the deployer, while `MINTER` and `BURNER` roles should be set to the IMA bridge contracts by the deployer. The `BURNER` role should be set to the RubyMaker too, so that fee tokens can be burned.
 2. Only the IMA bridge can mint tokens and IMA Bridge and the RubyMaker contract can burn tokens.
+
+
+### RubyNFTAdmin and RUBY NFTs
+
+Ruby implements a custom NFT architecture to offer a better UX and more benefits to the users. The NFTs could be "earned" in various different ways, and also NFTs could have different benefits - ranging from purely for PFP showcase purposes, to various utilities accross the platform (swap fee reductions, reward boosts, etc).
+
+Currently the NFT architecture involves three contracts:
+
+1. `RubyNFTAdmin.sol` - An admin contract that implements AMM trading fee deduction logic - if a user holds a RubyFreeSwapNFT, they're eligible for 0% fee AMM swaps. Additionally the RubyNFTAdmin contracts enables RubyProfileNFT minting (via implemented restricted minter logic). The `mintProfileNFT` function of the `RubyNFTAdmin.sol` contract is currently only being called from the `RubyRouter.sol` contract.
+2. `RubyProfileNFT.sol` - RubyProfileNFT, currently minted upon doing swaps/trading actions, minted from the `RubyRouter.sol` contract.
+3. `RubyFreeSwapNFT.sol` - RubyFreeSwapNFT - a utility NFT, used for providing fee free AMM swaps for it's holders.
+
+## Upgradeability:
+
+Some part of the Ruby contracts architecture is upgradeable. This is achieved by using the `TransparentUpgradeableProxy.sol` proxy and the `RubyProxyAdmin.sol` contract. The upgradeability is not explicitly implemented in the contracts, but it's achieved automatically in the deployment scripts (by using the hardhat-deploy library).
+
+The following contracts are deployed to be upgradeable:
+- `UniswapV2Router02.sol`
+- `RubyNFTAdmin.sol`
+- `RubyRouter.sol`
+- `RubyFreeSwapNFT.sol`
+- `RubyProfileNFT.sol`
+# TODO: Make all the other contracts upgradeable
 
 ## Forked codebases:
 

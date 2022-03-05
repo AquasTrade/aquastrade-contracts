@@ -7,6 +7,11 @@ import "../../interfaces/IRubyNFTAdmin.sol";
 import "../../interfaces/IRubyNFTFactory.sol";
 
 interface IUniswapV2Router02 is IUniswapV2Router01 {
+
+    event FactorySet(address indexed newFactory);
+
+    event NFTAdminSet(address indexed newNftAdmin);
+
     function nftAdmin() external pure returns (IRubyNFTAdmin);
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(

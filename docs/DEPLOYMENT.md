@@ -1,8 +1,40 @@
-# Deployment (WIP)
+# Deployment
 
 Deployments are network specific, so please use the `--network $network` tags for each command. For example: `yarn deploy --network localhost --tags RubyNFTFactory` will deploy the contracts at the localhost network. You can check the available networks at the `hardhat.config.ts` file.
 
 If deploying for the first time, please follow the steps in order.
+
+0. Tokens (Optional, if tokens are pre-deployed you don't need to deploy them again, however the codebase depends on them):
+
+Mock tokens:
+
+1. `yarn deploy --tags MockUSDC`
+2. `yarn deploy --tags MockUSDP`
+3. `yarn deploy --tags MockUSDT`
+4. `yarn deploy --tags MockDAI`
+5. `yarn deploy --tags MockETH` (only for localhost testing)
+or
+
+`yarn deploy --tags MockTokens`
+`yarn deploy --tags MockETH` (only for localhost testing)
+
+Mapped tokens (L2):
+
+1. `yarn deploy --tags RubyUSDC`
+2. `yarn deploy --tags RubyUSDP`
+3. `yarn deploy --tags RubyUSDT`
+3. `yarn deploy --tags RubyDAI`
+
+or
+
+`yarn deploy --tags MappedTokens`
+
+RubyToken:
+
+1. `yarn deploy --tags RubyTokenMainnet` # L1 (i.e Mainnet, Rinkeby, Localhost)
+2. `yarn deploy --tags RubyToken` # L2 (i.e Skale, Skale testchain)
+
+
 
 1. NFT related:
 
@@ -19,8 +51,8 @@ Before deploying AMM, ensure that the `initCodeHash` is correct for the correct 
 This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at line 33, where the "// init code hash" comment is set. (NOTE: without the `0x` symbol)
 
 ```
-yarn deploy --network localhost --tags UniswapV2Factory
-yarn deploy --network localhost --tags UniswapV2Router02
+yarn deploy --tags UniswapV2Factory
+yarn deploy --tags UniswapV2Router02
 ```
 
 
@@ -80,7 +112,7 @@ yarn deploy --tags RubyRouter
 10. Seed RubyNFTAdmin:
 
 ```
-yarn deploy --network localhost --tags SeedNFTAdmin
+yarn deploy --tags SeedNFTAdmin
 ```
 
 11. Seed RubyProfileNFT:

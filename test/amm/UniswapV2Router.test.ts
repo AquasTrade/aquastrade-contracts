@@ -61,7 +61,7 @@ describe("UniswapV2Router", function () {
     expect(await this.factory.pairCreators(this.owner.address)).to.be.eq(false);
     expect(await this.factory.pairCreators(this.router.address)).to.be.eq(false);
 
-    await this.factory.setPairCreator(this.owner.address);
+    await this.factory.setPairCreator(this.owner.address, true);
 
     expect(await this.factory.pairCreators(this.owner.address)).to.be.eq(true);
     expect(await this.factory.pairCreators(this.router.address)).to.be.eq(false);

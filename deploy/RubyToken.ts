@@ -12,7 +12,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     deterministicDeployment: false,
   });
 
-  let tokenContract = await ethers.getContract("RubyTokenMainnet");
+  const tokenContract = await ethers.getContract("RubyTokenMainnet");
   const balanceOf = await tokenContract.balanceOf(deployer);
   console.log("balanceOf", balanceOf.toString());
 };

@@ -28,7 +28,7 @@ describe("UniswapV2Factory", function () {
 
   it("Pair creator should not be set when the sender is not the admin", async function () {
     expect(await this.factory.pairCreators(this.user2.address)).to.be.eq(false);
-    await expect(this.factory.connect(this.user2).setPairCreator(this.user2.address)).to.be.revertedWith(
+    await expect(this.factory.connect(this.user2).setPairCreator(this.user2.address, true)).to.be.revertedWith(
       "UniswapV2: FORBIDDEN",
     );
   });
@@ -36,10 +36,10 @@ describe("UniswapV2Factory", function () {
   it("Pair creator should be set correctly", async function () {
     expect(await this.factory.pairCreators(this.owner.address)).to.be.eq(false);
 
-    await this.factory.setPairCreator(this.owner.address);
+    await this.factory.setPairCreator(this.owner.address, true);
     expect(await this.factory.pairCreators(this.owner.address)).to.be.eq(true);
 
-    await this.factory.setPairCreator(this.owner.address);
+    await this.factory.setPairCreator(this.owner.address, false);
     expect(await this.factory.pairCreators(this.owner.address)).to.be.eq(false);
   });
 
@@ -56,7 +56,7 @@ describe("UniswapV2Factory", function () {
     await this.factory.setAdmin(this.user2.address);
     expect(await this.factory.admin()).to.be.eq(this.user2.address);
 
-    await this.factory.connect(this.user2).setPairCreator(this.user2.address);
+    await this.factory.connect(this.user2).setPairCreator(this.user2.address, true);
     expect(await this.factory.pairCreators(this.user2.address)).to.be.eq(true);
 
     await this.factory.connect(this.user2).setAdmin(this.owner.address);

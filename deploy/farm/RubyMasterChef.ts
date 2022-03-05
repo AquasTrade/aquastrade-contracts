@@ -18,7 +18,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const RUBY_PER_SECOND = ethers.utils.parseUnits("2", 18);
 
-  const { address } = await deploy("RubyMasterChef", {
+  await deploy("RubyMasterChef", {
     from: deployer,
     args: [
       RUBY_TOKEN_ADDRESS,

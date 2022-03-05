@@ -4,7 +4,7 @@ import { BigNumber } from "ethers";
 import { prepare, deploy, getBigNumber, createSLP, assertRubyConversion } from "./utilities";
 
 import { RubyMaker, RubyTokenMintable } from "../typechain";
-import { deployAMM, deployNFTAdmin, deployRubyFreeSwapNFT, deployRubyMaker, deployRubyProfileNFT, deployRubyRouter } from "./utilities/deployment";
+import { deployAMM, deployNFTAdmin, deployNftsAndNftAdmin, deployRubyFreeSwapNFT, deployRubyMaker, deployRubyProfileNFT, deployRubyRouter } from "./utilities/deployment";
 
 describe("RubyMaker", function () {
   const burnPercent = 20; // 20%
@@ -35,29 +35,12 @@ describe("RubyMaker", function () {
     ]);
 
 
-    const rubyProfileNFTDescription = JSON.stringify({
-      "randomMetadata": {}
-    });
 
-    const rubyFreeSwapNFTDescription = JSON.stringify({
-      "description": "swap fees",
-      "feeReduction": 1000, 
-      "lpFeeDeduction": 3,
-      "randomMetadata": {}
-    });
-  
-    const rubyProfileNFTVisualAppearance = JSON.stringify({
-      "att1": 1,
-      "att2": 2, 
-      "att3": 3,
-    });
+    let {rubyFreeSwapNft, rubyProfileNft, nftAdmin} = await deployNftsAndNftAdmin(this.owner.address)
 
-
-    this.rubyFreeSwapNft = await deployRubyFreeSwapNFT(this.owner.address, "Ruby Free Swap NFT", "RFSNFT", rubyFreeSwapNFTDescription, rubyProfileNFTVisualAppearance)
-
-    this.rubyProfileNft = await deployRubyProfileNFT(this.owner.address, "Ruby Profile NFT", "RPNFT", rubyProfileNFTDescription, rubyProfileNFTVisualAppearance)
-
-    this.nftAdmin = await deployNFTAdmin(this.owner.address, this.rubyProfileNft.address)
+    this.rubyFreeSwapNft = rubyFreeSwapNft;
+    this.rubyProfileNft = rubyProfileNft;
+    this.nftAdmin = nftAdmin;
 
 
     let {factory, ammRouter } = await deployAMM(this.owner.address, this.nftAdmin.address)
@@ -69,8 +52,8 @@ describe("RubyMaker", function () {
     this.ruby = <RubyTokenMintable>this.ruby;
 
     // set pair creators
-    await this.factory.setPairCreator(this.owner.address);
-    await this.factory.setPairCreator(this.router.address);
+    await this.factory.setPairCreator(this.owner.address, true);
+    await this.factory.setPairCreator(this.router.address, true);
 
     // deploy the staker with dummy addresses, not really relevant for these tests
     await deploy(this, [["staker", this.RubyStaker, [this.ruby.address]]]);

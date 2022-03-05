@@ -21,7 +21,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyToken")).address;
   }
 
-  let burnPercent = BigNumber.from("20"); // 20 percent
+  const burnPercent = BigNumber.from("20"); // 20 percent
 
   await deploy("RubyMaker", {
     from: deployer,

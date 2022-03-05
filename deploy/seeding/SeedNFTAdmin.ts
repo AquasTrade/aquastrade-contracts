@@ -13,7 +13,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const isMinter = await RubyNFTAdmin.minters(RubyRouter.address);
 
-  console.log(`RubyRoter set as minter: ${isMinter}`)
+  console.log(`RubyRouter set as minter: ${isMinter}`)
 
 };
 export default func;

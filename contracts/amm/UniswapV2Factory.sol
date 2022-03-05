@@ -9,15 +9,15 @@ contract UniswapV2Factory is IUniswapV2Factory {
     address public override feeTo;
     address public override admin;
     address public override migrator;
+
+    // A mapping used to determine who can create pairs
     mapping(address => bool) public override pairCreators;
 
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 
-    event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
-
     constructor(address _admin) public {
-        require(_admin != address(0), "UniswapV2: INVALID_INITIALIZATION_PARAM");
+        require(_admin != address(0), "UniswapV2: INVALID_INIT_ARG");
         admin = _admin;
     }
 
@@ -47,23 +47,31 @@ contract UniswapV2Factory is IUniswapV2Factory {
         emit PairCreated(token0, token1, pair, allPairs.length);
     }
 
-    function setFeeTo(address _feeTo) external override {
+    function setFeeTo(address newFeeTo) external override {
         require(msg.sender == admin, "UniswapV2: FORBIDDEN");
-        feeTo = _feeTo;
+        feeTo = newFeeTo;
+        emit FeeToRecipientSet(newFeeTo);
     }
 
-    function setMigrator(address _migrator) external override {
+    function setMigrator(address newMigrator) external override {
         require(msg.sender == admin, "UniswapV2: FORBIDDEN");
-        migrator = _migrator;
+        migrator = newMigrator;
+        emit MigratorSet(newMigrator);
     }
 
-    function setPairCreator(address _pairCreator) external override {
+    function setPairCreator(address pairCreator, bool allowance) external override {
         require(msg.sender == admin, "UniswapV2: FORBIDDEN");
-        pairCreators[_pairCreator] = !pairCreators[_pairCreator];
+        require(pairCreator != address(0), "UniswapV2: INVALID_INIT_ARG");
+
+        pairCreators[pairCreator] = allowance;
+        emit PairCreatorSet(pairCreator, allowance);
     }
 
-    function setAdmin(address _admin) external override {
+    function setAdmin(address newAdmin) external override {
         require(msg.sender == admin, "UniswapV2: FORBIDDEN");
-        admin = _admin;
+        require(newAdmin != address(0), "UniswapV2: INVALID_INIT_ARG");
+        
+        admin = newAdmin;
+        emit AdminSet(newAdmin);
     }
 }

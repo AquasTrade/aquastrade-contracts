@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  let tokenContract = await ethers.getContract("MockUSDC");
+  const tokenContract = await ethers.getContract("MockUSDC");
   const balanceOf = await tokenContract.balanceOf(deployer);
   console.log("balanceOf", ethers.utils.formatUnits(balanceOf, 6));
 };

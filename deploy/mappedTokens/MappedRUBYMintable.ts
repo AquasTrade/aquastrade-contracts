@@ -1,6 +1,5 @@
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
-import imaL2Artifacts from "../../ima_bridge/l2_artifacts.json";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts } = hre;

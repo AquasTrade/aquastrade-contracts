@@ -15,8 +15,6 @@ import "./interfaces/IRubyStaker.sol";
 import "./token_mappings/RubyToken.sol";
 import "./libraries/BoringERC20.sol";
 
-import "hardhat/console.sol";
-
 // MasterChef copied from https://github.com/traderjoe-xyz/joe-core/blob/main/contracts/MasterChefJoeV2.sol
 // Combines single and double rewards
 contract RubyMasterChef is Ownable, ReentrancyGuard {
@@ -361,7 +359,7 @@ contract RubyMasterChef is Ownable, ReentrancyGuard {
      * The RubyMasterChef contract will be placed behind a timelock, and the owner/deployer will be a multisig,
      * so this should not raise trust concerns.
      * This function is needed because the RubyMasterChef will be pre-fed with all of the
-     * reward tokens (RUBY) tokens dedicated for liquidity mining incentives, and incase
+     * reward tokens (RUBY) tokens dedicated for liquidity mining incentives, and in case
      * of unfortunate situation they should be retreived.
      */
     function emergencyWithdrawRubyTokens(address _receiver, uint256 _amount) external onlyOwner {

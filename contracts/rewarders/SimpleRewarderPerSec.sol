@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
@@ -108,7 +108,8 @@ contract SimpleRewarderPerSec is IRubyMasterChefRewarder, BoringOwnable {
         emit RewardRateUpdated(oldRate, _tokenPerSec);
     }
 
-    /// @notice Function called by RubyMasterChef whenever staker claims Ruby harvest. Allows staker to also receive a 2nd reward token.
+    /// @notice Function called by RubyMasterChef whenever staker claims Ruby harvest. 
+    /// Allows staker to also receive a 2nd reward token.
     /// @param _user Address of user
     /// @param _lpAmount Number of LP tokens the user has
     function onRubyReward(address _user, uint256 _lpAmount) external override onlyRubyMasterChef {

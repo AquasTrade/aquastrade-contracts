@@ -1,7 +1,6 @@
 const { ethers, network } = require("hardhat");
 import { expect } from "chai";
 import { utils } from "ethers";
-import { RubyDAI } from "../typechain";
 
 describe("RubyToken", function () {
   before(async function () {

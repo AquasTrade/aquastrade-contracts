@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, ethers } = hre;
+  const { deployments, getNamedAccounts } = hre;
   const { deploy, getOrNull, get, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
@@ -31,4 +31,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 export default func;
 
 func.dependencies = ["RubyProxyAdmin", "RubyProfileNFT", "RubyFreeSwapNFT"];
-func.tags = ["RubyFeeAdmin"];
+func.tags = ["RubyNFTAdmin"];

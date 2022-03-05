@@ -54,13 +54,14 @@ contract RubyNFTAdmin is IRubyNFTAdmin, OwnableUpgradeable {
 
     // Mint profile NFT if the user has no profile NFTs
     // The exploitability of this is a feature. Users can mint multiple profile NFTs by design
+    // Example: User can do a swap, have NFT minted, then he can transfer the NFT, do another 
+    // swap and get another NFT - this is not a bug but a feature.
     function mintProfileNFT(address user) external override onylMinter {
         if (IRubyNFT(profileNFT).balanceOf(user) == 0) {
             IRubyNFT(profileNFT).mint(user);
         }
     }
 
-    // ADMIN FUNCTIONS
 
     function setProfileNFT(address newProfileNFT) external override onlyOwner {
         require(newProfileNFT != address(0), "RubyNFTAdmin: Invalid profile NFT");
