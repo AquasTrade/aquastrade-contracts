@@ -146,11 +146,13 @@ The following contracts are deployed to be upgradeable:
 - `RubyRouter.sol`
 - `RubyFreeSwapNFT.sol`
 - `RubyProfileNFT.sol`
-# TODO: Make all the other contracts upgradeable
 
 ## Forked codebases:
 
 Sushiswap: https://github.com/sushiswap/sushiswap/tree/bef474629c6ab75f0efc511234f32d760db241aa
+
 Saddle finance: https://github.com/saddle-finance/saddle-contract/tree/6f37f97b9600196c75416e2f579165e74906eb76
+
 Trader Joe: https://github.com/traderjoe-xyz/joe-core/tree/ec25d93533427328c576c38e7987485ba0ffd27d
+
 Elipsis finance: https://github.com/ellipsis-finance/ellipsis/tree/6bdf7788020695b72034f5c9f1fda11c5e3cefb7
