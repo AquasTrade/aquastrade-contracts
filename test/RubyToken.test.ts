@@ -76,7 +76,7 @@ describe("RubyToken", function () {
     const maxAmountWei = utils.parseUnits(maxAmounTokens.toString());
 
     await expect(this.ruby.mint(this.alice.address, maxAmountWei.add(1))).to.be.revertedWith(
-      "RUBY::mint: Cannot exceed max supply.",
+      "ERC20Capped: cap exceeded",
     );
     await this.ruby.mint(this.alice.address, maxAmountWei);
   });

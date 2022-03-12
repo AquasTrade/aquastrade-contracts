@@ -57,22 +57,31 @@ export const assertRubyConversion = async (
   lpToken: UniswapV2Pair,
   rubyConvertedAmount: BigNumber,
   rubyTotalSupplyBefore: BigNumber,
-  rubyTotalSupplyAfter: BigNumber,
+  rubyTotalSupplyAfter: BigNumber
 ) => {
   const makerBalanceRuby = await testState.ruby.balanceOf(testState.rubyMaker.address);
   const makerBalanceLP = await lpToken.balanceOf(testState.rubyMaker.address);
   const stakerBalance = await testState.ruby.balanceOf(testState.staker.address);
+  // total supply should shrink
   const totalSupplyDifference = rubyTotalSupplyBefore.sub(rubyTotalSupplyAfter);
 
   const burned = rubyConvertedAmount.mul(BigNumber.from(burnPercent)).div(BigNumber.from(100));
   const distributed = rubyConvertedAmount.sub(burned);
 
+
   expect(makerBalanceRuby).to.equal(0);
   expect(makerBalanceLP).to.equal(0);
-  expect(stakerBalance).to.equal(distributed);
+  // lte & gte used because of rounding error of 1 wei
+  expect(stakerBalance).to.be.lte(distributed.add(1)); 
+  expect(stakerBalance).to.be.gte(distributed.sub(1)); 
+
+
 
   expect(rubyConvertedAmount).to.equal(distributed.add(burned));
-  expect(totalSupplyDifference).to.equal(burned);
+  // lte & gte used because of rounding error of 1 wei
+  expect(totalSupplyDifference).to.lte(burned.add(1));
+  expect(totalSupplyDifference).to.gte(burned.sub(1));
+
 };
 
 export const assertStakerBalances = async (stakerContract: RubyStaker, user: string, range: Array<number>) => {
@@ -80,7 +89,6 @@ export const assertStakerBalances = async (stakerContract: RubyStaker, user: str
   const unlockedBalance = await stakerContract.unlockedBalance(user);
   const [amount, penaltyAmount] = await stakerContract.withdrawableBalance(user);
 
-  // console.log("earningsResult", earningsResult);
 
   expect(earningsResult.total).to.be.to.be.within(range[0], range[1]);
   expect(earningsResult.earningsData[0].amount).to.be.within(range[0], range[1]);

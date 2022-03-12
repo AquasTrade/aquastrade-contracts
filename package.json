@@ -81,7 +81,12 @@
     "pre-commit": "lint-staged",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
     "initCodeHash": "hardhat run scripts/initCodeHash.ts",
-    "transferRUBYtoMS": "hardhat run scripts/transferRUBYtoMS.ts"
+    "transferRUBYtoMS": "hardhat run scripts/transferRUBYtoMS.ts",
+    "debugFees": "hardhat run scripts/debugging/fees.ts",
+    "registerTokensToIMA": "hardhat run scripts/bridging/registerTokensToIMA.ts",
+    "bridgeTokens": "hardhat run scripts/bridging/bridgeTokens.ts",
+    "createAMMLPs": "hardhat run scripts/seeding/createAMMLPs.ts",
+    "createFarms": "hardhat run scripts/seeding/createFarms.ts"
   },
   "files": [
     "/contracts"

@@ -25,5 +25,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["RubyMasterChef", "RubyStaker", "RubyMaker"];
+// func.dependencies = ["RubyMasterChef", "RubyStaker", "RubyMaker"];
 func.tags = ["SetStakingRewards"];

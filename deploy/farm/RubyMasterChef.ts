@@ -25,7 +25,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       RUBY_STAKER_ADDRESS,
       treasury,
       RUBY_PER_SECOND, // 2 RUBY per sec
-      "1643122800", // Tue Jan 25 2022 15:00:00 GMT+0000
+      "1647036000", // Friday, 11 March 2022 22:00:00 GMT+0000
       "100", // 10%
     ],
     log: true,
