@@ -27,6 +27,7 @@ const lotto = {
     },
     buy: {
         ruby: ethers.utils.parseUnits("10000000", 18),
+        halfRuby: ethers.utils.parseUnits("5000000", 18),
         one: {
             cost: ethers.utils.parseUnits('10', 18)
         },

@@ -2,7 +2,6 @@
 pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 // Inherited allowing for ownership of contract
@@ -11,6 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./Lottery.sol";
+import "../interfaces/IRubyNFT.sol";
 
 contract LotteryFactory is Ownable {
 
@@ -60,11 +60,11 @@ contract LotteryFactory is Ownable {
             distribution.length <= MAX_WINNERS + 1,
             "Invalid distribution"
         );
-        require(IERC721(_nft).ownerOf(_tokenId) == msg.sender, "Owner of NFT is invalid");
+        require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "Owner of NFT is invalid");
         lotteryId ++;
         allLotteries[lotteryId] = new Lottery(timer, address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, duration, RNG);
         Lottery(allLotteries[lotteryId]).transferOwnership(msg.sender);
-        IERC721(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
+        IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
         emit LotteryCreated(lotteryId);
     }
 

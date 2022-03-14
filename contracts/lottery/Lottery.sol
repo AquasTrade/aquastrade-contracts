@@ -2,17 +2,17 @@
 pragma solidity 0.6.12;
 // Imported OZ helper contracts
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 // Inherited allowing for ownership of contract
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./IRandomNumberGenerator.sol";
 import "./Testable.sol";
 import "./Timer.sol";
+import "../interfaces/IRubyNFT.sol";
 // Safe math 
-import "@openzeppelin/contracts/math/SafeMath.sol";
 import "hardhat/console.sol";
 
 // TODO rename to Lottery when done
@@ -30,7 +30,7 @@ contract Lottery is Ownable, Testable, Pausable {
     // Instance of Ruby token (collateral currency for lotto)
     IERC20 private ruby;
     IRandomNumberGenerator internal RNG;
-    IERC721 private nft;
+    IRubyNFT private nft;
     uint256 private bonusTokenId;
 
     uint256 private startingTimestamp;
@@ -93,7 +93,7 @@ contract Lottery is Ownable, Testable, Pausable {
       factory = _factory;
       ruby = IERC20(_ruby);
       RNG = IRandomNumberGenerator(_RNG);
-      nft = IERC721(_nft);
+      nft = IRubyNFT(_nft);
       bonusTokenId = _bonusTokenId;
 
       ticketPrice = _ticketPrice;

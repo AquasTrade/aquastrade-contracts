@@ -19,27 +19,27 @@ describe("Lottery Factory contract", function() {
         this.factoryContract = await ethers.getContractFactory("LotteryFactory");
         this.lotteryContract = await ethers.getContractFactory("Lottery");
         // Getting the lotteryNFT code (abi, bytecode, name)
-        this.mock_erc20Contract = await ethers.getContractFactory("Mock_erc20");
-        this.mock_erc721Contract = await ethers.getContractFactory("Mock_erc721");
+        this.mock_erc20Contract = await ethers.getContractFactory("MockERC20");
+        this.mock_erc721Contract = await ethers.getContractFactory("MockERC721Token");
         // Getting the ChainLink contracts code (abi, bytecode, name)
         this.randGenContract = await ethers.getContractFactory("RandomNumberGenerator");
         this.timerContract = await ethers.getContractFactory("Timer");
         // Deploying the instances
         this.rubyInstance = await this.mock_erc20Contract.deploy(
-            lotto.buy.ruby,
+            "RUBY Token", "RUBY", lotto.buy.ruby, 18
         );
         this.randGenInstance = await this.randGenContract.deploy();
         this.timerInstance = await this.timerContract.deploy();
-        this.nftInstance = await this.mock_erc721Contract.deploy();
+        this.nftInstance = await this.mock_erc721Contract.deploy("Lottery Bonus", "Bonus");
         this.factoryInstance = await this.factoryContract.deploy(
             this.rubyInstance.address,
             this.randGenInstance.address,
             this.timerInstance.address
         );
-        this.nftInstance.mint(this.owner.address, 1);
-        this.rubyInstance.mint(
+        this.nftInstance.mint(this.owner.address, "");
+        this.rubyInstance.connect(this.owner).transfer(
             this.buyer.address,
-            lotto.buy.ruby
+            lotto.buy.halfRuby
         );
     });
 
@@ -70,10 +70,10 @@ describe("Lottery Factory contract", function() {
          * Create multiple Lottery
          */
         it("Multiple case", async function() {
-            this.nftInstance.mint(this.owner.address, 2);
-            this.nftInstance.mint(this.owner.address, 3);
-            await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 2);
-            await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 3);
+            this.nftInstance.mint(this.owner.address, "");
+            this.nftInstance.mint(this.owner.address, "");
+            await this.nftInstance.approve(this.factoryInstance.address, 2);
+            await this.nftInstance.approve(this.factoryInstance.address, 3);
             // Creating a new lottery
             await expect(
                 this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
@@ -95,8 +95,8 @@ describe("Lottery Factory contract", function() {
          */
         it("Multiple case(different NFT Collection)", async function() {
             this.nftInstance.mint(this.owner.address, 2);
-            let nftInstance1 = await this.mock_erc721Contract.deploy();
-            nftInstance1.mint(this.owner.address, 1);
+            let nftInstance1 = await this.mock_erc721Contract.deploy("Bonus NFT", "Bonus");
+            nftInstance1.mint(this.owner.address, "");
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 2);
             await nftInstance1.connect(this.owner).approve(this.factoryInstance.address, 1);
             // Creating a new lottery
