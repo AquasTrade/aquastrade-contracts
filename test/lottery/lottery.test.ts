@@ -732,4 +732,102 @@ describe("Lottery Factory contract", function() {
             ).to.be.revertedWith(lotto.errors.invalid_claim_draw);
         });
     });
+    describe("Lottery Factory view test", function() {
+        beforeEach( async function () {
+            await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
+            this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
+            this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
+            // Buying tickets
+            // Getting the price to buy
+            let prices = await this.lotteryInstance.costToBuyTickets(49);
+            // Sending the this.buyer the needed amount of ruby
+            // Approving lotto to spend cost
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                prices
+            );
+            // Generating chosen numbers for buy
+            let ticketNumbers = generateLottoNumbers({
+                numberOfTickets: 49, 
+                lottoSize: lotto.setup.sizeOfLottery,
+            });
+            // Batch buying tokens
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                49,
+                ticketNumbers
+            );
+        });
+        it("costToBuyTickets function", async function() {
+            assert.equal(
+                (await this.factoryInstance.costToBuyTickets(1)).toString(),
+                lotto.newLotto.cost.toString(),
+                "Cost is inccorect"
+            );
+        });
+        /**
+         * Testing that the winning numbers can be set in the nominal case
+         */
+        it("Get winning numbers", async function() {
+            // Setting the time so that we can set winning numbers
+            // Getting the current block timestamp
+            let currentTime = await this.lotteryInstance.getCurrentTime();
+            // Converting to a BigNumber for manipulation 
+            let timeStamp = new BigNumber(currentTime.toString());
+            // Getting the timestamp for invalid time for buying
+            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
+            // Setting the time forward 
+            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            // Drawing the numbers
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
+            
+            // Getting info after call
+            let lotteryInfoAfter = await this.factoryInstance.getWinningNumbers();
+            // Testing
+            assert.equal(
+                lotteryInfoAfter.toString(),
+                lotto.newLotto.win.winningNumbers,
+                "Winning numbers incorrect after"
+            );
+        });
+        /**
+         * GetReward view test Lottery Factory
+         */
+        it("GetReward Test (1st winner)", async function() {
+            let price = await this.lotteryInstance.costToBuyTickets(1);
+            await this.rubyInstance.connect(this.owner).approve(
+                this.lotteryInstance.address,
+                price
+            );
+            await this.lotteryInstance.connect(this.owner).buyTicket(
+                1,
+                [lotto.newLotto.win.winningNumbersArr[0]]
+            );
+            // Setting current time so that drawing is correct
+            // Getting the current block timestamp
+            let currentTime = await this.lotteryInstance.getCurrentTime();
+            // Converting to a BigNumber for manipulation 
+            let timeStamp = new BigNumber(currentTime.toString());
+            // Getting the timestamp for invalid time for buying
+            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
+            // Setting the time forward 
+            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            // Drawing the numbers
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+            // // Claiming winnings 
+            // let balanceBefore = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
+            // await this.lotteryInstance.connect(this.owner).claimReward();
+            // let balanceAfter = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
+            // let diff = balanceAfter.minus(balanceBefore);
+            assert.equal(
+                (await this.factoryInstance.getRewardAmount(this.owner.address)).toString(),
+                lotto.newLotto.win.first.toString(),
+                "1st winner claim amount is wrong"
+            );
+            assert.equal(
+                await this.factoryInstance.getRewardNFT(this.owner.address),
+                true,
+                "NFT reward to 1st winner is invalid"
+            );
+        });
+    });
 });

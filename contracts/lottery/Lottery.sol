@@ -12,8 +12,6 @@ import "./IRandomNumberGenerator.sol";
 import "./Testable.sol";
 import "./Timer.sol";
 import "../interfaces/IRubyNFT.sol";
-// Safe math 
-import "hardhat/console.sol";
 
 // TODO rename to Lottery when done
 contract Lottery is Ownable, Testable, Pausable {
@@ -175,34 +173,34 @@ contract Lottery is Ownable, Testable, Pausable {
       );
     }
 
-    function getRewardAmount() external view drew() returns (uint256) {
+    function claimReward() external closed() drew() {
+      uint256 prize = 0;
+      if (tickets[winners[0]] == msg.sender) nft.safeTransferFrom(address(this), msg.sender, bonusTokenId);
+      for (uint256 i = 0; i < winnersSize; i++) {
+        uint256 winner = winners[i];
+        address winAddress = tickets[winner];
+        if (winAddress == msg.sender) {
+          tickets[winner] = address(0);
+          prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+        }
+      }
+      ruby.transfer(address(msg.sender), prize);
+      emit RewardClaimed(msg.sender);
+    }
+
+    function getRewardAmount(address to) public view drew() returns (uint256) {
     	uint256 prize = 0;
     	for (uint256 i = 0; i < winnersSize; i++) {
     		uint256 winner = winners[i];
     		address winAddress = tickets[winner];
-    		if (winAddress == msg.sender) prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+    		if (winAddress == to) prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
     	}
     	return prize;
     }
 
-    function getRewardNFT() external view drew() returns(bool) {
-    	if (tickets[winners[0]] == msg.sender) return true;
+    function getRewardNFT(address to) public view drew() returns(bool) {
+    	if (tickets[winners[0]] == to) return true;
     	return false;
-    }
-
-    function claimReward() external closed() drew() {
-    	uint256 prize = 0;
-      if (tickets[winners[0]] == msg.sender) nft.safeTransferFrom(address(this), msg.sender, bonusTokenId);
-    	for (uint256 i = 0; i < winnersSize; i++) {
-    		uint256 winner = winners[i];
-    		address winAddress = tickets[winner];
-    		if (winAddress == msg.sender) {
-    			tickets[winner] = address(0);
-    			prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
-    		}
-    	}
-    	ruby.transfer(address(msg.sender), prize);
-    	emit RewardClaimed(msg.sender);
     }
 
     function costToBuyTickets(uint256 _ticketSize) external view returns(uint256) {

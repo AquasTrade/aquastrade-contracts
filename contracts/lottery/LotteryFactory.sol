@@ -68,7 +68,7 @@ contract LotteryFactory is Ownable {
         emit LotteryCreated(lotteryId);
     }
 
-    function getCurrentLotto() external view returns(address) {
+    function getCurrentLotto() public view returns(address) {
         return address(allLotteries[lotteryId]);
     }
 
@@ -96,4 +96,19 @@ contract LotteryFactory is Ownable {
         ruby = _ruby;
     }
 
+    function getRewardAmount(address to) external view returns (uint256) {
+        return Lottery(getCurrentLotto()).getRewardAmount(to);
+    }
+
+    function getRewardNFT(address to) external view returns(bool) {
+        return Lottery(getCurrentLotto()).getRewardNFT(to);
+    }
+
+    function costToBuyTickets(uint256 _ticketSize) external view returns(uint256) {
+      return Lottery(getCurrentLotto()).costToBuyTickets(_ticketSize);
+    }
+
+    function getWinningNumbers() external view returns (uint256[] memory) {
+      return Lottery(getCurrentLotto()).getWinningNumbers();
+    }
 }
