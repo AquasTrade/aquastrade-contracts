@@ -23,18 +23,15 @@ describe("Lottery Factory contract", function() {
         this.mock_erc721Contract = await ethers.getContractFactory("MockERC721Token");
         // Getting the ChainLink contracts code (abi, bytecode, name)
         this.randGenContract = await ethers.getContractFactory("RandomNumberGenerator");
-        this.timerContract = await ethers.getContractFactory("Timer");
         // Deploying the instances
         this.rubyInstance = await this.mock_erc20Contract.deploy(
             "RUBY Token", "RUBY", lotto.buy.ruby, 18
         );
         this.randGenInstance = await this.randGenContract.deploy();
-        this.timerInstance = await this.timerContract.deploy();
         this.nftInstance = await this.mock_erc721Contract.deploy("Lottery Bonus", "Bonus");
         this.factoryInstance = await this.factoryContract.deploy(
             this.rubyInstance.address,
             this.randGenInstance.address,
-            this.timerInstance.address
         );
         this.nftInstance.mint(this.owner.address, "");
         this.rubyInstance.connect(this.owner).transfer(
@@ -327,17 +324,12 @@ describe("Lottery Factory contract", function() {
             });
             // Approving lotto to spend cost
             await this.rubyInstance.connect(this.owner).approve(
-                this.factoryInstance.address,
+                this.lotteryInstance.address,
                 price
             );
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Batch buying tokens
             await expect(
                 this.lotteryInstance.connect(this.owner).buyTicket(
@@ -347,7 +339,6 @@ describe("Lottery Factory contract", function() {
             ).to.be.revertedWith(lotto.errors.invalid_buying_timestamp_closed);
         });
     });
-
     describe("Drawing numbers tests", function() {this.
         beforeEach( async function () {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
@@ -360,14 +351,9 @@ describe("Lottery Factory contract", function() {
          */
         it("Set winning numbers", async function() {
             // Setting the time so that we can set winning numbers
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
             
@@ -383,15 +369,10 @@ describe("Lottery Factory contract", function() {
         /**
          * Testing that a non this.owner cannot set the winning numbers
          */
-        it("Invalid winning numbers (this.owner)", async function() {
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
+        it("Invalid winning numbers (owner)", async function() {
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await expect(
                 this.lotteryInstance.connect(this.buyer).drawWinningNumbers()
@@ -402,14 +383,9 @@ describe("Lottery Factory contract", function() {
          */
         it("Invalid winning numbers (already chosen)", async function() {
             // Setting the time so that we can set winning numbers
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
             // Drawing the numbers again
@@ -458,18 +434,15 @@ describe("Lottery Factory contract", function() {
          */
         it("Invalid claim (incorrect time)", async function() {
             // Setting current time so that drawing is correct
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             
-            await this.lotteryInstance.setCurrentTime(currentTime.toString());
+            // Setting the time backward
+            await network.provider.send("evm_increaseTime", [-lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Claiming winnings 
             await expect(
                 this.lotteryInstance.connect(this.buyer).claimReward()
@@ -480,13 +453,9 @@ describe("Lottery Factory contract", function() {
          * chosen. 
          */
         it("Invalid claim (winning numbers not chosen)", async function() {
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            let futureEndTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureEndTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Claiming winnings 
             await expect(
                 this.lotteryInstance.connect(this.buyer).claimReward()
@@ -532,14 +501,9 @@ describe("Lottery Factory contract", function() {
                 [lotto.newLotto.win.winningNumbersArr[0]]
             );
             // Setting current time so that drawing is correct
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
@@ -572,14 +536,9 @@ describe("Lottery Factory contract", function() {
                 [lotto.newLotto.win.winningNumbersArr[1]]
             );
             // Setting current time so that drawing is correct
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
@@ -607,14 +566,9 @@ describe("Lottery Factory contract", function() {
                 [lotto.newLotto.win.winningNumbersArr[2]]
             );
             // Setting current time so that drawing is correct
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
@@ -642,14 +596,9 @@ describe("Lottery Factory contract", function() {
                 [lotto.newLotto.win.winningNumbersArr[3]]
             );
             // Setting current time so that drawing is correct
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
@@ -691,13 +640,9 @@ describe("Lottery Factory contract", function() {
         });
 
         it("Custom Withdrawal", async function() {
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
             let balanceBefore = new BigNumber((await this.rubyInstance.balanceOf(this.lotteryInstance.address)).toString());
@@ -712,13 +657,9 @@ describe("Lottery Factory contract", function() {
         });
 
         it("Invalid Withdrawal(Not Admin)", async function() {
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
             await expect(
@@ -769,14 +710,9 @@ describe("Lottery Factory contract", function() {
          */
         it("Get winning numbers", async function() {
             // Setting the time so that we can set winning numbers
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
             
@@ -803,14 +739,9 @@ describe("Lottery Factory contract", function() {
                 [lotto.newLotto.win.winningNumbersArr[0]]
             );
             // Setting current time so that drawing is correct
-            // Getting the current block timestamp
-            let currentTime = await this.lotteryInstance.getCurrentTime();
-            // Converting to a BigNumber for manipulation 
-            let timeStamp = new BigNumber(currentTime.toString());
-            // Getting the timestamp for invalid time for buying
-            let futureTime = timeStamp.plus(lotto.newLotto.closeIncrease);
             // Setting the time forward 
-            await this.lotteryInstance.setCurrentTime(futureTime.toString());
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // // Claiming winnings 

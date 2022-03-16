@@ -5,16 +5,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-// Inherited allowing for ownership of contract
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+
 import "./IRandomNumberGenerator.sol";
-import "./Testable.sol";
-import "./Timer.sol";
 import "../interfaces/IRubyNFT.sol";
 
-// TODO rename to Lottery when done
-contract Lottery is Ownable, Testable, Pausable {
+contract Lottery is Ownable, Pausable {
     // Libraries
     // Safe math
     using SafeMath for uint256;
@@ -48,8 +45,7 @@ contract Lottery is Ownable, Testable, Pausable {
     event DrewWinningNumber(uint256[] _winners);
     event RewardClaimed(address to);
 
-    constructor (address _timer, address _factory, address _ruby, address _nft, uint256 _bonusTokenId, uint256 _lotterySize, uint256 _ticketPrice, uint256[] memory _prizeDistribution /*first, second, ..., last, treasury*/, uint256 _duration, address _RNG) 
-      Testable (_timer)
+    constructor (address _factory, address _ruby, address _nft, uint256 _bonusTokenId, uint256 _lotterySize, uint256 _ticketPrice, uint256[] memory _prizeDistribution /*first, second, ..., last, treasury*/, uint256 _duration, address _RNG) 
       public {
     	require(
           _ruby != address(0),
@@ -186,6 +182,10 @@ contract Lottery is Ownable, Testable, Pausable {
       }
       ruby.transfer(address(msg.sender), prize);
       emit RewardClaimed(msg.sender);
+    }
+
+    function getCurrentTime() internal view returns(uint256) {
+      return block.timestamp;
     }
 
     function getRewardAmount(address to) public view drew() returns (uint256) {

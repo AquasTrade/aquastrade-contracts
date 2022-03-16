@@ -4,9 +4,7 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-// Inherited allowing for ownership of contract
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./Lottery.sol";
@@ -24,7 +22,6 @@ contract LotteryFactory is Ownable {
     // Instance of Ruby token (collateral currency for lotto)
     address private ruby;
     address private RNG;
-    address private timer;
     uint256 private constant MAX_WINNERS = 10;
 
     mapping (uint256 => Lottery) private allLotteries;
@@ -32,7 +29,7 @@ contract LotteryFactory is Ownable {
 
     event LotteryCreated(uint256 _lotteryId);
 
-    constructor(address _ruby, address _randomNumberGenerator, address _timer) public {
+    constructor(address _ruby, address _randomNumberGenerator) public {
         require(
           _ruby != address(0),
           "ruby cannot be 0 address"
@@ -44,7 +41,6 @@ contract LotteryFactory is Ownable {
         );
         ruby = _ruby;
         RNG = _randomNumberGenerator;
-        timer = _timer;
     }
 
     function createNewLotto(address _nft, uint256 _tokenId, uint256 _lotterySize, uint256 ticketPrice, uint256[] calldata distribution, uint256 duration) external onlyOwner() {
@@ -62,7 +58,7 @@ contract LotteryFactory is Ownable {
         );
         require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "Owner of NFT is invalid");
         lotteryId ++;
-        allLotteries[lotteryId] = new Lottery(timer, address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, duration, RNG);
+        allLotteries[lotteryId] = new Lottery(address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, duration, RNG);
         Lottery(allLotteries[lotteryId]).transferOwnership(msg.sender);
         IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
         emit LotteryCreated(lotteryId);
