@@ -137,15 +137,7 @@ contract RubyMaker is OwnableUpgradeable {
         uint256 amount1
     ) internal returns (uint256 rubyOut) {
         // Interactions
-        if (token0 == token1) {
-            uint256 amount = amount0.add(amount1);
-            if (token0 == ruby) {
-                rubyOut = amount;
-            } else {
-                // token0 == usdToken
-                rubyOut = _toRUBY(usdToken, amount);
-            }
-        } else if (token0 == ruby) {
+         if (token0 == ruby) {
             // eg. RUBY - USDP
             rubyOut = _toRUBY(token1, amount1).add(amount0);
         } else if (token1 == ruby) {
@@ -202,7 +194,7 @@ contract RubyMaker is OwnableUpgradeable {
     function setUsdToken(address newUsdToken) external onlyOwner {
         require(newUsdToken != address(0), "RubyMaker: Invalid USD token address.");
         usdToken = newUsdToken;
-        emit RubyTokenSet(newUsdToken);
+        emit UsdTokenSet(newUsdToken);
     }
 
     function setRubyStaker(address newRubyStaker) external onlyOwner {
