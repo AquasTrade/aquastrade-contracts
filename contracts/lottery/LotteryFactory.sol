@@ -29,34 +29,44 @@ contract LotteryFactory is Ownable {
 
     event LotteryCreated(uint256 _lotteryId);
 
+    //-------------------------------------------------------------------------
+    // CONSTRUCTOR
+    //-------------------------------------------------------------------------
     constructor(address _ruby, address _randomNumberGenerator) public {
         require(
           _ruby != address(0),
-          "ruby cannot be 0 address"
+          "LotteryFactory: ruby cannot be 0 address"
         );
         
         require(
           _randomNumberGenerator != address(0),
-          "randomNumberGenerator cannot be 0 address"
+          "LotteryFactory: randomNumberGenerator cannot be 0 address"
         );
         ruby = _ruby;
         RNG = _randomNumberGenerator;
     }
 
+    /// @notice Create a new Lottery instance.
+    /// @param _nft The NFT address for bonus.
+    /// @param _tokenId The Bonus NFT ID.
+    /// @param _lotterySize Digit count of ticket.
+    /// @param ticketPrice Cost per ticket in $ruby.
+    /// @param distribution An array defining the distribution of the prize pool.
+    /// @param duration The duration until no more tickets will be sold for the lottery from now.
     function createNewLotto(address _nft, uint256 _tokenId, uint256 _lotterySize, uint256 ticketPrice, uint256[] calldata distribution, uint256 duration) external onlyOwner() {
         require(
             _nft != address(0),
-            "Nft cannot be 0 address"
+            "LotteryFactory: Nft cannot be 0 address"
         );
         require(
             distribution.length >= 2,
-            "Invalid distribution"
+            "LotteryFactory: Invalid distribution"
         );
         require(
             distribution.length <= MAX_WINNERS + 1,
-            "Invalid distribution"
+            "LotteryFactory: Invalid distribution"
         );
-        require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "Owner of NFT is invalid");
+        require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "LotteryFactory: Owner of NFT is invalid");
         lotteryId ++;
         allLotteries[lotteryId] = new Lottery(address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, duration, RNG);
         Lottery(allLotteries[lotteryId]).transferOwnership(msg.sender);
@@ -79,7 +89,7 @@ contract LotteryFactory is Ownable {
     function setRNG(address _RNG) external onlyOwner() {
         require(
             _RNG != address(0),
-            "RNG cannot be 0 address"
+            "LotteryFactory: RNG cannot be 0 address"
         );
         RNG = _RNG;
     }
@@ -87,7 +97,7 @@ contract LotteryFactory is Ownable {
     function setRuby(address _ruby) external onlyOwner() {
         require(
             _ruby != address(0),
-            "Ruby cannot be 0 address"
+            "LotteryFactory: Ruby cannot be 0 address"
         );
         ruby = _ruby;
     }

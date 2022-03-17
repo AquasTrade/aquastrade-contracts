@@ -115,7 +115,7 @@ describe("Lottery Factory contract", function() {
         /**
          * Wrong nft this.owner Lottery
          */
-        it("Create Lottery test(wrong nft this.owner)", async function() {
+        it("Create Lottery test(wrong nft owner)", async function() {
             this.nftInstance.mint(this.owner.address, 2);
             this.nftInstance.mint(this.owner.address, 3);
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 2);
@@ -376,7 +376,7 @@ describe("Lottery Factory contract", function() {
             // Drawing the numbers
             await expect(
                 this.lotteryInstance.connect(this.buyer).drawWinningNumbers()
-            ).to.be.revertedWith(lotto.errors.invalid_admin);
+            ).to.be.revertedWith(lotto.errors.invalid_owner);
         });
         /**
          * Testing that numbers cannot be updated once chosen
@@ -664,7 +664,7 @@ describe("Lottery Factory contract", function() {
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
             await expect(
                 this.lotteryInstance.connect(this.buyer).withdraw(lotto.buy.one.cost)
-            ).to.be.revertedWith(lotto.errors.invalid_admin);
+            ).to.be.revertedWith(lotto.errors.invalid_owner);
         });
 
         it("Invalid Withdrawal(before draw)", async function() {

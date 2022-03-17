@@ -48,25 +48,16 @@ const lotto = {
         bucket: 0
     },
     errors: {
-        invalid_nft_owner: "Owner of NFT is invalid",
+        invalid_nft_owner: "LotteryFactory: Owner of NFT is invalid",
         invalid_owner: "Ownable: caller is not the owner",
-        invalid_admin: "Ownable: caller is not the owner",
-        invalid_distribution_length: "Invalid distribution",
-        invalid_distribution_total: "Prize distribution is not 100%",
-        invalid_price_or_cost: "Prize or cost cannot be 0",
-        invalid_timestamp: "Timestamps for lottery invalid",
-        invalid_buying_timestamp_closed: "Ticket selling is closed",
-        invalid_mint_numbers: "Invalid chosen numbers",
+        invalid_buying_timestamp_closed: "Lottery: Ticket selling is closed",
+        invalid_mint_numbers: "Lottery: Invalid chosen numbers",
         invalid_mint_approve: "ERC20: transfer amount exceeds allowance",
         invalid_mint_paused: "Pausable: paused",
-        invalid_draw_time: "Ticket selling is not yet closed",
-        invalid_draw_repeat: "Have already drawn the winning number",
-        invalid_claim_time: "Ticket selling is not yet closed",
-        invalid_claim_draw: "Winning Numbers not chosen yet",
-        invalid_claim_owner: "Only the owner can claim",
-        invalid_claim_duplicate: "Ticket already claimed",
-        invalid_claim_lottery: "Ticket not for this lottery",
-        invalid_numbers_range: "Numbers for ticket invalid",
+        invalid_draw_time: "Lottery: Ticket selling is not yet closed",
+        invalid_draw_repeat: "Lottery: Have already drawn the winning number",
+        invalid_claim_time: "Lottery: Ticket selling is not yet closed",
+        invalid_claim_draw: "Lottery: Winning Numbers not chosen yet",
     }
 }
 
