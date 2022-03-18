@@ -1,4 +1,5 @@
 # directories
+.openzeppelin
 .yarn/*
 !.yarn/patches
 !.yarn/releases
