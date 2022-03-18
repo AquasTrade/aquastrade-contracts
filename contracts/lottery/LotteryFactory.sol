@@ -3,21 +3,19 @@ pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./Lottery.sol";
 import "../interfaces/IRubyNFT.sol";
 
-contract LotteryFactory is Ownable {
+contract LotteryFactory is OwnableUpgradeable {
 
     // Safe math
     using SafeMath for uint256;
     // Safe ERC20
     using SafeERC20 for IERC20;
-    // Address functionality 
-    using Address for address;
 
     // Instance of Ruby token (collateral currency for lotto)
     address private ruby;
@@ -30,9 +28,9 @@ contract LotteryFactory is Ownable {
     event LotteryCreated(uint256 _lotteryId);
 
     //-------------------------------------------------------------------------
-    // CONSTRUCTOR
+    // initializer
     //-------------------------------------------------------------------------
-    constructor(address _ruby, address _randomNumberGenerator) public {
+    function initialize(address _ruby, address _randomNumberGenerator) public initializer {
         require(
           _ruby != address(0),
           "LotteryFactory: ruby cannot be 0 address"
@@ -44,6 +42,7 @@ contract LotteryFactory is Ownable {
         );
         ruby = _ruby;
         RNG = _randomNumberGenerator;
+        OwnableUpgradeable.__Ownable_init();
     }
 
     /// @notice Create a new Lottery instance.

@@ -1,5 +1,5 @@
 import { expect, assert } from "chai";
-import { network } from "hardhat";
+import { network, upgrades } from "hardhat";
 const { 
     lotto,
     BigNumber,
@@ -29,10 +29,11 @@ describe("Lottery Factory contract", function() {
         );
         this.randGenInstance = await this.randGenContract.deploy();
         this.nftInstance = await this.mock_erc721Contract.deploy("Lottery Bonus", "Bonus");
-        this.factoryInstance = await this.factoryContract.deploy(
-            this.rubyInstance.address,
-            this.randGenInstance.address,
+        this.factoryInstance = await upgrades.deployProxy(
+            this.factoryContract,
+            [this.rubyInstance.address, this.randGenInstance.address]
         );
+        await this.factoryInstance.deployed();
         this.nftInstance.mint(this.owner.address, "");
         this.rubyInstance.connect(this.owner).transfer(
             this.buyer.address,
