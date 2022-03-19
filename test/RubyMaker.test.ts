@@ -1,10 +1,12 @@
 const { ethers, network } = require("hardhat");
 import { expect } from "chai";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { prepare, deploy, getBigNumber, createSLP, assertRubyConversion } from "./utilities";
 
 import { RubyMaker, RubyTokenMintable } from "../typechain";
 import { deployAMM, deployNFTAdmin, deployNftsAndNftAdmin, deployRubyFreeSwapNFT, deployRubyMaker, deployRubyProfileNFT, deployRubyRouter } from "./utilities/deployment";
+
+const {parseUnits, formatUnits} = utils;
 
 describe("RubyMaker", function () {
   const burnPercent = 20; // 20%
@@ -29,11 +31,10 @@ describe("RubyMaker", function () {
   beforeEach(async function () {
     await deploy(this, [
       ["ruby", this.RubyTokenMintable, []],
+      ["usdp", this.MockERC20, ["USDP", "USDP", getBigNumber("10000000"), 18]],
       ["dai", this.MockERC20, ["DAI", "DAI", getBigNumber("10000000"), 18]],
-      ["mic", this.MockERC20, ["MIC", "MIC", getBigNumber("10000000"), 18]],
-      ["usdc", this.MockERC20, ["USDC", "USDC", getBigNumber("10000000"), 18]],
-      ["weth", this.MockERC20, ["WETH", "ETH", getBigNumber("10000000"), 18]],
-      ["strudel", this.MockERC20, ["$TRDL", "$TRDL", getBigNumber("10000000"), 18]],
+      ["ethc", this.MockERC20, ["ETHC", "ETHC", getBigNumber("10000000"), 18]],
+      ["link", this.MockERC20, ["LINK", "LINK", getBigNumber("10000000"), 18]],
     ]);
 
 
@@ -60,7 +61,7 @@ describe("RubyMaker", function () {
     // deploy the staker with dummy addresses, not really relevant for these tests
     await deploy(this, [["staker", this.RubyStaker, [this.ruby.address]]]);
 
-    this.rubyMaker = await deployRubyMaker(this.factory.address, this.staker.address, this.ruby.address, this.weth.address, burnPercent)
+    this.rubyMaker = await deployRubyMaker(this.owner.address, this.factory.address, this.staker.address, this.ruby.address, this.weth.address, burnPercent)
 
     const burnerRole = await this.ruby.BURNER_ROLE();
 
@@ -73,23 +74,22 @@ describe("RubyMaker", function () {
     await this.staker.addReward(this.ruby.address, this.rubyMaker.address);
 
     await deploy(this, [["exploiter", this.MockRubyMakerExploit, [this.rubyMaker.address]]]);
-    await createSLP(this, "rubyEth", this.ruby, this.weth, ethers.utils.parseUnits("10000"));
-    await createSLP(this, "strudelEth", this.strudel, this.weth, getBigNumber(10));
-    await createSLP(this, "daiEth", this.dai, this.weth, getBigNumber(10));
-    await createSLP(this, "usdcEth", this.usdc, this.weth, getBigNumber(10));
-    await createSLP(this, "micUSDC", this.mic, this.usdc, getBigNumber(10));
-    await createSLP(this, "rubyUSDC", this.ruby, this.usdc, getBigNumber(10));
-    await createSLP(this, "daiUSDC", this.dai, this.usdc, getBigNumber(10));
-    await createSLP(this, "daiMIC", this.dai, this.mic, getBigNumber(10));
+    await createSLP(this, "rubyEthc", this.ruby, this.ethc, parseUnits("10000"));
+    await createSLP(this, "usdpEthc", this.usdp, this.ethc,parseUnits("10000"));
+    await createSLP(this, "usdpRuby", this.usdp, this.ruby, parseUnits("10000"));
+    await createSLP(this, "usdpDai", this.usdp, this.dai, parseUnits("10000"));
+    await createSLP(this, "usdpLink", this.usdp, this.link, parseUnits("10000"));
   });
 
   describe("RubyMaker state", function () {
     it("should be set correctly after deployment", async function () {
+      let ownerAddr = await this.rubyMaker.owner();
       let factoryAddr = await this.rubyMaker.factory();
       let stakerAddr = await this.rubyMaker.rubyStaker();
       let burnPct = await this.rubyMaker.burnPercent();
       let owner = await this.rubyMaker.owner();
 
+      expect(ownerAddr).to.equal(this.owner.address);
       expect(factoryAddr).to.equal(this.factory.address);
       expect(stakerAddr).to.equal(this.staker.address);
       expect(burnPct).to.equal(burnPercent);
@@ -134,35 +134,29 @@ describe("RubyMaker", function () {
         "Ownable: caller is not the owner",
       );
     });
-  });
 
-  describe("setBridge", function () {
-    it("does not allow to set bridge for Ruby", async function () {
-      await expect(this.rubyMaker.setBridge(this.ruby.address, this.weth.address)).to.be.revertedWith(
-        "RubyMaker: Invalid bridge",
-      );
+    it("ruby token should be successfully changed by the owner", async function () {
+
     });
 
-    it("does not allow to set bridge for WETH", async function () {
-      await expect(this.rubyMaker.setBridge(this.weth.address, this.ruby.address)).to.be.revertedWith(
-        "RubyMaker: Invalid bridge",
-      );
+    it("usdt token should be successfully changed by the owner", async function () {
+
     });
 
-    it("does not allow to set bridge to itself", async function () {
-      await expect(this.rubyMaker.setBridge(this.dai.address, this.dai.address)).to.be.revertedWith(
-        "RubyMaker: Invalid bridge",
-      );
+    it("amm factory should be successfully changed by the owner", async function () {
+
     });
 
-    it("emits correct event on bridge", async function () {
-      await expect(this.rubyMaker.setBridge(this.dai.address, this.ruby.address))
-        .to.emit(this.rubyMaker, "LogBridgeSet")
-        .withArgs(this.dai.address, this.ruby.address);
+    it("ruby staker should be successfully changed by the owner", async function () {
+
+    });
+
+    it("LP should be withdrawal should be successful by the owner", async function () {
+
     });
   });
   describe("convert", function () {
-    it("should convert RUBY - ETH", async function () {
+    it("should convert RUBY - ETHC", async function () {
       // const rubyConvertedAmount = BigNumber.from("1897569270781234370");
       const rubyConvertedAmount = BigNumber.from("1280308753411053458532");
       // Get supply before conversion
@@ -187,7 +181,7 @@ describe("RubyMaker", function () {
       );
     });
 
-    it("should convert USDC - ETH", async function () {
+    it("should convert USDP - ETHC", async function () {
       const rubyConvertedAmount = BigNumber.from("1891518710977119193");
 
       // Get supply before conversion
@@ -211,7 +205,7 @@ describe("RubyMaker", function () {
       );
     });
 
-    it("should convert $TRDL - ETH", async function () {
+    it("should convert USDP - RUBY", async function () {
       const rubyConvertedAmount = BigNumber.from("1891518710977119193");
 
       // Get supply before conversion
@@ -235,15 +229,15 @@ describe("RubyMaker", function () {
       );
     });
 
-    it("should convert USDC - RUBY", async function () {
-      const rubyConvertedAmount = BigNumber.from("1897569270781234370");
+    it("should convert USDP - LINK", async function () {
+      const rubyConvertedAmount = BigNumber.from("1891518710977119193");
 
       // Get supply before conversion
       const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
 
       // Transfer and convert
-      await this.rubyUSDC.transfer(this.rubyMaker.address, getBigNumber(1));
-      await this.rubyMaker.convert(this.usdc.address, this.ruby.address);
+      await this.strudelEth.transfer(this.rubyMaker.address, getBigNumber(1));
+      await this.rubyMaker.convert(this.strudel.address, this.weth.address);
 
       // Get supply after conversion
       const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
@@ -252,13 +246,37 @@ describe("RubyMaker", function () {
       await assertRubyConversion(
         this,
         burnPercent,
-        this.rubyUSDC,
+        this.strudelEth,
         rubyConvertedAmount,
         rubyTotalSupplyBeforeConvert,
         rubyTotalSupplyAfterConvert,
       );
     });
 
+
+    it("should convert USDP - DAI", async function () {
+      const rubyConvertedAmount = BigNumber.from("1891518710977119193");
+
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
+
+      // Transfer and convert
+      await this.strudelEth.transfer(this.rubyMaker.address, getBigNumber(1));
+      await this.rubyMaker.convert(this.strudel.address, this.weth.address);
+
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.strudelEth,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+      );
+    });
     it("should convert using standard ETH path", async function () {
       const rubyConvertedAmount = BigNumber.from("1891518710977119193");
 
@@ -282,83 +300,6 @@ describe("RubyMaker", function () {
         rubyTotalSupplyAfterConvert,
       );
     });
-
-    it("converts MIC/USDC using more complex path", async function () {
-      const rubyConvertedAmount = BigNumber.from("1590898251382934275");
-
-      // Get supply before conversion
-      const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
-
-      // Transfer and convert
-      await this.micUSDC.transfer(this.rubyMaker.address, getBigNumber(1));
-      await this.rubyMaker.setBridge(this.usdc.address, this.ruby.address);
-      await this.rubyMaker.setBridge(this.mic.address, this.usdc.address);
-      await this.rubyMaker.convert(this.mic.address, this.usdc.address);
-
-      // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
-
-      // Assert
-      await assertRubyConversion(
-        this,
-        burnPercent,
-        this.micUSDC,
-        rubyConvertedAmount,
-        rubyTotalSupplyBeforeConvert,
-        rubyTotalSupplyAfterConvert,
-      );
-    });
-
-    it("converts DAI/USDC using more complex path", async function () {
-      const rubyConvertedAmount = BigNumber.from("1590898251382934275");
-      // Get supply before conversion
-      const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
-
-      // Transfer and convert
-      await this.daiUSDC.transfer(this.rubyMaker.address, getBigNumber(1));
-      await this.rubyMaker.setBridge(this.usdc.address, this.ruby.address);
-      await this.rubyMaker.setBridge(this.dai.address, this.usdc.address);
-      await this.rubyMaker.convert(this.dai.address, this.usdc.address);
-
-      // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
-
-      // Assert
-      await assertRubyConversion(
-        this,
-        burnPercent,
-        this.daiUSDC,
-        rubyConvertedAmount,
-        rubyTotalSupplyBeforeConvert,
-        rubyTotalSupplyAfterConvert,
-      );
-    });
-
-    it("converts DAI/MIC using two step path", async function () {
-      const rubyConvertedAmount = BigNumber.from("1364693800384038477");
-      // Get supply before conversion
-      const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
-
-      // Transfer and convert
-      await this.daiMIC.transfer(this.rubyMaker.address, getBigNumber(1));
-      await this.rubyMaker.setBridge(this.dai.address, this.usdc.address);
-      await this.rubyMaker.setBridge(this.mic.address, this.dai.address);
-      await this.rubyMaker.convert(this.dai.address, this.mic.address);
-
-      // Get supply after conversion
-      const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
-
-      // Assert
-      await assertRubyConversion(
-        this,
-        burnPercent,
-        this.daiMIC,
-        rubyConvertedAmount,
-        rubyTotalSupplyBeforeConvert,
-        rubyTotalSupplyAfterConvert,
-      );
-    });
-
     it("reverts if it loops back", async function () {
       await this.daiMIC.transfer(this.rubyMaker.address, getBigNumber(1));
       await this.rubyMaker.setBridge(this.dai.address, this.mic.address);

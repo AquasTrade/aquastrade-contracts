@@ -205,10 +205,10 @@ export const deployRubyRouter = async (
 };
 
 
-export const deployRubyMaker = async (factory: string, staker: string, ruby: string, weth: string, burnPercent: number): Promise<RubyMaker> => {
+export const deployRubyMaker = async (owner: string, factory: string, staker: string, ruby: string, usdToken: string, burnPercent: number): Promise<RubyMaker> => {
 
-  let Maker = await ethers.getContractFactory("RubyMaker");
-  const rubyMaker: RubyMaker = await Maker.deploy(factory, staker, ruby, weth, burnPercent);
+  let RubyMaker = await ethers.getContractFactory("RubyMaker");
+  const rubyMaker: RubyMaker = await upgrades.deployProxy(RubyMaker, [owner, factory, staker, ruby, usdToken, burnPercent]);
   await rubyMaker.deployed();
   return rubyMaker;
 
