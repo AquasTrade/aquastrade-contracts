@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./Lottery.sol";
 import "../interfaces/IRubyNFT.sol";
+// import "hardhat/console.sol";
 
 contract LotteryFactory is OwnableUpgradeable {
 
@@ -68,7 +69,7 @@ contract LotteryFactory is OwnableUpgradeable {
         require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "LotteryFactory: Owner of NFT is invalid");
         lotteryId ++;
         allLotteries[lotteryId] = new Lottery(address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, duration, RNG);
-        Lottery(allLotteries[lotteryId]).transferOwnership(msg.sender);
+        Lottery(allLotteries[lotteryId]).transferOwnership(owner());
         IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
         emit LotteryCreated(lotteryId);
     }

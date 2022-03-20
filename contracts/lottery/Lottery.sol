@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./IRandomNumberGenerator.sol";
 import "../interfaces/IRubyNFT.sol";
+// import "hardhat/console.sol";
 
 contract Lottery is Ownable, Pausable {
     // Libraries
