@@ -34,7 +34,7 @@ export async function deploy(thisObject: any, contracts: any) {
   }
 }
 
-export async function createSLP(thisObject: any, name: any, tokenA: any, tokenB: any, amount: any) {
+export async function createRLP(thisObject: any, name: any, tokenA: any, tokenB: any, amount: any) {
   const createPairTx = await thisObject.factory.createPair(tokenA.address, tokenB.address);
 
   const _pair = (await createPairTx.wait()).events[0].args.pair;

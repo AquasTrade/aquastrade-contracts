@@ -103,13 +103,18 @@ contract RubyMaker is OwnableUpgradeable {
     }
 
     function _convert(address token0, address token1) internal {
+        require(token0 != address(0), "RubyMaker: token0 cannot be the zero address.");
+        require(token1 != address(0), "RubyMaker: token1 cannot be the zero address.");
+        require(token0 != token1, "RubyMaker: token0 and token1 cannot be the same token.");
+
         // We only support pairs where the one of the token is usdToken or ruby
         // when this changes, this needs to be modified along with the _convertStep function
-        require((token0 == usdToken || token0 == ruby) && (token1 == usdToken || token1 == ruby),
-         "RubyMaker: Conversion unsupported");
+        bool token0supported = (token0 == usdToken || token0 == ruby);
+        bool token1supported = (token1 == usdToken || token1 == ruby);
+        require(token0supported || token1supported, "RubyMaker: Conversion unsupported.");
         // Interactions
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token0, token1));
-        require(address(pair) != address(0), "RubyMaker: Invalid pair");
+        require(address(pair) != address(0), "RubyMaker: Invalid pair.");
 
         IERC20(address(pair)).safeTransfer(address(pair), pair.balanceOf(address(this)));
 
@@ -118,6 +123,7 @@ contract RubyMaker is OwnableUpgradeable {
             (amount0, amount1) = (amount1, amount0);
         }
         uint256 totalConvertedRuby = _convertStep(token0, token1, amount0, amount1);
+
         uint256 rubyToBurn = (totalConvertedRuby.mul(burnPercent)).div(100);
 
         uint256 rubyRewards = totalConvertedRuby - rubyToBurn;
@@ -145,11 +151,15 @@ contract RubyMaker is OwnableUpgradeable {
             rubyOut = _toRUBY(token0, amount0).add(amount1);
         } else if (token0 == usdToken) {
             // eg. USDP - XYZ
-            rubyOut = _toRUBY(usdToken, _swap(token1, usdToken, amount1, address(this)).add(amount0));
+            uint256 usdSwapAmount = _swap(token1, usdToken, amount1, address(this));
+            uint256 usdToRubyAmount = usdSwapAmount.add(amount0);
+            rubyOut = _toRUBY(usdToken, usdToRubyAmount);
         } else {
             // token1 == usdToken
             // eg. XYZ - USDP
-            rubyOut = _toRUBY(usdToken, _swap(token0, usdToken, amount0, address(this)).add(amount1));
+            uint256 usdSwapAmount = _swap(token0, usdToken, amount0, address(this));
+            uint256 usdToRubyAmount = usdSwapAmount.add(amount1);
+            rubyOut = _toRUBY(usdToken, usdToRubyAmount);
         }
     }
 
@@ -160,7 +170,7 @@ contract RubyMaker is OwnableUpgradeable {
         address to
     ) internal returns (uint256 amountOut) {
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(fromToken, toToken));
-        require(address(pair) != address(0), "RubyMaker: Cannot convert");
+        require(address(pair) != address(0), "RubyMaker: Invalid pair.");
 
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
         uint256 amountInWithFee = amountIn.mul(997);
@@ -183,9 +193,9 @@ contract RubyMaker is OwnableUpgradeable {
 
 
     // ADMIN functions
-
     function setRubyToken(address newRuby) external onlyOwner {
-        require(newRuby != address(0), "RubyMaker: Invalid ruby address.");
+        require(newRuby != address(0), "RubyMaker: Invalid ruby token address.");
+        require(isContract(newRuby), "RubyMaker: Ruby token address is not a contract address.");
         ruby = newRuby;
         emit RubyTokenSet(newRuby);
     }
@@ -193,28 +203,43 @@ contract RubyMaker is OwnableUpgradeable {
 
     function setUsdToken(address newUsdToken) external onlyOwner {
         require(newUsdToken != address(0), "RubyMaker: Invalid USD token address.");
+        require(isContract(newUsdToken), "RubyMaker: USD token address is not a contract address.");
         usdToken = newUsdToken;
         emit UsdTokenSet(newUsdToken);
     }
 
     function setRubyStaker(address newRubyStaker) external onlyOwner {
         require(newRubyStaker != address(0), "RubyMaker: Invalid rubyStaker address.");
+        require(isContract(newRubyStaker), "RubyMaker: RubyStaker is not a contract address.");
         rubyStaker = IRubyStaker(newRubyStaker);
         emit RubyStakerSet(newRubyStaker);
     }
 
     function setAmmFactory(address newFactory) external onlyOwner {
         require(newFactory != address(0), "RubyMaker: Invalid AMM factory address.");
+        require(isContract(newFactory), "RubyMaker: AMM factory address is not a contract address.");
         factory = IUniswapV2Factory(newFactory);
         emit AmmFactorySet(newFactory);
     }
 
     function withdrawLP(address pair) external onlyOwner {
         require(pair != address(0), "RubyMaker: Invalid pair address.");
+        require(isContract(pair), "RubyMaker: Pair is not a contract address.");
         IERC20 _pair = IERC20(pair);
         uint256 pairBalance = _pair.balanceOf(address(this));
         _pair.safeTransfer(owner(), pairBalance);
         emit PairWithdrawn(pair, pairBalance);
+    }
+
+    function isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize, which returns 0 for contracts in
+        // construction, since the code is only stored at the end of the
+        // constructor execution.
+
+        uint256 size;
+        // solhint-disable-next-line no-inline-assembly
+        assembly { size := extcodesize(account) }
+        return size > 0;
     }
 
 }
