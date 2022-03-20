@@ -13,7 +13,7 @@ const rubyMakerAddr = require(`../../deployments/${network.name}/RubyMaker.json`
 const rubyStakerAddr = require(`../../deployments/${network.name}/RubyStaker.json`).address;
 const rubyTokenAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
 const usdpTokenAddr = require(`../../deployments/${network.name}/RubyUSDP.json`).address;
-const ethcAddr = "	0xD2Aaa00700000000000000000000000000000000"
+const ethcAddr = "0xD2Aaa00700000000000000000000000000000000"
 
 const setMakerBurnPercent = async (signer: SignerWithAddress) => {
 
@@ -46,35 +46,38 @@ const setMakerBridges = async (signer: SignerWithAddress) => {
     const rubyMakerContract: RubyMaker = (await ethers.getContractAt("RubyMaker", rubyMakerAddr)) as RubyMaker;
     console.log("ethc addr", ethcAddr);
     console.log("rubyTokenAddr", rubyTokenAddr);
-    let tx = await rubyMakerContract.connect(signer).setBridge(usdpTokenAddr, rubyTokenAddr);
+    let tx = await rubyMakerContract.connect(signer).setBridge(usdpTokenAddr, ethcAddr);
     await tx.wait(1);
-    console.log("ETHC - RUBY bridge set!");
+    console.log("USDP - ETHC bridge set!");
 }
 
 const convertMakerFees = async (signer: SignerWithAddress) => {
 
     const rubyMakerContract: RubyMaker = (await ethers.getContractAt("RubyMaker", rubyMakerAddr)) as RubyMaker;
-    // const rubyMakerBurnPercent = await rubyMakerContract.burnPercent();
-    // console.log("rubyMakerBurnPercent", rubyMakerBurnPercent.toNumber())
+    const rubyMakerBurnPercent = await rubyMakerContract.burnPercent();
+    console.log("rubyMakerBurnPercent", rubyMakerBurnPercent.toNumber())
+    console.log("rubyTokenAddr", rubyTokenAddr)
+    console.log("usdpTokenAddr", usdpTokenAddr)
 
-    // let tx = await rubyMakerContract.connect(signer).convert(rubyTokenAddr, usdpTokenAddr);
-    // console.log("tx", tx);
-    // // await tx.wait(1);
+
+    let tx = await rubyMakerContract.connect(signer).convert(rubyTokenAddr, usdpTokenAddr);
+    console.log("tx", tx);
+    await tx.wait(1);
 
     // console.log("RubyMaker: RUBY - USDP LP converted");
 
-    let tx = await rubyMakerContract.connect(signer).callStatic.convert(usdpTokenAddr, ethcAddr);
-    console.log("tx", tx)
-    // tx.wait(1);
+    // let tx = await rubyMakerContract.connect(signer).convert(ethcAddr, usdpTokenAddr);
+    // // console.log("tx", tx)
+    // await tx.wait(1);
 
-    console.log("RubyMaker: USDP - ETHC LP converted");
+    // console.log("RubyMaker: USDP - ETHC LP converted");
 
 }
 
 const printRubyMakerBalances = async () => {
     
     // LP ADDRESSES: [usdp/ruby, usdp/ethc]
-    const lpAddresses = ["0xd126dD75740e3B191541d27348f75FD9407EF956", "0xa72E33579b87850E62f04E5d10B9c3A10B25f4dF"]
+    const lpAddresses = ["0xf0cb39C74Cf40ef481173ee3bc019094E9Bdd682", "0xa72E33579b87850E62f04E5d10B9c3A10B25f4dF"]
     for(let lpAddress of lpAddresses) {
         const lpContract: UniswapV2Pair = (await ethers.getContractAt("UniswapV2Pair", lpAddress)) as UniswapV2Pair;
         const balance = await lpContract.balanceOf(rubyMakerAddr);
@@ -97,7 +100,9 @@ const printRubyStakerBalances = async () => {
     const rewardDataId1 = await rubyStakerContract.rewardData(1);
     const lockedSupply = await rubyStakerContract.lockedSupply();
     const totalSupply = await rubyStakerContract.totalSupply();
+    const rewardDistributor = await rubyStakerContract.rewardDistributors(1, "0x298cFb4e8018a6D9e3Fc863996B717C0f4fde9BC")
     
+    console.log("ruby reward dist", rewardDistributor)
     console.log("lockedSupply", ethers.utils.formatUnits(lockedSupply, 18));
     console.log("totalSupply", ethers.utils.formatUnits(totalSupply, 18));
 
@@ -136,15 +141,15 @@ const main = async () => {
 
 //   await setMakerBurnPercent(deployer);
 
-//   await setMakerBurnerRole(deployer);
+  await setMakerBurnerRole(deployer);
 await setMakerBridges(deployer);
 
 await printBurnedRubyTokens();
 await printRubyMakerBalances();
 await printRubyStakerBalances();
 await convertMakerFees(deployer);
-await printRubyMakerBalances();
-await printBurnedRubyTokens();
+// await printRubyMakerBalances();
+// await printBurnedRubyTokens();
 
 };
 

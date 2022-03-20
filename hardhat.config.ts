@@ -59,6 +59,13 @@ const config: HardhatUserConfig = {
       //   mnemonic: process.env.MNEMONIC,
       // },
     },
+    rubyNewChain: {
+      url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",
+      accounts: [ADMIN_PKEY_TESTNET],
+      // accounts: {
+      //   mnemonic: process.env.MNEMONIC,
+      // },
+    },
     mainnet: {
       url: "https://mainnet.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
       accounts: {

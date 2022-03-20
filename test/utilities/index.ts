@@ -57,17 +57,21 @@ export const assertRubyConversion = async (
   lpToken: UniswapV2Pair,
   rubyConvertedAmount: BigNumber,
   rubyTotalSupplyBefore: BigNumber,
-  rubyTotalSupplyAfter: BigNumber
+  rubyTotalSupplyAfter: BigNumber,
+  rubyBurnedAmountBefore: BigNumber,
+  rubyBurnedAmountAfter: BigNumber
 ) => {
-  const makerBalanceRuby = await testState.ruby.balanceOf(testState.rubyMaker.address);
+  const makerBalanceRuby = await testState.rubyToken.balanceOf(testState.rubyMaker.address);
   const makerBalanceLP = await lpToken.balanceOf(testState.rubyMaker.address);
-  const stakerBalance = await testState.ruby.balanceOf(testState.staker.address);
+  const stakerBalance = await testState.rubyToken.balanceOf(testState.staker.address);
   // total supply should shrink
   const totalSupplyDifference = rubyTotalSupplyBefore.sub(rubyTotalSupplyAfter);
 
-  const burned = rubyConvertedAmount.mul(BigNumber.from(burnPercent)).div(BigNumber.from(100));
-  const distributed = rubyConvertedAmount.sub(burned);
+  // burned amount should grow
+  const totalBurnedAmountDifference = rubyBurnedAmountAfter.sub(rubyBurnedAmountBefore);
 
+  const burnedAmount = rubyConvertedAmount.mul(BigNumber.from(burnPercent)).div(BigNumber.from(100));
+  const distributed = rubyConvertedAmount.sub(burnedAmount);
 
   expect(makerBalanceRuby).to.equal(0);
   expect(makerBalanceLP).to.equal(0);
@@ -75,12 +79,13 @@ export const assertRubyConversion = async (
   expect(stakerBalance).to.be.lte(distributed.add(1)); 
   expect(stakerBalance).to.be.gte(distributed.sub(1)); 
 
-
-
-  expect(rubyConvertedAmount).to.equal(distributed.add(burned));
+  expect(rubyConvertedAmount).to.equal(distributed.add(burnedAmount));
   // lte & gte used because of rounding error of 1 wei
-  expect(totalSupplyDifference).to.lte(burned.add(1));
-  expect(totalSupplyDifference).to.gte(burned.sub(1));
+  expect(totalSupplyDifference).to.lte(burnedAmount.add(1));
+  expect(totalSupplyDifference).to.gte(burnedAmount.sub(1));
+  // lte & gte used because of rounding error of 1 wei
+  expect(totalBurnedAmountDifference).to.lte(burnedAmount.add(1))
+  expect(totalBurnedAmountDifference).to.gte(burnedAmount.sub(1))
 
 };
 

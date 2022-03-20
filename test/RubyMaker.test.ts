@@ -33,7 +33,7 @@ describe("RubyMaker", function () {
 
   beforeEach(async function () {
     await deploy(this, [
-      ["ruby", this.RubyTokenMintable, []],
+      ["rubyToken", this.RubyTokenMintable, []],
       ["rubyTokenTest", this.RubyToken, []],
       ["usdp", this.MockERC20, ["USDP", "USDP", getBigNumber("10000000"), 18]],
       ["usdc", this.MockERC20, ["USDC", "USDC", getBigNumber("10000000"), 18]],
@@ -58,31 +58,31 @@ describe("RubyMaker", function () {
     this.factory = factory;
 
 
-    this.ruby = <RubyTokenMintable>this.ruby;
+    this.rubyToken = <RubyTokenMintable>this.rubyToken;
 
     // set pair creators
     await this.factory.setPairCreator(this.owner.address, true);
     await this.factory.setPairCreator(this.router.address, true);
 
     // deploy the staker with dummy addresses, not really relevant for these tests
-    await deploy(this, [["staker", this.RubyStaker, [this.ruby.address]]]);
+    await deploy(this, [["staker", this.RubyStaker, [this.rubyToken.address]]]);
 
-    this.rubyMaker = await deployRubyMaker(this.owner.address, this.factory.address, this.staker.address, this.ruby.address, this.usdp.address, burnPercent)
+    this.rubyMaker = await deployRubyMaker(this.owner.address, this.factory.address, this.staker.address, this.rubyToken.address, this.usdp.address, burnPercent)
 
-    const burnerRole = await this.ruby.BURNER_ROLE();
+    const burnerRole = await this.rubyToken.BURNER_ROLE();
 
-    if ((await this.ruby.hasRole(burnerRole, this.rubyMaker.address)) === false) {
-      let res = await this.ruby.grantRole(burnerRole, this.rubyMaker.address);
+    if ((await this.rubyToken.hasRole(burnerRole, this.rubyMaker.address)) === false) {
+      let res = await this.rubyToken.grantRole(burnerRole, this.rubyMaker.address);
       await res.wait(1);
     }
 
     // await this.staker.approveRewardDistributor(0, this.rubyMaker.address, true);
-    await this.staker.addReward(this.ruby.address, this.rubyMaker.address);
+    await this.staker.addReward(this.rubyToken.address, this.rubyMaker.address);
 
     await deploy(this, [["exploiter", this.MockRubyMakerExploit, [this.rubyMaker.address]]]);
-    await createRLP(this, "rubyEthc", this.ruby, this.ethc, parseUnits("10000"));
+    await createRLP(this, "rubyEthc", this.rubyToken, this.ethc, parseUnits("10000"));
     await createRLP(this, "usdpEthc", this.usdp, this.ethc, parseUnits("10000"));
-    await createRLP(this, "usdpRuby", this.usdp, this.ruby, parseUnits("10000"));
+    await createRLP(this, "usdpRuby", this.usdp, this.rubyToken, parseUnits("10000"));
     await createRLP(this, "usdpDai", this.usdp, this.dai, parseUnits("10000"));
     await createRLP(this, "usdpLink", this.usdp, this.link, parseUnits("10000"));
     await createRLP(this, "usdcUsdt", this.usdc, this.usdt, parseUnits("10000"));
@@ -142,32 +142,38 @@ describe("RubyMaker", function () {
       );
     });
 
-    it("ruby token should be successfully set by the owner", async function () {
+    it("rubyToken token should be successfully set by the owner", async function () {
 
-      expect(await this.rubyMaker.ruby()).to.be.eq(this.ruby.address);
+      expect(await this.rubyMaker.rubyToken()).to.be.eq(this.rubyToken.address);
 
       await expect(this.rubyMaker.setRubyToken(this.rubyTokenTest.address))
       .to.emit(this.rubyMaker, "RubyTokenSet")
       .withArgs(this.rubyTokenTest.address);
 
-      expect(await this.rubyMaker.ruby()).to.be.eq(this.rubyTokenTest.address);
+      expect(await this.rubyMaker.rubyToken()).to.be.eq(this.rubyTokenTest.address);
 
     });
 
-    it("ruby token should not be set when the token address is invalid", async function () {
+    it("rubyToken token should not be set when the token address is invalid", async function () {
 
-      const rubyPrevAddr = await this.rubyMaker.ruby();
-      await expect(this.rubyMaker.setRubyToken(AddressZero)).to.be.revertedWith("RubyMaker: Invalid ruby token address.");
-      const rubyCurrAdddr = await this.rubyMaker.ruby();
+      const rubyPrevAddr = await this.rubyMaker.rubyToken();
+      await expect(this.rubyMaker.setRubyToken(AddressZero)).to.be.revertedWith("RubyMaker: Invalid rubyToken token address.");
+      const rubyCurrAdddr = await this.rubyMaker.rubyToken();
       expect(rubyPrevAddr).to.be.eq(rubyCurrAdddr);
 
     });
+    
+    it("rubyToken token should not be set when the token address is not a contract address", async function () {
 
-    it("ruby token should not be set when the caller is not the owner", async function () {
+      const newRubyAddress = this.signers[1].address;
+      await expect(this.rubyMaker.setRubyToken(newRubyAddress)).to.be.revertedWith("RubyMaker: newRubyToken is not a contract address.");
 
-      const rubyPrevAddr = await this.rubyMaker.ruby();
-      await expect(this.rubyMaker.connect(this.signers[1]).setRubyToken(this.ruby.address)).to.be.revertedWith("Ownable: caller is not the owner");
-      const rubyCurrAdddr = await this.rubyMaker.ruby();
+    });
+    it("rubyToken token should not be set when the caller is not the owner", async function () {
+
+      const rubyPrevAddr = await this.rubyMaker.rubyToken();
+      await expect(this.rubyMaker.connect(this.signers[1]).setRubyToken(this.rubyToken.address)).to.be.revertedWith("Ownable: caller is not the owner");
+      const rubyCurrAdddr = await this.rubyMaker.rubyToken();
       expect(rubyPrevAddr).to.be.eq(rubyCurrAdddr);
 
     });
@@ -196,6 +202,12 @@ describe("RubyMaker", function () {
 
     });
 
+    it("usd token should not be set when the token address is not a contract address", async function () {
+      // invalid usd address (EOA)
+      const newUsdAddress = this.signers[1].address;
+      await expect(this.rubyMaker.setUsdToken(newUsdAddress)).to.be.revertedWith("RubyMaker: newUsdToken is not a contract address.");
+
+    });
 
     it("usd token should not be set when the caller is not the owner", async function () {
 
@@ -232,6 +244,13 @@ describe("RubyMaker", function () {
     });
 
 
+    it("amm factory should not be set when the factory address is not a contract address", async function () {
+      // invalid factory address (EOA)
+      const newFactoryAddress = await this.signers[1].address;
+      await expect(this.rubyMaker.setAmmFactory(newFactoryAddress)).to.be.revertedWith("RubyMaker: newFactory is not a contract address.");
+    });
+
+
     it("amm factory should not be set when the caller is not the owner", async function () {
 
       const factoryPrevAddr = await this.rubyMaker.factory();
@@ -241,7 +260,7 @@ describe("RubyMaker", function () {
 
     });
 
-    it("ruby staker should be successfully changed by the owner", async function () {
+    it("rubyToken staker should be successfully changed by the owner", async function () {
 
       // Testing purposes only, to validate address change
       const newRubyStaker = this.usdp.address;
@@ -256,7 +275,7 @@ describe("RubyMaker", function () {
 
     });
 
-    it("ruby staker should not be set when the staker address is invalid", async function () {
+    it("rubyToken staker should not be set when the staker address is invalid", async function () {
 
       const rubyStakerPrevAddr = await this.rubyMaker.rubyStaker();
       await expect(this.rubyMaker.setRubyStaker(AddressZero)).to.be.revertedWith("RubyMaker: Invalid rubyStaker address.");
@@ -265,14 +284,18 @@ describe("RubyMaker", function () {
 
     });
 
+    it("rubyToken staker should not be set when the staker address is not a contract address", async function () {
+      // invalid staker address (EOA)
+      const newStakerAddr = this.signers[1].address;
+      await expect(this.rubyMaker.setRubyStaker(newStakerAddr)).to.be.revertedWith("RubyMaker: newRubyStaker is not a contract address.");
+    });
 
-    it("ruby staker should not be set when the caller is not the owner", async function () {
 
+    it("rubyToken staker should not be set when the caller is not the owner", async function () {
       const rubyStakerPrevAddr = await this.rubyMaker.rubyStaker();
       await expect(this.rubyMaker.connect(this.signers[1]).setRubyStaker(this.staker.address)).to.be.revertedWith("Ownable: caller is not the owner");
       const rubyStakerCurrAddr = await this.rubyMaker.rubyStaker();
       expect(rubyStakerPrevAddr).to.be.eq(rubyStakerCurrAddr);
-
 
     });
 
@@ -285,10 +308,10 @@ describe("RubyMaker", function () {
       );
 
       const oneUnit = parseUnits("1");
-      expect(await this.ruby.balanceOf(this.rubyMaker.address)).to.equal(0);
+      expect(await this.rubyToken.balanceOf(this.rubyMaker.address)).to.equal(0);
       expect(await this.usdcUsdt.balanceOf(this.rubyMaker.address)).to.equal(oneUnit);
       expect(await this.usdcUsdt.balanceOf(this.owner.address)).to.equal(ownerBalanceBeforeTransfer.sub(oneUnit));
-      expect(await this.ruby.balanceOf(this.staker.address)).to.equal(0);
+      expect(await this.rubyToken.balanceOf(this.staker.address)).to.equal(0);
 
 
       await expect(this.rubyMaker.withdrawLP(this.usdcUsdt.address))
@@ -297,233 +320,291 @@ describe("RubyMaker", function () {
 
       expect(await this.usdcUsdt.balanceOf(this.owner.address)).to.equal(ownerBalanceBeforeTransfer);
 
+    });
+
+    it("LP should be withdrawal should not be successful when the lp address is invalid", async function () {
+
+     
+      await expect(this.rubyMaker.withdrawLP(AddressZero)).to.be.revertedWith("RubyMaker: Invalid pair address.")
 
 
     });
+
+    it("LP should be withdrawal should not be successful when the lp address is not a contract address", async function () {
+
+      const lpAddress = this.signers[1].address;
+      await expect(this.rubyMaker.withdrawLP(lpAddress)).to.be.revertedWith("RubyMaker: pair is not a contract address.")
+
+
+    });
+
   });
-  // describe("convert", function () {
-  //   it("should convert RUBY - ETHC", async function () {
-  //     // const rubyConvertedAmount = BigNumber.from("1897569270781234370");
-  //     const rubyConvertedAmount = BigNumber.from("1280308753411053458532");
-  //     // Get supply before conversion
-  //     const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
+  describe("convert", function () {
+    it("should convert RUBY - ETHC", async function () {
+      // const rubyConvertedAmount = BigNumber.from("1897569270781234370");
+      const rubyConvertedAmount = BigNumber.from("1280308753411053458532");
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
 
-  //     // Transfer and convert
-  //     await this.rubyEthc.transfer(this.rubyMaker.address, parseUnits("663"));
-  //     await this.rubyMaker.convert(this.ruby.address, this.ethc.address);
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
 
-  //     // Get supply after conversion
-  //     const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+      // Transfer and convert
+      await this.rubyEthc.transfer(this.rubyMaker.address, parseUnits("663"));
+      await this.rubyMaker.convert(this.rubyToken.address, this.ethc.address);
 
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
 
-  //     // Assert
-  //     await assertRubyConversion(
-  //       this,
-  //       burnPercent,
-  //       this.rubyEthc,
-  //       rubyConvertedAmount,
-  //       rubyTotalSupplyBeforeConvert,
-  //       rubyTotalSupplyAfterConvert
-  //     );
-  //   });
-
-  //   it("should convert USDP - ETHC", async function () {
-  //     const rubyConvertedAmount = BigNumber.from("1990513603949493228");
-
-  //     // Get supply before conversion
-  //     const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
-
-  //     // Transfer and convert
-  //     await this.usdpEthc.transfer(this.rubyMaker.address, parseUnits("1"));
-  //     await this.rubyMaker.convert(this.usdp.address, this.ethc.address);
-
-  //     // Get supply after conversion
-  //     const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
-
-  //     // Assert
-  //     await assertRubyConversion(
-  //       this,
-  //       burnPercent,
-  //       this.usdpEthc,
-  //       rubyConvertedAmount,
-  //       rubyTotalSupplyBeforeConvert,
-  //       rubyTotalSupplyAfterConvert,
-  //     );
-  //   });
-
-  //   it("should convert USDP - RUBY", async function () {
-  //     const rubyConvertedAmount = BigNumber.from("1996900599070179721");
-
-  //     // Get supply before conversion
-  //     const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
-
-  //     // Transfer and convert
-  //     await this.usdpRuby.transfer(this.rubyMaker.address, parseUnits("1"));
-  //     await this.rubyMaker.convert(this.usdp.address, this.ruby.address);
-
-  //     // Get supply after conversion
-  //     const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
-
-  //     // Assert
-  //     await assertRubyConversion(
-  //       this,
-  //       burnPercent,
-  //       this.usdpRuby,
-  //       rubyConvertedAmount,
-  //       rubyTotalSupplyBeforeConvert,
-  //       rubyTotalSupplyAfterConvert,
-  //     );
-  //   });
-
-  //   it("should convert USDP - LINK", async function () {
-  //     const rubyConvertedAmount = BigNumber.from("1990513603949493228");
-
-  //     // Get supply before conversion
-  //     const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
-
-  //     // Transfer and convert
-  //     await this.usdpLink.transfer(this.rubyMaker.address, getBigNumber(1));
-  //     await this.rubyMaker.convert(this.usdp.address, this.link.address);
-
-  //     // Get supply after conversion
-  //     const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
-
-  //     // Assert
-  //     await assertRubyConversion(
-  //       this,
-  //       burnPercent,
-  //       this.usdpLink,
-  //       rubyConvertedAmount,
-  //       rubyTotalSupplyBeforeConvert,
-  //       rubyTotalSupplyAfterConvert,
-  //     );
-  //   });
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
 
 
-  //   it("should convert USDP - DAI", async function () {
-  //     const rubyConvertedAmount = BigNumber.from("1990513603949493228");
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.rubyEthc,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+    });
 
-  //     // Get supply before conversion
-  //     const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
+    it("should convert USDP - ETHC", async function () {
+      const rubyConvertedAmount = BigNumber.from("1990513603949493228");
 
-  //     // Transfer and convert
-  //     await this.usdpDai.transfer(this.rubyMaker.address, parseUnits("1"));
-  //     await this.rubyMaker.convert(this.usdp.address, this.dai.address);
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
 
-  //     // Get supply after conversion
-  //     const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
 
-  //     // Assert
-  //     await assertRubyConversion(
-  //       this,
-  //       burnPercent,
-  //       this.usdpDai,
-  //       rubyConvertedAmount,
-  //       rubyTotalSupplyBeforeConvert,
-  //       rubyTotalSupplyAfterConvert,
-  //     );
-  //   });
+      // Transfer and convert
+      await this.usdpEthc.transfer(this.rubyMaker.address, parseUnits("1"));
+      await this.rubyMaker.convert(this.usdp.address, this.ethc.address);
 
-  //   it("reverts if caller is not EOA", async function () {
-  //     await this.rubyEthc.transfer(this.rubyMaker.address, getBigNumber(1));
-  //     await expect(this.exploiter.convert(this.ruby.address, this.ethc.address)).to.be.revertedWith(
-  //       "RubyMaker: must use EOA",
-  //     );
-  //   });
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
 
-  //   it("reverts if token0 is invalid", async function () {
-  //     await expect(this.rubyMaker.convert(AddressZero, this.usdp.address)).to.be.revertedWith(
-  //       "RubyMaker: token0 cannot be the zero address.",
-  //     );
-  //   });
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
 
-  //   it("reverts if token1 is invalid", async function () {
-  //     await expect(this.rubyMaker.convert(this.usdp.address, AddressZero)).to.be.revertedWith(
-  //       "RubyMaker: token1 cannot be the zero address.",
-  //     );
-  //   });
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.usdpEthc,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+    });
 
-  //   it("reverts if token0 and token1 are the same", async function () {
-  //     await expect(this.rubyMaker.convert(this.ruby.address, this.ruby.address)).to.be.revertedWith(
-  //       "RubyMaker: token0 and token1 cannot be the same token."
-  //     );
-  //   });
+    it("should convert USDP - RUBY", async function () {
+      const rubyConvertedAmount = BigNumber.from("1996900599070179721");
 
-  //   it("reverts if pair does not exist", async function () {
-  //     await expect(this.rubyMaker.convert(this.usdp.address, this.usdcUsdt.address)).to.be.revertedWith(
-  //       "RubyMaker: Invalid pair."
-  //     );
-  //   });
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
 
-  //   it("reverts if tokens are unsupoorted", async function () {
-  //     await this.usdcUsdt.transfer(this.rubyMaker.address, parseUnits("1"));
-  //     await expect(this.rubyMaker.convert(this.usdc.address, this.usdt.address)).to.be.revertedWith(
-  //       "RubyMaker: Conversion unsupported."
-  //     );
-  //     expect(await this.ruby.balanceOf(this.rubyMaker.address)).to.equal(0);
-  //     expect(await this.usdcUsdt.balanceOf(this.rubyMaker.address)).to.equal(parseUnits("1"));
-  //     expect(await this.ruby.balanceOf(this.staker.address)).to.equal(0);
-  //   });
-  // });
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
 
-  // describe("convertMultiple", function () {
-  //   it("should allow to convert multiple", async function () {
-  //     const rubyConvertedAmount = BigNumber.from("1996900599070179721").add(BigNumber.from("1990116118168674819"));
-  //     // Get supply before conversion
-  //     const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
+      // Transfer and convert
+      await this.usdpRuby.transfer(this.rubyMaker.address, parseUnits("1"));
+      await this.rubyMaker.convert(this.usdp.address, this.rubyToken.address);
 
-  //     // Transfer and convert
-  //     await this.usdpRuby.transfer(this.rubyMaker.address, parseUnits("1"));
-  //     await this.usdpEthc.transfer(this.rubyMaker.address, parseUnits("1"));
-  //     await this.rubyMaker.convertMultiple(
-  //       [this.usdp.address, this.usdp.address],
-  //       [this.ruby.address, this.ethc.address],
-  //     );
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
 
-  //     // Get supply after conversion
-  //     const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
 
-  //     // Assert
-  //     await assertRubyConversion(
-  //       this,
-  //       burnPercent,
-  //       this.usdpRuby,
-  //       rubyConvertedAmount,
-  //       rubyTotalSupplyBeforeConvert,
-  //       rubyTotalSupplyAfterConvert,
-  //     );
-  //     expect(await this.usdpEthc.balanceOf(this.rubyMaker.address)).to.equal(0);
-  //   });
 
-  //   it("should allow to convert multiple, rough numbers", async function () {
-  //     const rubyConvertedAmount = BigNumber.from("7986409583691500429").add(BigNumber.from("978637331194792339873"));
-  //     // Get supply before conversion
-  //     const rubyTotalSupplyBeforeConvert = await this.ruby.totalSupply();
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.usdpRuby,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+    });
 
-  //     // Transfer and convert
-  //     await this.usdpRuby.transfer(this.rubyMaker.address, parseUnits("4"));
-  //     await this.usdpEthc.transfer(this.rubyMaker.address, parseUnits("561"));
-  //     await this.rubyMaker.convertMultiple(
-  //       [this.usdp.address, this.usdp.address],
-  //       [this.ruby.address, this.ethc.address],
-  //     );
+    it("should convert USDP - LINK", async function () {
+      const rubyConvertedAmount = BigNumber.from("1990513603949493228");
 
-  //     // Get supply after conversion
-  //     const rubyTotalSupplyAfterConvert = await this.ruby.totalSupply();
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
 
-  //     // Assert
-  //     await assertRubyConversion(
-  //       this,
-  //       burnPercent,
-  //       this.usdpRuby,
-  //       rubyConvertedAmount,
-  //       rubyTotalSupplyBeforeConvert,
-  //       rubyTotalSupplyAfterConvert,
-  //     );
-  //     expect(await this.usdpEthc.balanceOf(this.rubyMaker.address)).to.equal(0);
-  //   });
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
 
-  // });
+      // Transfer and convert
+      await this.usdpLink.transfer(this.rubyMaker.address, getBigNumber(1));
+      await this.rubyMaker.convert(this.usdp.address, this.link.address);
+
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
+
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.usdpLink,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+    });
+
+
+    it("should convert USDP - DAI", async function () {
+      const rubyConvertedAmount = BigNumber.from("1990513603949493228");
+
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
+
+      // Transfer and convert
+      await this.usdpDai.transfer(this.rubyMaker.address, parseUnits("1"));
+      await this.rubyMaker.convert(this.usdp.address, this.dai.address);
+
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
+
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.usdpDai,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+    });
+
+    it("reverts if caller is not EOA", async function () {
+      await this.rubyEthc.transfer(this.rubyMaker.address, getBigNumber(1));
+      await expect(this.exploiter.convert(this.rubyToken.address, this.ethc.address)).to.be.revertedWith(
+        "RubyMaker: must use EOA",
+      );
+    });
+
+    it("reverts if token0 is invalid", async function () {
+      await expect(this.rubyMaker.convert(AddressZero, this.usdp.address)).to.be.revertedWith(
+        "RubyMaker: token0 cannot be the zero address.",
+      );
+    });
+
+    it("reverts if token1 is invalid", async function () {
+      await expect(this.rubyMaker.convert(this.usdp.address, AddressZero)).to.be.revertedWith(
+        "RubyMaker: token1 cannot be the zero address.",
+      );
+    });
+
+    it("reverts if token0 and token1 are the same", async function () {
+      await expect(this.rubyMaker.convert(this.rubyToken.address, this.rubyToken.address)).to.be.revertedWith(
+        "RubyMaker: token0 and token1 cannot be the same token."
+      );
+    });
+
+    it("reverts if pair does not exist", async function () {
+      await expect(this.rubyMaker.convert(this.usdp.address, this.usdcUsdt.address)).to.be.revertedWith(
+        "RubyMaker: Invalid pair."
+      );
+    });
+
+    it("reverts if tokens are unsupoorted", async function () {
+      await this.usdcUsdt.transfer(this.rubyMaker.address, parseUnits("1"));
+      await expect(this.rubyMaker.convert(this.usdc.address, this.usdt.address)).to.be.revertedWith(
+        "RubyMaker: Conversion unsupported."
+      );
+      expect(await this.rubyToken.balanceOf(this.rubyMaker.address)).to.equal(0);
+      expect(await this.usdcUsdt.balanceOf(this.rubyMaker.address)).to.equal(parseUnits("1"));
+      expect(await this.rubyToken.balanceOf(this.staker.address)).to.equal(0);
+    });
+  });
+
+  describe("convertMultiple", function () {
+    it("should allow to convert multiple", async function () {
+      const rubyConvertedAmount = BigNumber.from("1996900599070179721").add(BigNumber.from("1990116118168674819"));
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
+
+      // Transfer and convert
+      await this.usdpRuby.transfer(this.rubyMaker.address, parseUnits("1"));
+      await this.usdpEthc.transfer(this.rubyMaker.address, parseUnits("1"));
+      await this.rubyMaker.convertMultiple(
+        [this.usdp.address, this.usdp.address],
+        [this.rubyToken.address, this.ethc.address],
+      );
+
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
+
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.usdpRuby,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+      expect(await this.usdpEthc.balanceOf(this.rubyMaker.address)).to.equal(0);
+    });
+
+    it("should allow to convert multiple, rough numbers", async function () {
+      const rubyConvertedAmount = BigNumber.from("7986409583691500429").add(BigNumber.from("978637331194792339873"));
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
+
+      // Transfer and convert
+      await this.usdpRuby.transfer(this.rubyMaker.address, parseUnits("4"));
+      await this.usdpEthc.transfer(this.rubyMaker.address, parseUnits("561"));
+      await this.rubyMaker.convertMultiple(
+        [this.usdp.address, this.usdp.address],
+        [this.rubyToken.address, this.ethc.address],
+      );
+
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
+
+      // Assert
+      await assertRubyConversion(
+        this,
+        burnPercent,
+        this.usdpRuby,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+      expect(await this.usdpEthc.balanceOf(this.rubyMaker.address)).to.equal(0);
+    });
+
+  });
 
 // });
 

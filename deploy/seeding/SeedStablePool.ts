@@ -39,14 +39,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     usdp = (await ethers.getContract("MockUSDP")) as MockUSDP;
     usdt = (await ethers.getContract("MockUSDT")) as MockUSDT;
     dai = (await ethers.getContract("MockDAI")) as MockDAI;
-  } else if (network.name === "skaleTestnet") {
+  } else if (network.name === "skaleTestnet" || network.name === "rubyNewChain") {
     usdc = (await ethers.getContract("RubyUSDC")) as RubyUSDC;
     usdp = (await ethers.getContract("RubyUSDP")) as RubyUSDP;
     usdt = (await ethers.getContract("RubyUSDT")) as RubyUSDT;
     dai = (await ethers.getContract("RubyDAI")) as RubyDAI;
   }
 
-  await approveTokens([usdc, usdp, usdt, dai], rubyUsdPool.address, ethers.constants.MaxUint256);
+  // await approveTokens([usdc, usdp, usdt, dai], rubyUsdPool.address, ethers.constants.MaxUint256);
 
   // 1 Million of liquidity for each token
   const amounts = [

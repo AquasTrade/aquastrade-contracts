@@ -13,7 +13,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const FACTORY_ADDRESS = (await ethers.getContract("UniswapV2Factory")).address;
   const RUBY_STAKER_ADDRESS = (await ethers.getContract("RubyStaker")).address;
-  const USDP_TOKEN_ADDRESS = (await ethers.getContract("MappedUSDP")).address;
+  const USDP_TOKEN_ADDRESS = (await ethers.getContract("RubyUSDP")).address;
 
   let RUBY_TOKEN_ADDRESS = "";
 
