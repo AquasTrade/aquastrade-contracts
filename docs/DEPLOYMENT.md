@@ -135,8 +135,10 @@ yarn deploy --tags Timelock
 
 14. Lottery:
 
-1. `yarn deploy --tags RandomNumberGenerator`
-2. `yarn deploy --tags LotteryFactory`
+```
+yarn deploy --tags RandomNumberGenerator
+yarn deploy --tags LotteryFactory
+```
 
 or
 
