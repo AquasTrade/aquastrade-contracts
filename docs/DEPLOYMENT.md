@@ -132,3 +132,12 @@ yarn deploy --tags Multicall2`
 ```
 yarn deploy --tags Timelock
 ```
+
+14. Lottery:
+
+1. `yarn deploy --tags RandomNumberGenerator`
+2. `yarn deploy --tags LotteryFactory`
+
+or
+
+`yarn deploy --tags Lottery`
