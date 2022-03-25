@@ -35,6 +35,8 @@ const addLiquidity = async (
     deadline,
   )
 
+    console.log("res", res)
+
   const receipt = await res.wait(1);
 
   if (receipt.status) {
@@ -116,16 +118,16 @@ const main = async () => {
 
 
   const amountRUBY = ethers.utils.parseUnits("10000000", 18); // 10,000,000
-  const amountETHC = ethers.utils.parseUnits("1", 18); // 1
+  const amountETHC = ethers.utils.parseUnits("0.5", 18); // 1
 
   const amountUSDPRUBY = ethers.utils.parseUnits("10000000", 18); // 10,000,000
   const amountUSDPETHC = ethers.utils.parseUnits("10000000", 18); // 10,000,000
 
 
   // USDP-RUBY
-  await addLiquidity(usdpAddr, rubyAddr, amountUSDPRUBY, amountRUBY, deployer.address, deadline);
+  // await addLiquidity(usdpAddr, rubyAddr, amountUSDPRUBY, amountRUBY, deployer.address, deadline);
 
-  // USDP-ETH
+  // USDP-ETH (TODO)
   await addLiquidity(usdpAddr, ethcAddr, amountUSDPETHC, amountETHC, deployer.address, deadline);
 
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
