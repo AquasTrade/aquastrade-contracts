@@ -42,42 +42,33 @@ const setMakerBurnerRole = async (signer: SignerWithAddress) => {
 
 }
 
-const setMakerBridges = async (signer: SignerWithAddress) => {
-    const rubyMakerContract: RubyMaker = (await ethers.getContractAt("RubyMaker", rubyMakerAddr)) as RubyMaker;
-    console.log("ethc addr", ethcAddr);
-    console.log("rubyTokenAddr", rubyTokenAddr);
-    let tx = await rubyMakerContract.connect(signer).setBridge(usdpTokenAddr, ethcAddr);
-    await tx.wait(1);
-    console.log("USDP - ETHC bridge set!");
-}
-
 const convertMakerFees = async (signer: SignerWithAddress) => {
 
     const rubyMakerContract: RubyMaker = (await ethers.getContractAt("RubyMaker", rubyMakerAddr)) as RubyMaker;
     const rubyMakerBurnPercent = await rubyMakerContract.burnPercent();
     console.log("rubyMakerBurnPercent", rubyMakerBurnPercent.toNumber())
-    console.log("rubyTokenAddr", rubyTokenAddr)
-    console.log("usdpTokenAddr", usdpTokenAddr)
+    // console.log("rubyTokenAddr", rubyTokenAddr)
+    // console.log("usdpTokenAddr", usdpTokenAddr)
 
 
-    let tx = await rubyMakerContract.connect(signer).convert(rubyTokenAddr, usdpTokenAddr);
-    console.log("tx", tx);
-    await tx.wait(1);
+    // let tx = await rubyMakerContract.connect(signer).convert(rubyTokenAddr, usdpTokenAddr);
+    // console.log("tx", tx);
+    // await tx.wait(1);
 
     // console.log("RubyMaker: RUBY - USDP LP converted");
 
-    // let tx = await rubyMakerContract.connect(signer).convert(ethcAddr, usdpTokenAddr);
-    // // console.log("tx", tx)
-    // await tx.wait(1);
-
-    // console.log("RubyMaker: USDP - ETHC LP converted");
+    let tx = await rubyMakerContract.connect(signer).convert(ethcAddr, usdpTokenAddr);
+    // console.log("tx", tx)
+    const receipt = await tx.wait(1);
+    console.log("receipt", receipt)
+    console.log("RubyMaker: USDP - ETHC LP converted");
 
 }
 
 const printRubyMakerBalances = async () => {
     
     // LP ADDRESSES: [usdp/ruby, usdp/ethc]
-    const lpAddresses = ["0xf0cb39C74Cf40ef481173ee3bc019094E9Bdd682", "0xa72E33579b87850E62f04E5d10B9c3A10B25f4dF"]
+    const lpAddresses = ["0xC1d7e1043DdCA3D46C67D84238560dD98BaE89ca", "0x29A4F9d3503B7bA5fb8b073E7ADF1e9E62A7555C"]
     for(let lpAddress of lpAddresses) {
         const lpContract: UniswapV2Pair = (await ethers.getContractAt("UniswapV2Pair", lpAddress)) as UniswapV2Pair;
         const balance = await lpContract.balanceOf(rubyMakerAddr);
@@ -100,7 +91,7 @@ const printRubyStakerBalances = async () => {
     const rewardDataId1 = await rubyStakerContract.rewardData(1);
     const lockedSupply = await rubyStakerContract.lockedSupply();
     const totalSupply = await rubyStakerContract.totalSupply();
-    const rewardDistributor = await rubyStakerContract.rewardDistributors(1, "0x298cFb4e8018a6D9e3Fc863996B717C0f4fde9BC")
+    const rewardDistributor = await rubyStakerContract.rewardDistributors(1, rubyMakerAddr)
     
     console.log("ruby reward dist", rewardDistributor)
     console.log("lockedSupply", ethers.utils.formatUnits(lockedSupply, 18));
@@ -123,8 +114,8 @@ const printRubyStakerBalances = async () => {
 
 const printBurnedRubyTokens = async () => {
     const rubyTokenContract: RubyToken = (await ethers.getContractAt("RubyToken", rubyTokenAddr)) as RubyToken;
-    const balance = await rubyTokenContract.balanceOf(ethers.constants.AddressZero);
-    console.log(`Burned RUBY: ${balance}`);
+    const balance = await rubyTokenContract.burnedAmount();
+    console.log(`Burned RUBY: ${ethers.utils.formatUnits(balance)}`);
 }
 
 
@@ -141,15 +132,14 @@ const main = async () => {
 
 //   await setMakerBurnPercent(deployer);
 
-  await setMakerBurnerRole(deployer);
-await setMakerBridges(deployer);
+  // await setMakerBurnerRole(deployer);
 
-await printBurnedRubyTokens();
+// await printBurnedRubyTokens();
 await printRubyMakerBalances();
 await printRubyStakerBalances();
-await convertMakerFees(deployer);
+// await convertMakerFees(deployer);
 // await printRubyMakerBalances();
-// await printBurnedRubyTokens();
+await printBurnedRubyTokens();
 
 };
 
