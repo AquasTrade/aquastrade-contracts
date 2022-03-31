@@ -224,6 +224,16 @@ contract Lottery is Ownable, Pausable {
     function getWinningNumbers() external view drew() returns (uint256[] memory) {
       return winners;
     }
+    function getStartingTimestamp() external view returns (uint256) {
+      return startingTimestamp;
+    }
+    function getClosingTimestamp() external view returns (uint256) {
+      return closingTimestamp;
+    }
+
+    //-------------------------------------------------------------------------
+    // SET FUNCTIONS 
+    //-------------------------------------------------------------------------
     function setTicketPrice(uint256 _price) external onlyOwner() {
         ticketPrice = _price;
     }
