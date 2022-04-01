@@ -9,6 +9,7 @@ require("dotenv").config();
 
 const addChainConnectorRoleSchain = async (signer: SignerWithAddress) => {
   const msgProxyAddr = l2artifacts.message_proxy_chain_address;
+  const tokenManagerLinkerAddr = l2artifacts.token_manager_linker_address;
   const msgProxyABI = l2artifacts.message_proxy_chain_abi;
   const msgProxyContract = new ethers.Contract(msgProxyAddr, msgProxyABI, signer);
 
@@ -16,7 +17,7 @@ const addChainConnectorRoleSchain = async (signer: SignerWithAddress) => {
 
   console.log("chainConnectorRole", chainConnectorRole);
 
-  let res = await msgProxyContract.grantRole(chainConnectorRole, signer.address);
+  let res = await msgProxyContract.grantRole(chainConnectorRole, tokenManagerLinkerAddr);
 
   let rec = await res.wait(1);
   console.log("rec", rec);
@@ -61,7 +62,8 @@ const main = async () => {
 
     // await registerSchain(signer);
     // await addChainConnectorRole(signer);
-    await addChainConnectorRoleMainnet(signer);
+    // await addChainConnectorRoleMainnet(signer);
+    await addChainConnectorRoleSchain(signer)
 };
 
 main()
