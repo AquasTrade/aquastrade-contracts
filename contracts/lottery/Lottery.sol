@@ -37,8 +37,9 @@ contract Lottery is Ownable, Pausable {
     uint256 private ticketPrice; // Cost per ticket in $ruby.
     uint256[] private prizeDistribution; // An array defining the distribution of the prize pool.
 
-    mapping (uint256 => address) private tickets;
+    mapping (uint256 => address) private ticketsToPerson;
     mapping (uint256 => uint256) private visited;
+    mapping (address => uint256[]) private personToTickets;
     uint256 private count;
 
     event NewTickets(uint256 ticketSize, uint256[] _choosenTicketNumbers);
@@ -131,7 +132,7 @@ contract Lottery is Ownable, Pausable {
       count = count + 1;
       for (uint256 i = 0; i < _choosenTicketNumbers.length; i++) {
       	require(_choosenTicketNumbers[i] < uint256(10) ** lotterySize, "Lottery: Ticket Number is out of range");
-      	require(tickets[_choosenTicketNumbers[i]] == address(0), "Lottery: Ticket Number is already exist");
+      	require(ticketsToPerson[_choosenTicketNumbers[i]] == address(0), "Lottery: Ticket Number is already exist");
       	require(visited[_choosenTicketNumbers[i]] != count, "Lottery: Requested Ticket Numbers are not unique");
       	visited[_choosenTicketNumbers[i]] = count;
       }
@@ -143,7 +144,8 @@ contract Lottery is Ownable, Pausable {
       );
       rubyTotal = rubyTotal.add(totalCost);
     	for (uint256 i = 0; i < _choosenTicketNumbers.length; i++) {
-    		tickets[_choosenTicketNumbers[i]] = msg.sender;
+    		ticketsToPerson[_choosenTicketNumbers[i]] = msg.sender;
+        personToTickets[msg.sender].push(_choosenTicketNumbers[i]);
     	}
     	emit NewTickets(_ticketSize, _choosenTicketNumbers);
     }
@@ -176,12 +178,12 @@ contract Lottery is Ownable, Pausable {
     /// @notice Claim rewards to caller if he/she bought winning ticket
     function claimReward() external closed() drew() {
       uint256 prize = 0;
-      if (tickets[winners[0]] == msg.sender) nft.safeTransferFrom(address(this), msg.sender, bonusTokenId);
+      if (ticketsToPerson[winners[0]] == msg.sender) nft.safeTransferFrom(address(this), msg.sender, bonusTokenId);
       for (uint256 i = 0; i < winnersSize; i++) {
         uint256 winner = winners[i];
-        address winAddress = tickets[winner];
+        address winAddress = ticketsToPerson[winner];
         if (winAddress == msg.sender) {
-          tickets[winner] = address(0);
+          ticketsToPerson[winner] = address(0);
           prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
         }
       }
@@ -199,7 +201,7 @@ contract Lottery is Ownable, Pausable {
     	uint256 prize = 0;
     	for (uint256 i = 0; i < winnersSize; i++) {
     		uint256 winner = winners[i];
-    		address winAddress = tickets[winner];
+    		address winAddress = ticketsToPerson[winner];
     		if (winAddress == to) prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
     	}
     	return prize;
@@ -208,7 +210,7 @@ contract Lottery is Ownable, Pausable {
     /// @notice Check the reward NFT.
     /// @param to The address where you want to check the reward NFT.
     function getRewardNFT(address to) public view drew() returns(bool) {
-    	if (tickets[winners[0]] == to) return true;
+    	if (ticketsToPerson[winners[0]] == to) return true;
     	return false;
     }
 
@@ -229,6 +231,12 @@ contract Lottery is Ownable, Pausable {
     }
     function getClosingTimestamp() external view returns (uint256) {
       return closingTimestamp;
+    }
+    function getTickets(address person) external view returns(uint256[] memory) {
+      return personToTickets[person];
+    }
+    function getLotterySize() external view returns(uint256) {
+      return lotterySize;
     }
 
     //-------------------------------------------------------------------------

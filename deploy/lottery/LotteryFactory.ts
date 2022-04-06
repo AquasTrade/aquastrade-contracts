@@ -6,19 +6,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, getOrNull, get, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
+  const RubyNFTAdmin = await getOrNull("RubyNFTAdmin");
   const LotteryFactory = await getOrNull("LotteryFactory");
-  const RubyToken = await get("RubyToken");
+  const RubyToken = await get("MockDAI");
+  // const RubyToken = await get("RubyToken");
   const RandomNumberGenerator = await get("RandomNumberGenerator");
 
   if (LotteryFactory) {
     log(`reusing "LotteryFactory" at ${LotteryFactory.address}`);
   } else {
-    await deploy("LotteryFactory", {
+    let contract = await deploy("LotteryFactory", {
       from: deployer,
       log: true,
       proxy: {
-        // owner: deployer,
-        // viaAdminContract: "RubyProxyAdmin",
+        owner: deployer,
+        viaAdminContract: "RubyProxyAdmin",
         proxyContract: "OpenZeppelinTransparentProxy",
         execute: {
           methodName: "initialize",
@@ -31,5 +33,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["RubyToken", "RandomNumberGenerator"];
+func.dependencies = ["RubyProxyAdmin", "MockDAI", "RandomNumberGenerator"];
 func.tags = ["LotteryFactory", "Lottery"];
