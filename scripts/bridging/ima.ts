@@ -3,9 +3,31 @@ import { ethers,  network } from "hardhat";
 
 import l1Artifacts from "../../ima_bridge/l1_artifacts.json";
 import l2artifacts from "../../ima_bridge/l2_artifacts.json";
+import configControllerABI from "../../ima_bridge/configController.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 require("dotenv").config();
+
+const enableAutomaticDeployment = async (signer: SignerWithAddress) => {
+  const tokenManagerAddress = l2artifacts.token_manager_erc20_address;
+  const tokenManagerABI = l2artifacts.token_manager_erc20_abi;
+  const tokenManagerContract = new ethers.Contract(tokenManagerAddress, tokenManagerABI, signer);
+
+  const tx = await tokenManagerContract.enableAutomaticDeploy();
+  const rec = await tx.wait(1);
+  console.log("rec", rec);
+
+}
+
+const configController = async (signer: SignerWithAddress) => {
+  const configControllerAddress = "0xD2002000000000000000000000000000000000D2";
+  const configControllerContract = new ethers.Contract(configControllerAddress, configControllerABI, signer);
+
+  const res = await configControllerContract.enableFreeContractDeployment();
+  const rec = await res.wait(1);
+  const isEnabled = await configControllerContract.isFCDEnabled();
+  console.log("isEnabled", isEnabled)
+}
 
 const addChainConnectorRoleSchain = async (signer: SignerWithAddress) => {
   const msgProxyAddr = l2artifacts.message_proxy_chain_address;
@@ -63,7 +85,10 @@ const main = async () => {
     // await registerSchain(signer);
     // await addChainConnectorRole(signer);
     // await addChainConnectorRoleMainnet(signer);
-    await addChainConnectorRoleSchain(signer)
+    // await addChainConnectorRoleSchain(signer)
+    // await enableAutomaticDeployment(signer);
+
+    await configController(signer);
 };
 
 main()

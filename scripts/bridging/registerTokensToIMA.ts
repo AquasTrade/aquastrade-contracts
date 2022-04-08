@@ -1,8 +1,5 @@
 /* eslint no-use-before-define: "warn" */
-import fs from "fs";
-import chalk from "chalk";
-import { config, ethers, run, network } from "hardhat";
-import { BigNumber, utils } from "ethers";
+import { ethers, network } from "hardhat";
 import l1Artifacts from "../../ima_bridge/l1_artifacts.json";
 import l2Artifacts from "../../ima_bridge/l2_artifacts.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
@@ -15,33 +12,43 @@ import { address as RinkebyUSDC } from "../../deployments/rinkeby/MockUSDC.json"
 import { address as RinkebyUSDP } from "../../deployments/rinkeby/MockUSDP.json";
 import { address as RinkebyUSDT } from "../../deployments/rinkeby/MockUSDT.json";
 
-import { address as Ruby } from "../../deployments/rubyNewChain/RubyToken.json";
 import { address as RubyUSDC } from "../../deployments/rubyNewChain/RubyUSDC.json";
 import { address as RubyUSDT } from "../../deployments/rubyNewChain/RubyUSDT.json";
 import { address as RubyDAI } from "../../deployments/rubyNewChain/RubyDAI.json";
 import { address as RubyUSDP } from "../../deployments/rubyNewChain/RubyUSDP.json";
+
+import { address as RubyUSDC2 } from "../../deployments/testSchainv2/RubyUSDC.json";
+
 
 const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
   const tokenManagerAddress = l2Artifacts.token_manager_erc20_address;
   const tokenManagerABI = l2Artifacts.token_manager_erc20_abi;
   const tokenManagerContract = new ethers.Contract(tokenManagerAddress, tokenManagerABI, signer);
 
-  console.log("registering to new chain...")
+  // let clone = await tokenManagerContract.clonesErc20("0x0785b4b9847b9ce0ef0b85f78d36ac3cd5dee447b0e156cfbf4e84bfad2973a6", RubyDAI);
+
+  // console.log("clone addr", clone)
+
+  // console.log("registering to new chain...")
   // let res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RubyMainnet, Ruby);
   // const receipt = await res.wait(1);
   // console.log("receipt", receipt);
 
-  let res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyDAI, RubyDAI);
-  await res.wait(1);
+  // let res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyDAI, RubyDAI);
+  // await res.wait(1);
 
-  res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDC, RubyUSDC);
-  await res.wait(1);
+  // let res = await tokenManagerContract.addERC20TokenByOwner("fancy-rasalhague", RubyUSDC, RubyUSDC2);
+  // // console.log("Res", res)
+  // await res.wait(1);
 
-  res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDP, RubyUSDP);
+  let res = await tokenManagerContract.callStatic.addERC20TokenByOwner("whispering-turais", RubyUSDC2, RubyUSDC);
+  // console.log("Res", res)
   await res.wait(1);
+  // res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDP, RubyUSDP);
+  // await res.wait(1);
 
-  res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDT, RubyUSDT);
-  await res.wait(1);
+  // res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDT, RubyUSDT);
+  // await res.wait(1);
 
   // const rubyAddress = await tokenManagerContract.clonesErc20("fancy-rasalhague", RubyMainnet);
 
@@ -94,7 +101,7 @@ const main = async () => {
 
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  if (network.name === "skaleTestnet" || network.name === "rubyNewChain" ) {
+  if (network.name === "skaleTestnet" || network.name === "rubyNewChain" || network.name === "testSchainv2" ) {
     await registerL2TokensToIMA(signer);
   } else if (network.name === "rinkeby") {
     await registerL1TokensToIMA(signer);
