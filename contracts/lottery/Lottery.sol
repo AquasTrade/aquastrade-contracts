@@ -238,6 +238,18 @@ contract Lottery is Ownable, Pausable {
     function getLotterySize() external view returns(uint256) {
       return lotterySize;
     }
+    function getTotalRuby() external view returns(uint256) {
+      return rubyTotal;
+    }
+    function getDistibution() external view returns(uint256[] memory) {
+      return prizeDistribution;
+    }
+    function getBonusNFT() external view returns(address) {
+      return address(nft);
+    }
+    function getBonusId() external view returns(uint256) {
+      return bonusTokenId;
+    }
 
     //-------------------------------------------------------------------------
     // SET FUNCTIONS 
