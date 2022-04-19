@@ -12,7 +12,6 @@ const main = async (taskArgs: DrawLotteryArguments, hre: HardhatRuntimeEnvironme
   console.log(taskArgs);
   const ethers = hre.ethers;
   const network = hre.network;
-  console.log(network.name);
   const factoryAddr = require(`../../deployments/${network.name}/LotteryFactory.json`).address;
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
   if (taskArgs.lotteryID == 0) {
