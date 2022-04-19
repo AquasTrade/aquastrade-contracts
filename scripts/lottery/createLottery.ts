@@ -5,7 +5,6 @@ import { utils } from "ethers";
 import { LotteryFactory, IRubyNFT } from "../../typechain";
 
 interface CreateLotteryArguments {
-  net: string,
   nftAddress: string,
   nftID: number,
   size: number,
@@ -17,26 +16,20 @@ interface CreateLotteryArguments {
 const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnvironment) => {
   console.log(taskArgs);
   const ethers = hre.ethers;
-  const factoryAddr = require(`../../deployments/${taskArgs.net}/LotteryFactory.json`).address;
-  const nftABI = require('../../artifacts/contracts/interfaces/IRubyNFT.sol/IRubyNFT.json').abi;
-  console.log('factoryAddr', factoryAddr);
+  const network = hre.network;
+  console.log(network);
+  const factoryAddr = require(`../../deployments/${network.name}/LotteryFactory.json`).address;
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
-  console.log('factory');
-  console.log(factory);
-  console.log('factory end');
-  const rubyFactory = ethers.getContractFactory('RubyNFT');
-  console.log(rubyFactory);
-  const rubyNFT: IRubyNFT = (await ethers.getContractAt(nftABI, taskArgs.nftAddress)) as IRubyNFT;
-  console.log('rubyNFT');
-  console.log(rubyNFT);
-  await rubyNFT.approve(factoryAddr, taskArgs.nftID);
+  const rubyNFT: IRubyNFT = (await ethers.getContractAt('IRubyNFT', taskArgs.nftAddress)) as IRubyNFT;
+  const tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftID));
+  await tx.wait(1);
+  console.log('NFT token approved');
   const distObj = JSON.parse(taskArgs.distribution);
-  console.log(distObj);
   await factory.createNewLotto(taskArgs.nftAddress, taskArgs.nftID, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
+  console.log('New Lottery Created');
 };
 
 task("createLottery", "Create a new Lottery")
-  .addPositionalParam("net")
   .addPositionalParam("nftAddress")
   .addPositionalParam("nftID")
   .addPositionalParam("size")
@@ -44,5 +37,5 @@ task("createLottery", "Create a new Lottery")
   .addPositionalParam("distribution")
   .addPositionalParam("duration")
   .setAction(async (taskArgs, hre) => {
-    main(taskArgs, hre);
+    await main(taskArgs, hre);
   });
