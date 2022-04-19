@@ -86,7 +86,8 @@
     "registerTokensToIMA": "hardhat run scripts/bridging/registerTokensToIMA.ts",
     "bridgeTokens": "hardhat run scripts/bridging/bridgeTokens.ts",
     "createAMMLPs": "hardhat run scripts/seeding/createAMMLPs.ts",
-    "createFarms": "hardhat run scripts/seeding/createFarms.ts"
+    "createFarms": "hardhat run scripts/seeding/createFarms.ts",
+    "createLottery": "hardhat createLottery"
   },
   "files": [
     "/contracts"

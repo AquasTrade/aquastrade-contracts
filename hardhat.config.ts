@@ -12,6 +12,7 @@ import "hardhat-spdx-license-identifier";
 import "hardhat-watcher";
 import "solidity-coverage";
 import "@typechain/hardhat";
+import "./scripts/lottery/createLottery.ts"
 
 import { resolve } from "path";
 import { config as dotenvConfig } from "dotenv";
