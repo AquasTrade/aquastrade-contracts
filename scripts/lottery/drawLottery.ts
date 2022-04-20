@@ -5,7 +5,7 @@ import { utils } from "ethers";
 import { LotteryFactory, Lottery } from "../../typechain";
 
 interface DrawLotteryArguments {
-  lotteryID: number
+  lotteryid: number
 }
 
 const main = async (taskArgs: DrawLotteryArguments, hre: HardhatRuntimeEnvironment) => {
@@ -14,19 +14,19 @@ const main = async (taskArgs: DrawLotteryArguments, hre: HardhatRuntimeEnvironme
   const network = hre.network;
   const factoryAddr = require(`../../deployments/${network.name}/LotteryFactory.json`).address;
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
-  if (taskArgs.lotteryID == 0) {
-    taskArgs.lotteryID = (await factory.getCurrentLottoryId()).toNumber();
+  if (taskArgs.lotteryid == 0) {
+    taskArgs.lotteryid = (await factory.getCurrentLottoryId()).toNumber();
   }
-  console.log('lotteryID = ', taskArgs.lotteryID);
-  const lotteryAddr = await factory.getLotto(taskArgs.lotteryID);
+  console.log('lotteryid = ', taskArgs.lotteryid);
+  const lotteryAddr = await factory.getLotto(taskArgs.lotteryid);
   const lottery: Lottery = (await ethers.getContractAt("Lottery", lotteryAddr)) as Lottery;
   await lottery.drawWinningNumbers();
   console.log('Lottery drew');
 };
 
-// lotteryID = 0 for current active lottery
+// lotteryid = 0 for current active lottery
 task("drawLottery", "Draw a Lottery")
-  .addPositionalParam("lotteryID")
+  .addParam("lotteryid")
   .setAction(async (taskArgs, hre) => {
     await main(taskArgs, hre);
   });

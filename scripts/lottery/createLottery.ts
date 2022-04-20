@@ -5,8 +5,8 @@ import { utils } from "ethers";
 import { LotteryFactory, MockERC721Token } from "../../typechain";
 
 interface CreateLotteryArguments {
-  nftAddress: string,
-  nftID: number,
+  nftaddress: string,
+  nftid: number,
   size: number,
   price: bigint,
   distribution: string,
@@ -20,32 +20,32 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   const account = (await ethers.getSigners())[0];
   const factoryAddr = require(`../../deployments/${network.name}/LotteryFactory.json`).address;
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
-  const rubyNFT: MockERC721Token = (await ethers.getContractAt('MockERC721Token', taskArgs.nftAddress)) as MockERC721Token;
+  const rubyNFT: MockERC721Token = (await ethers.getContractAt('MockERC721Token', taskArgs.nftaddress)) as MockERC721Token;
   if (taskArgs.mint == "1") {
     console.log('trying to mint');
     let tx = (await rubyNFT.mint(account.address, ""));
     await tx.wait();
     console.log('minted');
-    taskArgs.nftID = (await rubyNFT.totalSupply()).toNumber();
+    taskArgs.nftid = (await rubyNFT.totalSupply()).toNumber();
   }
-  console.log(taskArgs.nftID);
-  let tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftID));
+  console.log(taskArgs.nftid);
+  let tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftid));
   await tx.wait();
   console.log('NFT token approved');
   const distObj = JSON.parse(taskArgs.distribution);
-  tx = await factory.createNewLotto(taskArgs.nftAddress, taskArgs.nftID, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
+  tx = await factory.createNewLotto(taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
   tx.wait();
   console.log('New Lottery Created');
 };
 
 task("createLottery", "Create a new Lottery")
-  .addPositionalParam("nftAddress")
-  .addPositionalParam("nftID")
-  .addPositionalParam("size")
-  .addPositionalParam("price")
-  .addPositionalParam("distribution")
-  .addPositionalParam("duration")
-  .addPositionalParam("mint")
+  .addParam("nftaddress")
+  .addParam("nftid")
+  .addParam("size")
+  .addParam("price")
+  .addParam("distribution")
+  .addParam("duration")
+  .addParam("mint")
   .setAction(async (taskArgs, hre) => {
     await main(taskArgs, hre);
   });
