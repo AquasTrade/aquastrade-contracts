@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-contract RandomNumberGenerator {
+contract RNG_Test {
     constructor(
     )  public
     {

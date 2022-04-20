@@ -20,7 +20,7 @@ describe("Lottery Factory contract", function() {
         // Getting the lotteryNFT code (abi, bytecode, name)
         this.mock_erc20Contract = await ethers.getContractFactory("MockERC20");
         this.mock_erc721Contract = await ethers.getContractFactory("MockERC721Token");
-        this.randGenContract = await ethers.getContractFactory("RandomNumberGenerator");
+        this.randGenContract = await ethers.getContractFactory("RNG_Test");
         // Deploying the instances
         this.rubyInstance = await this.mock_erc20Contract.deploy(
             "RUBY Token", "RUBY", lotto.buy.ruby, 18
