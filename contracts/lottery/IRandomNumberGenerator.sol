@@ -10,6 +10,6 @@ interface IRandomNumberGenerator {
     function getRandomNumber(
         uint256 lotterySize
     ) 
-        external 
+        external view
         returns (uint256 randomness);
 }
