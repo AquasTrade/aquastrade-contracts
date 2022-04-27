@@ -200,6 +200,12 @@ contract UniswapV2Pair is UniswapV2ERC20 {
         require(amount0Out < _reserve0 && amount1Out < _reserve1, "UniswapV2: INSUFFICIENT_LIQUIDITY");
         require(feeMultiplier >= 997 && feeMultiplier <= 1000, "UniswapV2: FEE_MULTIPLIER");
 
+        // if the msg.sender is not whitelisted swapper for fee dedductions
+        // - apply the regular fee multiplier of 997 (30 bps)
+        if(!IUniswapV2Factory(factory).feeDeductionSwappers(msg.sender)) {
+            feeMultiplier = 997;
+        }
+
         uint256 balance0;
         uint256 balance1;
         {

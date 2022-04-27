@@ -9,12 +9,15 @@ interface IUniswapV2Factory {
     event MigratorSet(address indexed newMigrator);
     event FeeToRecipientSet(address indexed newFeeTo);
     event PairCreatorSet(address indexed pairCreator, bool allowance);
+    event FeeDecutionSwapperSet(address indexed swapper, bool allowance);
 
     function feeTo() external view returns (address);
 
     function admin() external view returns (address);
 
     function pairCreators(address) external view returns (bool);
+
+    function feeDeductionSwappers(address) external view returns (bool);
 
     function migrator() external view returns (address);
 
@@ -29,6 +32,8 @@ interface IUniswapV2Factory {
     function setFeeTo(address newFeeTo) external;
 
     function setPairCreator(address pairCreator, bool allowance) external;
+
+    function setFeeDeductionSwapper(address feeDeductionSwapper, bool allowance) external;
 
     function setAdmin(address newAdmin) external;
 
