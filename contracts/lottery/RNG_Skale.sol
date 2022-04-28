@@ -1,19 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
+
 import "./IRandomNumberGenerator.sol";
 
 contract RNG_Skale is IRandomNumberGenerator {
-    constructor(
-    )  public
-    {
-    }
-    /** 
-     * Requests randomness from a user-provided seed
-     */
-    function getRandomNumber(
-        uint256 lotterySize
-    ) 
-        public override view
+    constructor()  public {}
+
+    function getRandomNumber(uint256 lotterySize) public override
         returns (uint256 randomness) 
     {
         return uint256(getRandom()) % uint256(10) ** lotterySize;
