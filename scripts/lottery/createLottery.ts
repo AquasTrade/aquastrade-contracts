@@ -2,7 +2,7 @@ import fs from "fs";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { utils } from "ethers";
-import { LotteryFactory, MockERC721Token } from "../../typechain";
+import { LotteryFactory, RubyFreeSwapNFT } from "../../typechain";
 
 interface CreateLotteryArguments {
   nftaddress: string,
@@ -20,13 +20,13 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   const account = (await ethers.getSigners())[0];
   const factoryAddr = require(`../../deployments/${network.name}/LotteryFactory.json`).address;
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
-  const rubyNFT: MockERC721Token = (await ethers.getContractAt('MockERC721Token', taskArgs.nftaddress)) as MockERC721Token;
+  const rubyNFT: RubyFreeSwapNFT = (await ethers.getContractAt('RubyFreeSwapNFT', taskArgs.nftaddress)) as RubyFreeSwapNFT;
   if (taskArgs.mint == "1") {
     console.log('trying to mint');
-    let tx = (await rubyNFT.mint(account.address, ""));
+    let tx = (await rubyNFT.mint(account.address));
     await tx.wait();
-    console.log('minted');
-    taskArgs.nftid = (await rubyNFT.totalSupply()).toNumber();
+    taskArgs.nftid = (await rubyNFT.nftIds()).toNumber();
+    console.log('minted', taskArgs.nftid);
   }
   console.log(taskArgs.nftid);
   let tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftid));
