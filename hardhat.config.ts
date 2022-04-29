@@ -18,11 +18,13 @@ import { config as dotenvConfig } from "dotenv";
 
 import { HardhatUserConfig } from "hardhat/types";
 import { removeConsoleLog } from "hardhat-preprocessor";
-const defaultNetwork = "skaleTestnet";
+
+const defaultNetwork = "rubyNewChain";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 const ADMIN_PKEY_TESTNET = process.env.ADMIN_PKEY_TESTNET || "";
+const ADMIN_PKEY_TESTNET_SCHAIN2 = process.env.ADMIN_PKEY_NEW_SCHAIN || "";
 
 const config: HardhatUserConfig = {
   defaultNetwork,
@@ -52,16 +54,16 @@ const config: HardhatUserConfig = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
-    skaleTestnet: {
-      url: "https://dappnet-api.skalenodes.com/v1/melodic-murzim",
+    rubyNewChain: {
+      url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",
       accounts: [ADMIN_PKEY_TESTNET],
       // accounts: {
       //   mnemonic: process.env.MNEMONIC,
       // },
     },
-    rubyNewChain: {
-      url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",
-      accounts: [ADMIN_PKEY_TESTNET],
+    testSchainv2: {
+      url: "https://testnet-proxy.skalenodes.com/v1/whispering-turais",
+      accounts: [ADMIN_PKEY_TESTNET_SCHAIN2],
       // accounts: {
       //   mnemonic: process.env.MNEMONIC,
       // },

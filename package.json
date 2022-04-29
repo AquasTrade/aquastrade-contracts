@@ -86,7 +86,10 @@
     "registerTokensToIMA": "hardhat run scripts/bridging/registerTokensToIMA.ts",
     "bridgeTokens": "hardhat run scripts/bridging/bridgeTokens.ts",
     "createAMMLPs": "hardhat run scripts/seeding/createAMMLPs.ts",
-    "createFarms": "hardhat run scripts/seeding/createFarms.ts"
+    "createFarms": "hardhat run scripts/seeding/createFarms.ts",
+    "ima": "hardhat run scripts/bridging/ima.ts",
+    "seedFaucet": "hardhat run scripts/seeding/seedFaucet.ts",
+    "multiChainBridge": "hardhat run scripts/bridging/multiSchainBridging.ts"
   },
   "files": [
     "/contracts"
