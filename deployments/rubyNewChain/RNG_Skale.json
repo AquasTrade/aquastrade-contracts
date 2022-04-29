@@ -1,0 +1,65 @@
+{
+  "address": "0xCE13bC9a8216c51Fab50478Efde184851D9b0542",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lotterySize",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRandomNumber",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "randomness",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xcea32d2c4ec5d39e7050e40a0a02ea808c2ebc28ef6d174a1284aa8df9abeea5",
+  "receipt": {
+    "to": "0x0000000000000000000000000000000000000000",
+    "from": "0xF63Bb14E7E9bD2882957129c3E3197E6D18933B4",
+    "contractAddress": "0xCE13bC9a8216c51Fab50478Efde184851D9b0542",
+    "transactionIndex": 0,
+    "gasUsed": "95769",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x55b05ca0fe55f8bc039172a5d85629173083e9c002140c5f55347f406bccfadd",
+    "transactionHash": "0xcea32d2c4ec5d39e7050e40a0a02ea808c2ebc28ef6d174a1284aa8df9abeea5",
+    "logs": [],
+    "blockNumber": 356409,
+    "cumulativeGasUsed": "95769",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "7aa7e42edecf6f63eb36e406f51b9e04",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lotterySize\",\"type\":\"uint256\"}],\"name\":\"getRandomNumber\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"randomness\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/lottery/RNG_Skale.sol\":\"RNG_Skale\"},\"evmVersion\":\"istanbul\",\"libraries\":{\"__CACHE_BREAKER__\":\"0x00000000d41867734bbee4c6863d9255b2b06ac1\"},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/lottery/IRandomNumberGenerator.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.6.12;\\n\\ninterface IRandomNumberGenerator {\\n\\n    function getRandomNumber(uint256 lotterySize) external returns (uint256 randomness);\\n\\n}\",\"keccak256\":\"0x13c438fa73498efa6e4682d09676b961b8fee45142faad1ff787a44be239f385\",\"license\":\"MIT\"},\"contracts/lottery/RNG_Skale.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.6.12;\\n\\nimport \\\"./IRandomNumberGenerator.sol\\\";\\n\\ncontract RNG_Skale is IRandomNumberGenerator {\\n    constructor()  public {}\\n\\n    function getRandomNumber(uint256 lotterySize) public override\\n        returns (uint256 randomness) \\n    {\\n        return uint256(getRandom()) % uint256(10) ** lotterySize;\\n    }\\n\\n    function getRandom() internal view returns (bytes32 addr) {\\n        assembly {\\n            let freemem := mload(0x40)\\n            let start_addr := add(freemem, 0)\\n            if iszero(staticcall(gas(), 0x18, 0, 0, start_addr, 32)) {\\n              invalid()\\n            }\\n            addr := mload(freemem)\\n        }\\n    }\\n}\",\"keccak256\":\"0x675da1dcc308b9bf1ab102421ba9ccf36f11e94427c63987e076ab5ac693a5b9\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060c48061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b37217a414602d575b600080fd5b604760048036036020811015604157600080fd5b50356059565b60408051918252519081900360200190f35b600081600a0a60656072565b81606b57fe5b0692915050565b60405160009080602081848060185afa608757fe5b505191905056fea2646970667358221220372ec65a768e5ba81a6befb148b8615ed654eae039fa94f63eb95f583ccb453164736f6c634300060c0033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063b37217a414602d575b600080fd5b604760048036036020811015604157600080fd5b50356059565b60408051918252519081900360200190f35b600081600a0a60656072565b81606b57fe5b0692915050565b60405160009080602081848060185afa608757fe5b505191905056fea2646970667358221220372ec65a768e5ba81a6befb148b8615ed654eae039fa94f63eb95f583ccb453164736f6c634300060c0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
