@@ -19,7 +19,7 @@ import { config as dotenvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 import { removeConsoleLog } from "hardhat-preprocessor";
 
-const defaultNetwork = "rubyNewChain";
+const defaultNetwork = "localhost";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
