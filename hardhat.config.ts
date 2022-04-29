@@ -18,7 +18,8 @@ import { config as dotenvConfig } from "dotenv";
 
 import { HardhatUserConfig } from "hardhat/types";
 import { removeConsoleLog } from "hardhat-preprocessor";
-const defaultNetwork = "skaleTestnet";
+
+const defaultNetwork = "rubyNewChain";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
@@ -52,13 +53,6 @@ const config: HardhatUserConfig = {
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
       */
-    },
-    skaleTestnet: {
-      url: "https://dappnet-api.skalenodes.com/v1/melodic-murzim",
-      accounts: [ADMIN_PKEY_TESTNET],
-      // accounts: {
-      //   mnemonic: process.env.MNEMONIC,
-      // },
     },
     rubyNewChain: {
       url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",

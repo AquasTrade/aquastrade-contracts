@@ -101,7 +101,7 @@ const main = async () => {
 
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  if (network.name === "skaleTestnet" || network.name === "rubyNewChain" || network.name === "testSchainv2" ) {
+  if (network.name === "rubyNewChain" || network.name === "testSchainv2" ) {
     await registerL2TokensToIMA(signer);
   } else if (network.name === "rinkeby") {
     await registerL1TokensToIMA(signer);
