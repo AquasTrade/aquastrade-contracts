@@ -19,6 +19,9 @@ contract RubyToken is ERC20Capped, AccessControl {
     /// @notice Total number of tokens
     uint256 public constant MAX_SUPPLY = 200_000_000e18; // 200 million Ruby
 
+    /// @notice The total amount of burned Ruby tokens
+    uint256 public burnedAmount;
+
     constructor() public ERC20("RubyToken", "Ruby") ERC20Capped(MAX_SUPPLY) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -34,6 +37,7 @@ contract RubyToken is ERC20Capped, AccessControl {
     function burn(uint256 amount) public virtual {
         require(hasRole(BURNER_ROLE, msg.sender), "RUBY::burn: Caller is not a burner");
         _burn(msg.sender, amount);
+        burnedAmount += amount;
     }
 
 }

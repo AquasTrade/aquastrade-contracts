@@ -3,10 +3,12 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { Swap, LPToken, MockUSDC, MockUSDP, MockUSDT, MockDAI, RubyUSDC, RubyUSDP, RubyUSDT, RubyDAI } from "../../typechain";
 import { BigNumber } from "ethers";
+import { deploy } from "@openzeppelin/hardhat-upgrades/dist/utils";
 
 const addLiquidity = async (pool: Swap, amounts: BigNumber[], minToMint: BigNumber, deadline: BigNumber) => {
   console.log("Adding liquidity to pool...");
   const res = await pool.addLiquidity(amounts, minToMint, deadline);
+  // console.log("res", res);
   await res.wait(1);
   console.log("Liquidity to pool added successfully");
 };
@@ -39,14 +41,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     usdp = (await ethers.getContract("MockUSDP")) as MockUSDP;
     usdt = (await ethers.getContract("MockUSDT")) as MockUSDT;
     dai = (await ethers.getContract("MockDAI")) as MockDAI;
-  } else if (network.name === "skaleTestnet") {
+  } else if (network.name === "skaleTestnet" || network.name === "rubyNewChain") {
     usdc = (await ethers.getContract("RubyUSDC")) as RubyUSDC;
     usdp = (await ethers.getContract("RubyUSDP")) as RubyUSDP;
     usdt = (await ethers.getContract("RubyUSDT")) as RubyUSDT;
     dai = (await ethers.getContract("RubyDAI")) as RubyDAI;
   }
 
-  await approveTokens([usdc, usdp, usdt, dai], rubyUsdPool.address, ethers.constants.MaxUint256);
+  // await approveTokens([usdc, usdp, usdt, dai], rubyUsdPool.address, ethers.constants.MaxUint256);
 
   // 1 Million of liquidity for each token
   const amounts = [
@@ -59,6 +61,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const blockNumber = await ethers.provider.getBlockNumber();
   const blockData = await ethers.provider.getBlock(blockNumber);
   const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+
+  const deployerUsdcBalance = await usdc?.balanceOf(deployer);
+  const deployerUsdpBalance = await usdp?.balanceOf(deployer);
+  const deployerDaiBalance = await dai?.balanceOf(deployer);
+  const deployerUsdtBalance = await usdt?.balanceOf(deployer);
+
+  console.log("deployerUsdcBalance", ethers.utils.formatUnits(deployerUsdcBalance as BigNumber))
+  console.log("deployerUsdpBalance", ethers.utils.formatUnits(deployerUsdpBalance as BigNumber))
+  console.log("deployerDaiBalance", ethers.utils.formatUnits(deployerDaiBalance as BigNumber))
+  console.log("deployerUsdtBalance", ethers.utils.formatUnits(deployerUsdtBalance as BigNumber))
 
   await addLiquidity(rubyUsdPool, amounts, BigNumber.from(0), deadline);
 
@@ -79,5 +91,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["RubyUSD4Pool", "RubyUSD4PoolLPToken"];
+// func.dependencies = ["RubyUSD4Pool", "RubyUSD4PoolLPToken"];
 func.tags = ["SeedStablePool"];

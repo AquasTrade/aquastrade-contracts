@@ -16,7 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("Allowlist", {
     from: deployer,
-    args: [MERKLE_ROOT[await getChainId()]],
+    args: ["0xca0f8c7ee1addcc5fce6a7c989ba3f210db065c36c276b71b8c8253a339318a3"],
     log: true,
     skipIfAlreadyDeployed: true,
   });
