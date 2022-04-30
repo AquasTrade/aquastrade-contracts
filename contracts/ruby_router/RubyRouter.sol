@@ -27,11 +27,11 @@ contract RubyRouter is OwnableUpgradeable {
     uint256 private _maxSwapHops;
 
     /*** EVENTS ***/
-    event StablePoolEnabled(ISwap indexed stablePool);
-    event StablePoolDisabled(ISwap indexed stablePool);
-    event NewAmmRouter(IUniswapV2Router02 newAmmRouter);
-    event NewNftAdmin(IRubyNFTAdmin newNftAdmin);
-    event NewMaxHops(uint256 maxSwapHops);
+    event StablePoolEnabled(address stablePool);
+    event StablePoolDisabled(address stablePool);
+    event AmmRouterSet(address newAmmRouter);
+    event NftAdminSet(address newNftAdmin);
+    event MaxHopsSet(uint256 maxSwapHops);
 
     function initialize(
         address _owner,
@@ -202,30 +202,30 @@ contract RubyRouter is OwnableUpgradeable {
     function enableStablePool(ISwap stablePool) public onlyOwner {
         require(address(stablePool) != address(0), "RubyRouter: The stablePool cannot be the zero address");
         enabledStablePools[stablePool] = true;
-        emit StablePoolEnabled(stablePool);
+        emit StablePoolEnabled(address(stablePool));
     }
 
     function disableStablePool(ISwap stablePool) public onlyOwner {
         require(address(stablePool) != address(0), "RubyRouter: The stablePool cannot be the zero address");
         enabledStablePools[stablePool] = false;
-        emit StablePoolDisabled(stablePool);
+        emit StablePoolDisabled(address(stablePool));
     }
 
     function setAmmRouter(IUniswapV2Router02 newAmmRouter) public onlyOwner {
         require(address(newAmmRouter) != address(0), "RubyRouter: Invalid AMM router address.");
         ammRouter = newAmmRouter;
-        emit NewAmmRouter(newAmmRouter);
+        emit AmmRouterSet(address(newAmmRouter));
     }
 
     function setNftAdmin(IRubyNFTAdmin newNftAdmin) public onlyOwner {
         require(address(newNftAdmin) != address(0), "RubyRouter: Invalid NFT admin address.");
         nftAdmin = newNftAdmin;
-        emit NewNftAdmin(newNftAdmin);
+        emit NftAdminSet(address(newNftAdmin));
     }
 
     function setMaxHops(uint256 maxSwapHops) public onlyOwner {
         require(maxSwapHops > 0, "RubyRouter: Invalid max swap hops;");
         _maxSwapHops = maxSwapHops;
-        emit NewMaxHops(maxSwapHops);
+        emit MaxHopsSet(maxSwapHops);
     }
 }

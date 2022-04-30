@@ -8,10 +8,7 @@ import {
   deployMockTokens,
   deployRubyStablePool,
   deployStablePoolTokens,
-  deployNFTAdmin,
-  deployRubyProfileNFT,
   createMockLPs,
-  deployRubyFreeSwapNFT,
   deployNftsAndNftAdmin,
 } from "../utilities/deployment";
 import { addStablePoolLiquidity, approveTokens } from "../utilities/seeding";
@@ -104,7 +101,7 @@ describe("RubyRouter", function () {
     expect(stablePoolEnabled).to.be.eq(true);
   });
 
-  it("routing should work as expected starting from the AMM", async function () {
+  it("Routing should work as expected starting from the AMM", async function () {
     const tokenIn = this.mockTokens[0];
     const stableTokenIn = this.dai;
     const stableTokenOut = this.usdp;
@@ -457,6 +454,50 @@ describe("RubyRouter", function () {
 
     await tx.wait(1);
   });
+
+  it("AMM router should be set correctly", async function () {
+    expect(await this.rubyRouter.setAmmRouter(this.ammRouter.address))
+    .to.emit(this.rubyRouter, "AmmRouterSet")
+    .withArgs(this.ammRouter.address);
+
+    let ammRouterAddr = await this.rubyRouter.ammRouter();
+    expect(ammRouterAddr).to.be.eq(this.ammRouter.address);
+  });
+
+  it("NFT admin should be set correctly", async function () {
+    expect(await this.rubyRouter.setNftAdmin(this.nftAdmin.address))
+    .to.emit(this.rubyRouter, "NftAdminSet")
+    .withArgs(this.nftAdmin.address);
+
+    let nftAdminAddr = await this.rubyRouter.nftAdmin();
+    expect(nftAdminAddr).to.be.eq(this.nftAdmin.address);
+  });
+
+  it("Max hops param should be set correctly", async function () {
+    expect(await this.rubyRouter.setMaxHops(5))
+    .to.emit(this.rubyRouter, "MaxHopsSet")
+    .withArgs(5);
+  });
+
+  it("StablePool should be disabled correctly", async function () {
+    expect(await this.rubyRouter.disableStablePool(this.rubyStablePool.address))
+    .to.emit(this.rubyRouter, "StablePoolDisabled")
+    .withArgs(this.rubyStablePool.address);
+
+    let stablePoolStatus = await this.rubyRouter.enabledStablePools(this.rubyStablePool.address);
+    expect(stablePoolStatus).to.be.eq(false);
+
+  });
+
+  it("StablePool should be enabled correctly", async function () {
+    expect(await this.rubyRouter.enableStablePool(this.rubyStablePool.address))
+    .to.emit(this.rubyRouter, "StablePoolEnabled")
+    .withArgs(this.rubyStablePool.address);
+
+    let stablePoolStatus = await this.rubyRouter.enabledStablePools(this.rubyStablePool.address);
+    expect(stablePoolStatus).to.be.eq(true);
+  });
+
 
   afterEach(async function () {
     await network.provider.request({
