@@ -8,7 +8,6 @@ import "./UniswapV2Pair.sol";
 contract UniswapV2Factory is IUniswapV2Factory {
     address public override feeTo;
     address public override admin;
-    address public override migrator;
 
     // A mapping used to determine who can create pairs
     mapping(address => bool) public override pairCreators;
@@ -55,12 +54,6 @@ contract UniswapV2Factory is IUniswapV2Factory {
         require(msg.sender == admin, "UniswapV2: FORBIDDEN");
         feeTo = newFeeTo;
         emit FeeToRecipientSet(newFeeTo);
-    }
-
-    function setMigrator(address newMigrator) external override {
-        require(msg.sender == admin, "UniswapV2: FORBIDDEN");
-        migrator = newMigrator;
-        emit MigratorSet(newMigrator);
     }
 
     function setPairCreator(address pairCreator, bool allowance) external override {

@@ -20,6 +20,8 @@ describe("UniswapV2Router", function () {
     let { factory, ammRouter } = await deployAMM(this.owner.address, nftAdmin.address);
     this.factory = factory;
     this.router = ammRouter;
+    
+    await this.factory.setFeeDeductionSwapper(this.router.address, true);
   });
 
   it("UniswapV2Router should be deployed correctly", async function () {

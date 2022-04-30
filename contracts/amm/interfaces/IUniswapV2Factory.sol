@@ -6,7 +6,6 @@ interface IUniswapV2Factory {
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
     event AdminSet(address indexed newAdmin);
-    event MigratorSet(address indexed newMigrator);
     event FeeToRecipientSet(address indexed newFeeTo);
     event PairCreatorSet(address indexed pairCreator, bool allowance);
     event FeeDecutionSwapperSet(address indexed swapper, bool allowance);
@@ -18,8 +17,6 @@ interface IUniswapV2Factory {
     function pairCreators(address) external view returns (bool);
 
     function feeDeductionSwappers(address) external view returns (bool);
-
-    function migrator() external view returns (address);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 
@@ -36,6 +33,4 @@ interface IUniswapV2Factory {
     function setFeeDeductionSwapper(address feeDeductionSwapper, bool allowance) external;
 
     function setAdmin(address newAdmin) external;
-
-    function setMigrator(address newMigrator) external;
 }

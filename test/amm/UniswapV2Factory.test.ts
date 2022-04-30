@@ -19,10 +19,8 @@ describe("UniswapV2Factory", function () {
   it("UniswapV2Factory should be deployed correctly", async function () {
     const feeToAddress = await this.factory.feeTo();
     const adminAddress = await this.factory.admin();
-    const migratorAddress = await this.factory.migrator();
 
     expect(feeToAddress).to.be.eq(ethers.constants.AddressZero);
-    expect(migratorAddress).to.be.eq(ethers.constants.AddressZero);
     expect(adminAddress).to.be.eq(this.owner.address);
   });
 
