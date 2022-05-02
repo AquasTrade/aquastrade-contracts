@@ -3,17 +3,15 @@ import { expect } from "chai";
 import { BigNumber, utils, constants } from "ethers";
 import { prepare, deploy, getBigNumber, createRLP, assertRubyConversion } from "./utilities";
 
-import { RubyMaker, RubyTokenMintable } from "../typechain";
-import { deployAMM, deployNFTAdmin, deployNftsAndNftAdmin, deployRubyFreeSwapNFT, deployRubyMaker, deployRubyProfileNFT, deployRubyRouter } from "./utilities/deployment";
+import { RubyTokenMintable } from "../typechain";
+import { deployAMM, deployNftsAndNftAdmin, deployRubyMaker } from "./utilities/deployment";
 
-const {parseUnits, formatUnits} = utils;
+const {parseUnits} = utils;
 
 const {AddressZero} = constants;
 
 describe("RubyMaker", function () {
   const burnPercent = 20; // 20%
-
-  const ONE_UNIT = ethers.utils.parseUnits("1");
 
   before(async function () {
     this.signers = await ethers.getSigners();
@@ -339,7 +337,7 @@ describe("RubyMaker", function () {
     });
 
   });
-  describe("convert", function () {
+  describe("convert with burn percent", function () {
     it("should convert RUBY - ETHC", async function () {
       // const rubyConvertedAmount = BigNumber.from("1897569270781234370");
       const rubyConvertedAmount = BigNumber.from("1280308753411053458532");
@@ -535,6 +533,8 @@ describe("RubyMaker", function () {
     });
   });
 
+
+
   describe("convertMultiple", function () {
     it("should allow to convert multiple", async function () {
       const rubyConvertedAmount = BigNumber.from("1996900599070179721").add(BigNumber.from("1990116118168674819"));
@@ -606,7 +606,100 @@ describe("RubyMaker", function () {
 
   });
 
-// });
+  describe("convert with 100 burn percent should work", function () {
+
+    beforeEach(async function () {
+
+      const newBurnPercent = 100;
+
+      await this.rubyMaker.setBurnPercent(newBurnPercent)
+      const burnPercent = await this.rubyMaker.burnPercent();
+      expect(burnPercent).to.equal(newBurnPercent)
+
+    });
+
+    it("should convert RUBY - ETHC", async function () {
+
+      const rubyConvertedAmount = BigNumber.from("9982514973772460658");
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
+
+      // Transfer and convert
+      await this.rubyEthc.transfer(this.rubyMaker.address, parseUnits("5"));
+      await this.rubyMaker.convert(this.rubyToken.address, this.ethc.address);
+
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
+
+
+      // Assert
+      await assertRubyConversion(
+        this,
+        100,
+        this.rubyEthc,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+
+    });
+
+  });
+
+  describe("convert with 0 burn percent should work", function () {
+
+    beforeEach(async function () {
+
+      const newBurnPercent = 0;
+
+      await this.rubyMaker.setBurnPercent(newBurnPercent)
+      const burnPercent = await this.rubyMaker.burnPercent();
+      expect(burnPercent).to.equal(newBurnPercent)
+
+    });
+
+    it("should convert RUBY - ETHC", async function () {
+
+      const rubyConvertedAmount = BigNumber.from("9982514973772460658");
+      // Get supply before conversion
+      const rubyTotalSupplyBeforeConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountBeforeConvert = await this.rubyToken.burnedAmount();
+
+      // Transfer and convert
+      await this.rubyEthc.transfer(this.rubyMaker.address, parseUnits("5"));
+      await this.rubyMaker.convert(this.rubyToken.address, this.ethc.address);
+
+      // Get supply after conversion
+      const rubyTotalSupplyAfterConvert = await this.rubyToken.totalSupply();
+
+      const burnedAmountAfterConvert = await this.rubyToken.burnedAmount();
+
+
+      // Assert
+      await assertRubyConversion(
+        this,
+        0,
+        this.rubyEthc,
+        rubyConvertedAmount,
+        rubyTotalSupplyBeforeConvert,
+        rubyTotalSupplyAfterConvert,
+        burnedAmountBeforeConvert,
+        burnedAmountAfterConvert
+      );
+
+    });
+
+  });
+
+
+
 
   after(async function () {
     await network.provider.request({

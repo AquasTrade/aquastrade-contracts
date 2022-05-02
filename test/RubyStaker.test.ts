@@ -19,11 +19,16 @@ describe("RubyStaker", function () {
 
     this.rewardDuration = 86400 * 7;
     this.lockDuration = this.rewardDuration * 13;
+    this.maxNumRewards = 5;
 
     this.rubyStaker = await ethers.getContractFactory("RubyStaker");
     this.RubyToken = await ethers.getContractFactory("RubyTokenMintable");
     this.USDPtoken = await ethers.getContractFactory("MockUSDP");
     this.DAItoken = await ethers.getContractFactory("MockDAI");
+    this.USDTtoken = await ethers.getContractFactory("MockUSDT");
+    this.USDCtoken = await ethers.getContractFactory("MockUSDC");
+    this.ETHtoken = await ethers.getContractFactory("MockETH");
+    
   });
 
   beforeEach(async function () {
@@ -37,13 +42,22 @@ describe("RubyStaker", function () {
     this.dai = await this.DAItoken.deploy();
     await this.dai.deployed();
 
+    this.usdt = await this.USDTtoken.deploy();
+    await this.usdt.deployed();
+
+    this.usdc = await this.USDCtoken.deploy();
+    await this.usdc.deployed();
+
+    this.eth = await this.ETHtoken.deploy();
+    await this.eth.deployed();
+
     const ownerBalance = await this.ruby.balanceOf(this.owner.address);
 
     const transferAmount = ethers.utils.parseUnits("1000000", 18);
     await this.ruby.transfer(this.bob.address, transferAmount);
     await this.ruby.transfer(this.carol.address, transferAmount);
 
-    this.staker = await this.rubyStaker.deploy(this.ruby.address);
+    this.staker = await this.rubyStaker.deploy(this.ruby.address, this.maxNumRewards);
     await this.staker.deployed();
 
     await this.ruby.approve(this.staker.address, ownerBalance);
@@ -56,9 +70,11 @@ describe("RubyStaker", function () {
   it("should be deployed correctly", async function () {
     const rubyToken = await this.staker.rubyToken();
     const numRewards = await this.staker.numRewards();
+    const maxNumRewards = await this.staker.maxNumRewards();
     const rewardData = await this.staker.rewardData(0);
     expect(rubyToken).to.be.eq(this.ruby.address);
     expect(numRewards).to.be.eq(1);
+    expect(maxNumRewards).to.be.eq(this.maxNumRewards);
 
     expect(rewardData.rewardToken).to.be.eq(this.ruby.address);
     expect(rewardData.lastUpdateTime.toNumber()).to.be.greaterThan(0);
@@ -91,6 +107,22 @@ describe("RubyStaker", function () {
     expect(rewardData.lastUpdateTime.toNumber()).to.be.greaterThan(0);
     expect(rewardData.periodFinish.toNumber()).to.be.greaterThan(0);
     expect(rewardDistributorSet).to.be.eq(true);
+  });
+
+  it("adding reward should fail when maximum number of rewards are exceeded", async function () {
+    await this.staker.addReward(this.ruby.address, this.owner.address)
+    await this.staker.addReward(this.usdp.address, this.owner.address)
+    await this.staker.addReward(this.dai.address, this.owner.address)
+    await this.staker.addReward(this.usdc.address, this.owner.address)
+    await this.staker.addReward(this.usdt.address, this.owner.address)
+
+    let numRewards = await this.staker.numRewards();
+    expect(numRewards).to.be.eq(6);
+
+    await expect(this.staker.addReward(this.eth.address, this.owner.address)).to.be.revertedWith(
+      "RubyStaker: Maximum number of rewards already registered.",
+    );
+
   });
 
   it("reward distributor should be approved correctly", async function () {
