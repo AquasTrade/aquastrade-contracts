@@ -25,7 +25,7 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
     console.log('trying to mint');
     let tx = (await rubyNFT.mint(account.address));
     await tx.wait();
-    taskArgs.nftid = (await rubyNFT.nftIds()).toNumber();
+    taskArgs.nftid = (await rubyNFT.nftIds()).toNumber() - 1;
     console.log('minted', taskArgs.nftid);
   }
   console.log(taskArgs.nftid);
