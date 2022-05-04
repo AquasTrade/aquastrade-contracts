@@ -28,5 +28,5 @@ yarn drawLottery --lotteryid $lotteryID
 
 e.g
 ```
-yarn drawLottery --lotteryID 0
+yarn drawLottery --lotteryid 0
 ```

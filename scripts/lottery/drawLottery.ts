@@ -18,10 +18,15 @@ const main = async (taskArgs: DrawLotteryArguments, hre: HardhatRuntimeEnvironme
     taskArgs.lotteryid = (await factory.getCurrentLottoryId()).toNumber();
   }
   console.log('lotteryid = ', taskArgs.lotteryid);
-  const lotteryAddr = await factory.getLotto(taskArgs.lotteryid);
-  const lottery: Lottery = (await ethers.getContractAt("Lottery", lotteryAddr)) as Lottery;
-  await lottery.drawWinningNumbers();
-  console.log('Lottery drew');
+  try {
+    const lotteryAddr = await factory.getLotto(taskArgs.lotteryid);
+    const lottery: Lottery = (await ethers.getContractAt("Lottery", lotteryAddr)) as Lottery;
+    const tx = await lottery.drawWinningNumbers();
+    await tx.wait();
+    console.log('Lottery drew');
+  } catch(err) {
+    console.log('Lottery drew failed', err);
+  }
 };
 
 // lotteryid = 0 for current active lottery

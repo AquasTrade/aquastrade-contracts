@@ -62,6 +62,7 @@ const config: HardhatUserConfig = {
       // accounts: {
       //   mnemonic: process.env.MNEMONIC,
       // },
+      timeout: 100000,
     },
     testSchainv2: {
       url: "https://testnet-proxy.skalenodes.com/v1/whispering-turais",

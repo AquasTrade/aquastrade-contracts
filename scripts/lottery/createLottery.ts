@@ -34,7 +34,7 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   console.log('NFT token approved');
   const distObj = JSON.parse(taskArgs.distribution);
   tx = await factory.createNewLotto(taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
-  tx.wait();
+  await tx.wait();
   console.log('New Lottery Created');
 };
 

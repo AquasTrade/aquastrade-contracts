@@ -14,8 +14,8 @@ const lotto = {
         day: 24 * 60 * 60 * 1000,
         win: {
             blankWinningNumbers: "",
-            winningNumbers: "3037,1954,9410,2834",
-            winningNumbersArr: [ 3037,1954,9410,2834 ],
+            winningNumbers: "6009,3037,1954,9410",
+            winningNumbersArr: [ 6009,3037,1954,9410 ],
             first: ethers.utils.parseUnits("200", 18),
             second: ethers.utils.parseUnits("125", 18),
             third: ethers.utils.parseUnits("50", 18),

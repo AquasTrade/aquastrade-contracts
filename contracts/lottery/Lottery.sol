@@ -153,18 +153,7 @@ contract Lottery is Ownable, Pausable {
     /// @notice Draw winning numbers.
     function drawWinningNumbers() external closed() onlyOwner() {
     	require(winners.length == 0, "Lottery: Have already drawn the winning number");
-    	winners = new uint256[](winnersSize);
-    	for (uint256 i = 0; i < winnersSize; i++) {
-    		for (;;) {
-	    		uint256 value = RNG.getRandomNumber(lotterySize);
-	    		uint256 j;
-	    		for (j = 0; j < i; j++) if (winners[j] == value) break;
-	    		if (j == i) {
-	    			winners[i] = value;
-	    			break;
-	    		}
-	    	}
-    	}
+      winners = RNG.getRandomNumber(lotterySize, winnersSize);
     	emit DrewWinningNumber(winners);
     }
 
