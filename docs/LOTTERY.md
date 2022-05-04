@@ -21,7 +21,7 @@ yarn createLottery --nftaddress 0x431638081e7F63D90E1bED5f15f6BFfed09C9597 --nft
 1. Draw Lottery
 
 ```
-yarn drawLottery --lotteryID $lotteryID
+yarn drawLottery --lotteryid $lotteryID
 ```
 
 `$lotteryID`: Lottery Number to draw. 0 for current(latest) Lottery.

@@ -22,13 +22,13 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
   const rubyNFT: RubyFreeSwapNFT = (await ethers.getContractAt('RubyFreeSwapNFT', taskArgs.nftaddress)) as RubyFreeSwapNFT;
   if (taskArgs.mint == "1") {
-    console.log('trying to mint');
+    console.log('Trying to mint');
     let tx = (await rubyNFT.mint(account.address));
     await tx.wait();
     taskArgs.nftid = (await rubyNFT.nftIds()).toNumber() - 1;
-    console.log('minted', taskArgs.nftid);
+    console.log('Minted', taskArgs.nftid);
   }
-  console.log(taskArgs.nftid);
+  console.log('Lottery token ID', taskArgs.nftid);
   let tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftid));
   await tx.wait();
   console.log('NFT token approved');
