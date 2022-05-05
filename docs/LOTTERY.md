@@ -16,7 +16,7 @@ yarn createLottery --nftaddress $nftAddress --nftid $nftid --size $size --price 
 
 e.g 
 ```
-yarn createLottery --nftaddress 0x431638081e7F63D90E1bED5f15f6BFfed09C9597 --nftid 2 --size 4 --price 10000000000000000000 --distribution "[40, 25, 10, 5, 20]" --duration 7200 --mint 1
+yarn createLottery --nftaddress 0x431638081e7F63D90E1bED5f15f6BFfed09C9597 --nftid 2 --size 4 --price 10000000000000000000 --distribution "[40, 25, 10, 5, 20]" --treasury 0x431638012e7F63D90E1bED5f15f6BFfed09C9597 --duration 7200 --mint 1
 ```
 1. Draw Lottery
 

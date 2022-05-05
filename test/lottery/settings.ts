@@ -6,7 +6,7 @@ const lotto = {
         sizeOfLottery: 4,
     },
     newLotto: {
-        distribution: [40, 25, 10, 5, 20],
+        distribution: [40, 25, 10, 5, 15, 5],
         prize: ethers.utils.parseUnits("1000", 18),
         cost: ethers.utils.parseUnits("10", 18),
         closeIncrease: 24 * 60 * 60 * 1000 + 10,

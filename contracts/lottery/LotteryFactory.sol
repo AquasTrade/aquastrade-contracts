@@ -53,7 +53,7 @@ contract LotteryFactory is OwnableUpgradeable {
     /// @param ticketPrice Cost per ticket in $ruby.
     /// @param distribution An array defining the distribution of the prize pool.
     /// @param duration The duration until no more tickets will be sold for the lottery from now.
-    function createNewLotto(address _nft, uint256 _tokenId, uint256 _lotterySize, uint256 ticketPrice, uint256[] calldata distribution, uint256 duration) external onlyOwner() {
+    function createNewLotto(address _nft, uint256 _tokenId, uint256 _lotterySize, uint256 ticketPrice, uint256[] calldata distribution, address _treasury, uint256 duration) external onlyOwner() {
         require(
             _nft != address(0),
             "LotteryFactory: Nft cannot be 0 address"
@@ -68,7 +68,7 @@ contract LotteryFactory is OwnableUpgradeable {
         );
         require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "LotteryFactory: Owner of NFT is invalid");
         lotteryId ++;
-        allLotteries[lotteryId] = new Lottery(address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, duration, RNG);
+        allLotteries[lotteryId] = new Lottery(address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, _treasury, duration, RNG);
         Lottery(allLotteries[lotteryId]).transferOwnership(owner());
         IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
         emit LotteryCreated(lotteryId);
@@ -108,6 +108,14 @@ contract LotteryFactory is OwnableUpgradeable {
 
     function getRewardNFT(address to) external view returns(bool) {
         return Lottery(getCurrentLotto()).getRewardNFT(to);
+    }
+
+    function getRNG() external view returns (address) {
+        return address(RNG);
+    }
+
+    function getRuby() external view returns (address) {
+        return address(ruby);
     }
 
     function costToBuyTickets(uint256 _ticketSize) external view returns(uint256) {

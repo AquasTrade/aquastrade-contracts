@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 // Imported OZ helper contracts
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
@@ -10,20 +9,21 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./IRandomNumberGenerator.sol";
 import "../interfaces/IRubyNFT.sol";
-// import "hardhat/console.sol";
+import "../token_mappings/RubyToken.sol";
+import "hardhat/console.sol";
 
 contract Lottery is Ownable, Pausable {
     // Libraries
     // Safe math
     using SafeMath for uint256;
     // Safe ERC20
-    using SafeERC20 for IERC20;
+    using SafeERC20 for RubyToken;
     // Address functionality 
     using Address for address;
     uint256 private constant MAX_WINNERS = 10;
 
     address private factory; // LotteryFactory address.
-    IERC20 private ruby; // Instance of Ruby token (collateral currency for lotto).
+    RubyToken private ruby; // Instance of Ruby token (collateral currency for lotto).
     IRandomNumberGenerator internal RNG; // Instance of Random Number Generator.
     IRubyNFT private nft; // Instance of NFT for lottery reward.
     uint256 private bonusTokenId; // ID of NFT for lottery reward.
@@ -36,6 +36,7 @@ contract Lottery is Ownable, Pausable {
     uint256[] private winners; // The winning numbers.
     uint256 private ticketPrice; // Cost per ticket in $ruby.
     uint256[] private prizeDistribution; // An array defining the distribution of the prize pool.
+    address private treasury;
 
     mapping (uint256 => address) private ticketsToPerson;
     mapping (uint256 => uint256) private visited;
@@ -46,7 +47,7 @@ contract Lottery is Ownable, Pausable {
     event DrewWinningNumber(uint256[] _winners);
     event RewardClaimed(address to);
 
-    constructor (address _factory, address _ruby, address _nft, uint256 _bonusTokenId, uint256 _lotterySize, uint256 _ticketPrice, uint256[] memory _prizeDistribution /*first, second, ..., last, treasury*/, uint256 _duration, address _RNG) 
+    constructor (address _factory, address _ruby, address _nft, uint256 _bonusTokenId, uint256 _lotterySize, uint256 _ticketPrice, uint256[] memory _prizeDistribution /*first, second, ..., last, burn, treasury*/, address _treasury, uint256 _duration, address _RNG) 
       public {
     	require(
           _ruby != address(0),
@@ -64,15 +65,19 @@ contract Lottery is Ownable, Pausable {
           _RNG != address(0),
           "Lottery: Random Number Generator cannot be 0 address"
       );
+      require(
+          _treasury != address(0),
+          "Lottery: Treasury cannot be 0 address"
+      );
     	require(
-          _prizeDistribution.length >= 2,
+          _prizeDistribution.length >= 3,
           "Lottery: Invalid distribution"
       );
       require(
-          _prizeDistribution.length <= MAX_WINNERS + 1,
+          _prizeDistribution.length <= MAX_WINNERS + 2,
           "Lottery: Invalid distribution"
       );
-      winnersSize = uint256(_prizeDistribution.length - 1);
+      winnersSize = uint256(_prizeDistribution.length - 2);
     	uint256 prizeDistributionTotal = 0;
       for (uint256 j = 0; j < _prizeDistribution.length; j++) {
           prizeDistributionTotal = prizeDistributionTotal.add(
@@ -86,11 +91,11 @@ contract Lottery is Ownable, Pausable {
       );
       count = 1;
       factory = _factory;
-      ruby = IERC20(_ruby);
+      ruby = RubyToken(_ruby);
       RNG = IRandomNumberGenerator(_RNG);
       nft = IRubyNFT(_nft);
       bonusTokenId = _bonusTokenId;
-
+      treasury = _treasury;
       ticketPrice = _ticketPrice;
     	lotterySize = _lotterySize;
     	startingTimestamp = getCurrentTime();
@@ -154,6 +159,11 @@ contract Lottery is Ownable, Pausable {
     function drawWinningNumbers() external closed() onlyOwner() {
     	require(winners.length == 0, "Lottery: Have already drawn the winning number");
       winners = RNG.getRandomNumber(lotterySize, winnersSize);
+      console.log('before transfer');
+      ruby.safeTransfer(treasury, rubyTotal.mul(prizeDistribution[prizeDistribution.length - 1]).div(100));
+      console.log('transfered');
+      ruby.burn(rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
+      console.log('burned');
     	emit DrewWinningNumber(winners);
     }
 
@@ -180,6 +190,9 @@ contract Lottery is Ownable, Pausable {
       emit RewardClaimed(msg.sender);
     }
 
+    //-------------------------------------------------------------------------
+    // VIEW FUNCTIONS 
+    //-------------------------------------------------------------------------
     function getCurrentTime() internal view returns(uint256) {
       return block.timestamp;
     }
@@ -187,20 +200,20 @@ contract Lottery is Ownable, Pausable {
     /// @notice Check the reward amount.
     /// @param to The address where you want to check the reward amount.
     function getRewardAmount(address to) public view drew() returns (uint256) {
-    	uint256 prize = 0;
-    	for (uint256 i = 0; i < winnersSize; i++) {
-    		uint256 winner = winners[i];
-    		address winAddress = ticketsToPerson[winner];
-    		if (winAddress == to) prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
-    	}
-    	return prize;
+      uint256 prize = 0;
+      for (uint256 i = 0; i < winnersSize; i++) {
+        uint256 winner = winners[i];
+        address winAddress = ticketsToPerson[winner];
+        if (winAddress == to) prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+      }
+      return prize;
     }
 
     /// @notice Check the reward NFT.
     /// @param to The address where you want to check the reward NFT.
     function getRewardNFT(address to) public view drew() returns(bool) {
-    	if (ticketsToPerson[winners[0]] == to) return true;
-    	return false;
+      if (ticketsToPerson[winners[0]] == to) return true;
+      return false;
     }
 
     /// @notice Cost to buy tickets in $ruby.
@@ -209,9 +222,6 @@ contract Lottery is Ownable, Pausable {
       return ticketPrice * _ticketSize;
     }
 
-    //-------------------------------------------------------------------------
-    // VIEW FUNCTIONS 
-    //-------------------------------------------------------------------------
     function getWinningNumbers() external view drew() returns (uint256[] memory) {
       return winners;
     }
@@ -238,6 +248,21 @@ contract Lottery is Ownable, Pausable {
     }
     function getBonusId() external view returns(uint256) {
       return bonusTokenId;
+    }
+    function getNftDescription() external view returns(string memory) {
+      return nft.description();
+    }
+    function getVisualAppearance() external view returns(string memory) {
+      return nft.visualAppearance();
+    }
+    function isOpened() external view returns(bool) {
+      return getCurrentTime() >= startingTimestamp && getCurrentTime() < closingTimestamp;
+    }
+    function isClosed() external view returns(bool) {
+      return getCurrentTime() >= closingTimestamp;
+    }
+    function isDrawn() external view returns(bool) {
+      return winners.length == winnersSize;
     }
 
     //-------------------------------------------------------------------------
