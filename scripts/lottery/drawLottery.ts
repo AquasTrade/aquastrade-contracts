@@ -9,23 +9,37 @@ interface DrawLotteryArguments {
 }
 
 const main = async (taskArgs: DrawLotteryArguments, hre: HardhatRuntimeEnvironment) => {
-  console.log(taskArgs);
   const ethers = hre.ethers;
   const network = hre.network;
   const factoryAddr = require(`../../deployments/${network.name}/LotteryFactory.json`).address;
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
+
   if (taskArgs.lotteryid == 0) {
     taskArgs.lotteryid = (await factory.getCurrentLottoryId()).toNumber();
   }
-  console.log('lotteryid = ', taskArgs.lotteryid);
+
+  console.log('Drawing lotteryid =', taskArgs.lotteryid);
+
   try {
     const lotteryAddr = await factory.getLotto(taskArgs.lotteryid);
     const lottery: Lottery = (await ethers.getContractAt("Lottery", lotteryAddr)) as Lottery;
+
+    const isClosed = await lottery.isClosed();
+    const isOpened = await lottery.isOpened();
+    const isDrawn = await lottery.isDrawn();
+
+    if (isOpened)
+      throw "'lottery not open'"
+    if (!isClosed)
+      throw "'lottery still running, not closed'"
+    if (isDrawn)
+      throw "'lottery is already drawn'"
+
     const tx = await lottery.drawWinningNumbers();
     await tx.wait();
-    console.log('Lottery drew');
+    console.log('Lottery drawn successfully');
   } catch(err) {
-    console.log('Lottery drew failed', err);
+    console.log('Lottery drew failed:', err);
   }
 };
 
@@ -35,3 +49,4 @@ task("drawLottery", "Draw a Lottery")
   .setAction(async (taskArgs, hre) => {
     await main(taskArgs, hre);
   });
+
