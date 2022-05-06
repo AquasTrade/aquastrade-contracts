@@ -14,7 +14,6 @@ describe("Lottery Factory contract", function() {
         this.owner = signers[0];
         this.buyer = signers[1];
         this.treasury = signers[2];
-        console.log('treasury', this.treasury.address);
 
         // Getting the lottery code (abi, bytecode, name)
         this.factoryContract = await ethers.getContractFactory("LotteryFactory");

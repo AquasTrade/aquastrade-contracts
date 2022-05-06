@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./IRandomNumberGenerator.sol";
 import "../interfaces/IRubyNFT.sol";
 import "../token_mappings/RubyToken.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 contract Lottery is Ownable, Pausable {
     // Libraries
@@ -159,11 +159,9 @@ contract Lottery is Ownable, Pausable {
     function drawWinningNumbers() external closed() onlyOwner() {
     	require(winners.length == 0, "Lottery: Have already drawn the winning number");
       winners = RNG.getRandomNumber(lotterySize, winnersSize);
-      console.log('before transfer');
       ruby.safeTransfer(treasury, rubyTotal.mul(prizeDistribution[prizeDistribution.length - 1]).div(100));
-      console.log('transfered');
-      ruby.burn(rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
-      console.log('burned');
+      // ruby.burn(rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
+      ruby.safeTransfer(address(0xdeadbeef), rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
     	emit DrewWinningNumber(winners);
     }
 
