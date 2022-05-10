@@ -1,5 +1,5 @@
 {
-  "address": "0x00DeDCDCC456ABdB0cbe006270188B70d4c67A1e",
+  "address": "0xBCEF331A0216a5A4A64382BE09FEDC6dfDbCc23B",
   "abi": [
     {
       "inputs": [],
@@ -44,25 +44,25 @@
       "type": "function"
     }
   ],
-  "transactionHash": "0xbfc3fa48a1c0e13b79c5667bdddd9f4f53b0bae8e446e6631e21dbca89b292c5",
+  "transactionHash": "0x0ee2d4a39e23b3394db9d5d9541bf7e791ab28ce09cb3d7dba9ae0933c1c4f2f",
   "receipt": {
     "to": "0x0000000000000000000000000000000000000000",
     "from": "0xF63Bb14E7E9bD2882957129c3E3197E6D18933B4",
-    "contractAddress": "0x00DeDCDCC456ABdB0cbe006270188B70d4c67A1e",
+    "contractAddress": "0xBCEF331A0216a5A4A64382BE09FEDC6dfDbCc23B",
     "transactionIndex": 0,
     "gasUsed": "149875",
     "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0xbd254f111608db73c762e9de6512249f2b65cee547ebac9a4497db1b8d34b156",
-    "transactionHash": "0xbfc3fa48a1c0e13b79c5667bdddd9f4f53b0bae8e446e6631e21dbca89b292c5",
+    "blockHash": "0xa8ca48f3e4adeba81e6a598dc9b5dd7b267280a15572255b60f2722e5d986bf0",
+    "transactionHash": "0x0ee2d4a39e23b3394db9d5d9541bf7e791ab28ce09cb3d7dba9ae0933c1c4f2f",
     "logs": [],
-    "blockNumber": 393971,
+    "blockNumber": 445923,
     "cumulativeGasUsed": "149875",
     "status": 1,
     "byzantium": true
   },
   "args": [],
-  "numDeployments": 2,
-  "solcInputHash": "5005a51094c9b82210fcb9de97428768",
+  "numDeployments": 1,
+  "solcInputHash": "3a7102ad56567d9e552c3894123f32b5",
   "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"getRandom\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"addr\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lotterySize\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"name\":\"getRandomNumber\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/lottery/RNG_Skale.sol\":\"RNG_Skale\"},\"evmVersion\":\"istanbul\",\"libraries\":{\"__CACHE_BREAKER__\":\"0x00000000d41867734bbee4c6863d9255b2b06ac1\"},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/lottery/IRandomNumberGenerator.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.6.12;\\n\\ninterface IRandomNumberGenerator {\\n\\n    function getRandomNumber(uint256 lotterySize, uint256 count) external view returns (uint256[] memory randomness);\\n\\n}\",\"keccak256\":\"0xe5240ef4fcc752f0d6737ed913557d5b46c38cec03d248db82fed5d087603561\",\"license\":\"MIT\"},\"contracts/lottery/RNG_Skale.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.6.12;\\n\\nimport \\\"./IRandomNumberGenerator.sol\\\";\\n\\ncontract RNG_Skale is IRandomNumberGenerator {\\n    constructor()  public {}\\n\\n    function getRandomNumber(uint256 lotterySize, uint256 count) public view override\\n        returns (uint256[] memory) \\n    {\\n        uint256[] memory randomness = new uint256[](count);\\n        uint256 value = uint256(getRandom());\\n        for (uint256 i = 0; i < count; i++) {\\n            randomness[i] = value % uint256(10) ** lotterySize;\\n            value = value / (uint256(10 ** lotterySize));\\n    \\t}\\n        return randomness;\\n    }\\n\\n    function getRandom() public view returns (bytes32 addr) {\\n        assembly {\\n            let freemem := mload(0x40)\\n            let start_addr := add(freemem, 0)\\n            if iszero(staticcall(gas(), 0x18, 0, 0, start_addr, 32)) {\\n              invalid()\\n            }\\n            addr := mload(freemem)\\n        }\\n    }\\n}\",\"keccak256\":\"0xb68d4062fbab4cc659c694814f7c4a7b571aaff7b1c3edb75a420413aed75b8b\",\"license\":\"MIT\"}},\"version\":1}",
   "bytecode": "0x608060405234801561001057600080fd5b506101bf806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80636e68fc0a1461003b578063aacc5a17146100ae575b600080fd5b61005e6004803603604081101561005157600080fd5b50803590602001356100c8565b60408051602080825283518183015283519192839290830191858101910280838360005b8381101561009a578181015183820152602001610082565b505050509050019250505060405180910390f35b6100b661016c565b60408051918252519081900360200190f35b6060808267ffffffffffffffff811180156100e257600080fd5b5060405190808252806020026020018201604052801561010c578160200160208202803683370190505b509050600061011961016c565b905060005b848110156101625785600a0a828161013257fe5b0683828151811061013f57fe5b60200260200101818152505085600a0a828161015757fe5b04915060010161011e565b5090949350505050565b60405160009080602081848060185afa61018257fe5b505191905056fea264697066735822122079e01cde6cd8b13838340d95c92b0d3c6a356a61fde029f0e73db4315b45dafe64736f6c634300060c0033",
   "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c80636e68fc0a1461003b578063aacc5a17146100ae575b600080fd5b61005e6004803603604081101561005157600080fd5b50803590602001356100c8565b60408051602080825283518183015283519192839290830191858101910280838360005b8381101561009a578181015183820152602001610082565b505050509050019250505060405180910390f35b6100b661016c565b60408051918252519081900360200190f35b6060808267ffffffffffffffff811180156100e257600080fd5b5060405190808252806020026020018201604052801561010c578160200160208202803683370190505b509050600061011961016c565b905060005b848110156101625785600a0a828161013257fe5b0683828151811061013f57fe5b60200260200101818152505085600a0a828161015757fe5b04915060010161011e565b5090949350505050565b60405160009080602081848060185afa61018257fe5b505191905056fea264697066735822122079e01cde6cd8b13838340d95c92b0d3c6a356a61fde029f0e73db4315b45dafe64736f6c634300060c0033",
