@@ -235,6 +235,16 @@ contract Lottery is Ownable, Pausable {
     function hasNFTPrize() external view returns (bool) {
       return true;
     }
+    function isTicketAvailable(uint256 ticket) external view returns (bool) {
+      return ticketsToPerson[ticket] != address(0);
+    }
+    function areTicketsAvailable(uint256[] calldata tickets) external view returns (bool[] memory) {
+      bool[] memory available = new bool[](tickets.length);
+      for (uint256 i = 0; i < tickets.length; i++) {
+        available[i] = ticketsToPerson[tickets[i]] != address(0);
+      }
+      return available;
+    }
     function getWinningNumbers() external view drew() returns (uint256[] memory) {
       return winners;
     }
