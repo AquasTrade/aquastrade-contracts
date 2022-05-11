@@ -41,6 +41,7 @@ contract Lottery is Ownable, Pausable {
     mapping (uint256 => address) private ticketsToPerson;
     mapping (uint256 => uint256) private visited;
     mapping (address => uint256[]) private personToTickets;
+    mapping (address => bool) private claimed;
     uint256 private count;
 
     event NewTickets(uint256 ticketSize, uint256[] _choosenTicketNumbers);
@@ -143,7 +144,7 @@ contract Lottery is Ownable, Pausable {
       }
       uint256 totalCost =  uint256(_ticketSize).mul(ticketPrice);
       ruby.transferFrom(
-          msg.sender, 
+          msg.sender,
           address(this), 
           totalCost
       );
@@ -175,16 +176,17 @@ contract Lottery is Ownable, Pausable {
     /// @notice Claim rewards to caller if he/she bought winning ticket
     function claimReward() external closed() drew() {
       uint256 prize = 0;
+      require(claimed[msg.sender] == false, "Lottery: Already Claimed");
       if (ticketsToPerson[winners[0]] == msg.sender) nft.safeTransferFrom(address(this), msg.sender, bonusTokenId);
       for (uint256 i = 0; i < winnersSize; i++) {
         uint256 winner = winners[i];
         address winAddress = ticketsToPerson[winner];
         if (winAddress == msg.sender) {
-          ticketsToPerson[winner] = address(0);
           prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
         }
       }
       ruby.transfer(address(msg.sender), prize);
+      claimed[msg.sender] = true;
       emit RewardClaimed(msg.sender);
     }
 
@@ -261,6 +263,9 @@ contract Lottery is Ownable, Pausable {
     }
     function isDrawn() external view returns(bool) {
       return winners.length == winnersSize;
+    }
+    function getClaimed(address who) external view returns(bool) {
+      return claimed[who];
     }
 
     //-------------------------------------------------------------------------
