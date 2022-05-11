@@ -36,7 +36,8 @@ contract Lottery is Ownable, Pausable {
     uint256[] private winners; // The winning numbers.
     uint256 private ticketPrice; // Cost per ticket in $ruby.
     uint256[] private prizeDistribution; // An array defining the distribution of the prize pool.
-    address private treasury;
+    address private treasury; // Address to send
+    uint256 private numTicketsSold;
 
     mapping (uint256 => address) private ticketsToPerson;
     mapping (uint256 => uint256) private visited;
@@ -44,7 +45,7 @@ contract Lottery is Ownable, Pausable {
     mapping (address => bool) private claimed;
     uint256 private count;
 
-    event NewTickets(uint256 ticketSize, uint256[] _choosenTicketNumbers);
+    event NewTickets(address who, uint256 ticketSize, uint256[] _choosenTicketNumbers);
     event DrewWinningNumber(uint256[] _winners);
     event RewardClaimed(address to);
 
@@ -153,7 +154,8 @@ contract Lottery is Ownable, Pausable {
     		ticketsToPerson[_choosenTicketNumbers[i]] = msg.sender;
         personToTickets[msg.sender].push(_choosenTicketNumbers[i]);
     	}
-    	emit NewTickets(_ticketSize, _choosenTicketNumbers);
+      numTicketsSold += _choosenTicketNumbers.length;
+    	emit NewTickets(msg.sender, _ticketSize, _choosenTicketNumbers);
     }
 
     /// @notice Draw winning numbers.
@@ -222,6 +224,17 @@ contract Lottery is Ownable, Pausable {
       return ticketPrice * _ticketSize;
     }
 
+    function getWinningAddresses() external view drew() returns (address[] memory) {
+      address[] memory winnerAddresses = new address[](winnersSize);
+      for (uint256 i = 0; i < winnersSize; i++) {
+        uint256 winner = winners[i];
+        winnerAddresses[i] = ticketsToPerson[winner];
+      }
+      return winnerAddresses;
+    }
+    function hasNFTPrize() external view returns (bool) {
+      return true;
+    }
     function getWinningNumbers() external view drew() returns (uint256[] memory) {
       return winners;
     }
@@ -236,6 +249,9 @@ contract Lottery is Ownable, Pausable {
     }
     function getLotterySize() external view returns(uint256) {
       return lotterySize;
+    }
+    function getTicketsRemaining() external view returns(uint256) {
+      return lotterySize - numTicketsSold;
     }
     function getTotalRuby() external view returns(uint256) {
       return rubyTotal;
