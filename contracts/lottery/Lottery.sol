@@ -193,7 +193,7 @@ contract Lottery is Ownable, Pausable {
       }
       // percentage to burn
       if (prizeDistribution[prizeDistribution.length - 2] > 0) {
-        ruby.safeTransfer(address(0xdeadbeef), rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
+        ruby.safeTransfer(burn, rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
       }
 
       // todo: if the lottery was not won then transfer remainder to treasury
