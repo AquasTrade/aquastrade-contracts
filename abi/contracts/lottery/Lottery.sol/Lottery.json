@@ -7,6 +7,11 @@
         "type": "address"
       },
       {
+        "internalType": "uint256",
+        "name": "_ID",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "_ruby",
         "type": "address"
@@ -293,6 +298,19 @@
   },
   {
     "inputs": [],
+    "name": "getID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getLotterySize",
     "outputs": [
       {
@@ -376,6 +394,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTicketERC20",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
