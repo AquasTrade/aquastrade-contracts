@@ -46,7 +46,7 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
 
   const lottery: Lottery = (await ethers.getContractAt('Lottery', await factory.getCurrentLotto())) as Lottery;
   const info = {
-    ID: (await factory.getCurrentLottoryId()).toString(),
+    ID: (await lottery.getID()).toString(),
     ticketCollateral: await lottery.getTicketERC20Symbol(),
     ticketPrice: (await lottery.getTicketPrice()).toString(),
     numTickets: 10 ** (await lottery.getLotterySize()).toNumber(),
