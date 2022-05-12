@@ -92,6 +92,7 @@ contract LotteryFactory is OwnableUpgradeable {
         lotteryId ++;
         allLotteries[lotteryId] = new Lottery(
             address(this),
+            lotteryId,
             ruby,
             _nft,
             _tokenId,

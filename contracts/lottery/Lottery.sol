@@ -29,6 +29,7 @@ contract Lottery is Ownable, Pausable {
     IRandomNumberGenerator internal RNG; // Instance of Random Number Generator.
     IRubyNFT private nft; // Instance of NFT for lottery reward.
 
+    uint256 private ID; // ID of this lottery
     uint256 private bonusTokenId; // ID of NFT for lottery reward.
     uint256 private startingTimestamp; // Block timestamp for start of lottery.
     uint256 private closingTimestamp; // Block timestamp for end of lottery.
@@ -49,6 +50,7 @@ contract Lottery is Ownable, Pausable {
     event RewardClaimed(address to);
 
     constructor (address _factory,
+                 uint256 _ID,
                  address _ruby,
                  address _nft,
                  uint256 _bonusTokenId,
@@ -105,6 +107,7 @@ contract Lottery is Ownable, Pausable {
           "Lottery: Prize distribution is not 100%"
       );
       factory = _factory;
+      ID = _ID;
 
       ruby = IERC20(_ruby);
       RNG = IRandomNumberGenerator(_RNG);
@@ -340,5 +343,8 @@ contract Lottery is Ownable, Pausable {
     }
     function getTicketERC20Decimals() external view returns(uint8) {
       return ERC20(address(ruby)).decimals();
+    }
+    function getID() external view returns(uint256) {
+      return ID;
     }
 }
