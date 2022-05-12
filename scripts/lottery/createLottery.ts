@@ -2,7 +2,7 @@ import fs from "fs";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { utils } from "ethers";
-import { LotteryFactory, RubyFreeSwapNFT } from "../../typechain";
+import { LotteryFactory, RubyFreeSwapNFT, Lottery } from "../../typechain";
 
 interface CreateLotteryArguments {
   nftaddress: string,
@@ -30,16 +30,30 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
     let tx = (await rubyNFT.mint(account.address));
     await tx.wait();
     taskArgs.nftid = (await rubyNFT.nftIds()).toNumber() - 1;
-    console.log('Minted', taskArgs.nftid);
+    console.log('Minted NFT');
   }
-  console.log('Lottery token ID', taskArgs.nftid);
+
+  console.log('Lottery NFT', taskArgs.nftid);
   let tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftid));
   await tx.wait();
   console.log('NFT token approved');
+
   const distObj = JSON.parse(taskArgs.distribution);
   tx = await factory.createNewLotto(rubyAddr, taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
   await tx.wait();
+
   console.log('New Lottery Created');
+
+  const lottery: Lottery = (await ethers.getContractAt('Lottery', await factory.getCurrentLotto())) as Lottery;
+  const info = {
+    ID: (await factory.getCurrentLottoryId()).toString(),
+    ticketCollateral: await lottery.getTicketERC20Symbol(),
+    ticketPrice: (await lottery.getTicketPrice()).toString(),
+    numTickets: 10 ** (await lottery.getLotterySize()).toNumber(),
+    hasNFTPrize: await lottery.hasNFTPrize()
+  }
+  console.log('Lottery Details:')
+  console.log(info);
 };
 
 task("createLottery", "Create a new Lottery")

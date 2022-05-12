@@ -297,7 +297,7 @@ contract Lottery is Ownable, Pausable {
       return numTicketsSold;
     }
     function getTicketsRemaining() external view returns(uint256) {
-      return lotterySize - numTicketsSold;
+      return (10 ** lotterySize) - numTicketsSold;
     }
     function getTotalRuby() external view returns(uint256) {
       return rubyTotal;

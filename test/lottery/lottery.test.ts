@@ -70,7 +70,12 @@ describe("Lottery Factory contract", function() {
                 await lotteryInstance.getTicketERC20Decimals()
             ).to.be.eq(18);
 
-
+            expect (
+                await lotteryInstance.getLotterySize()
+            ).to.be.eq(lotto.setup.sizeOfLottery);
+            expect (
+                await lotteryInstance.getTicketsRemaining()
+            ).to.be.eq(10 ** lotto.setup.sizeOfLottery);
         });
         /**
          * Testing that non-admins cannot create a lotto
@@ -190,6 +195,9 @@ describe("Lottery Factory contract", function() {
                 lotto.buy.one.cost,
                 "Incorrect cost for batch buy of 1"
             );
+            expect (
+                await this.lotteryInstance.getTicketsRemaining()
+            ).to.be.eq((10 ** lotto.setup.sizeOfLottery) - 1);
         });
         it("Buying same ticket as someone else", async function() {
 
