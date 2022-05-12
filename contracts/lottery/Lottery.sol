@@ -332,6 +332,9 @@ contract Lottery is Ownable, Pausable {
     function getTicketPrice() external view returns(uint256) {
       return ticketPrice;
     }
+    function getTicketERC20() external view returns(address) {
+      return address(ruby);
+    }
     function getTicketERC20Symbol() external view returns(string memory) {
       return ERC20(address(ruby)).symbol();
     }
