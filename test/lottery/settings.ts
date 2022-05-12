@@ -31,6 +31,9 @@ const lotto = {
         one: {
             cost: ethers.utils.parseUnits('10', 18)
         },
+        two: {
+            cost: ethers.utils.parseUnits('20', 18)
+        },
         ten: {
             cost: ethers.utils.parseUnits('100', 18)
         },

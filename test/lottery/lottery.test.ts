@@ -1,5 +1,7 @@
 import { expect, assert } from "chai";
 import { network, upgrades } from "hardhat";
+// import { BigNumber } from "ethers";
+
 const { 
     lotto,
     BigNumber,
@@ -172,6 +174,71 @@ describe("Lottery Factory contract", function() {
                 lotto.buy.one.cost,
                 "Incorrect cost for batch buy of 1"
             );
+        });
+        it("Buying same ticket as someone else", async function() {
+
+            let price = await this.lotteryInstance.costToBuyTickets(
+                3
+            );
+            await this.rubyInstance.connect(this.owner).approve(
+                this.lotteryInstance.address,
+                price.toString()
+            );
+
+            // Generating chosen numbers for buy
+            let ticketNumbers = [1, 2];
+
+            // Check availble api
+            expect (
+                await this.lotteryInstance.isTicketAvailable(1)
+            ).to.be.eq(true);
+            expect (
+                await this.lotteryInstance.isTicketAvailable(2)
+            ).to.be.eq(true);
+            expect (
+                await this.lotteryInstance.areTicketsAvailable([1, 2])
+            ).to.eql([true, true]);
+
+            // Buy 2 available tickets
+            await this.lotteryInstance.buyTicket(
+                2,
+                ticketNumbers
+            );
+
+            // Confirm we bought
+            expect (
+                await this.lotteryInstance.getNumTicketsSold()
+            ).to.be.eq(2);
+            let myTickets = await this.lotteryInstance.getTickets(this.owner.address);
+            expect (new BigNumber(1).toString()).to.be.eq(myTickets[0])
+            expect (new BigNumber(2).toString()).to.be.eq(myTickets[1])
+
+            expect (
+                await this.lotteryInstance.areTicketsAvailable([1, 2])
+            ).to.eql([false, false]);
+
+            // Buy 1 taken ticket
+            let ticketNumbers2 = [2, 3];
+            expect (
+                await this.lotteryInstance.isTicketAvailable(3)
+            ).to.be.eq(true);
+            await this.lotteryInstance.buyTicket(
+                2,
+                ticketNumbers2
+            );
+            // Confirm we bought just the #3
+            expect (
+                await this.lotteryInstance.getNumTicketsSold()
+            ).to.be.eq(3);
+            let myTickets2 = await this.lotteryInstance.getTickets(this.owner.address);
+            expect (new BigNumber(1).toString()).to.be.eq(myTickets2[0])
+            expect (new BigNumber(2).toString()).to.be.eq(myTickets2[1])
+            expect (new BigNumber(3).toString()).to.be.eq(myTickets2[2])
+
+            expect (
+                await this.lotteryInstance.areTicketsAvailable([1, 2, 3])
+            ).to.eql([false, false, false]);
+
         });
         /**
          * Tests the batch buying of ten token

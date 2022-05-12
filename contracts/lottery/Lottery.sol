@@ -40,12 +40,10 @@ contract Lottery is Ownable, Pausable {
     uint256 private numTicketsSold;
 
     mapping (uint256 => address) private ticketsToPerson;
-    mapping (uint256 => uint256) private visited;
     mapping (address => uint256[]) private personToTickets;
     mapping (address => bool) private claimed;
-    uint256 private count;
 
-    event NewTickets(address who, uint256 ticketSize, uint256[] _choosenTicketNumbers);
+    event NewTickets(address who, uint256 ticketSize);
     event DrewWinningNumber(uint256[] _winners);
     event RewardClaimed(address to);
 
@@ -91,7 +89,6 @@ contract Lottery is Ownable, Pausable {
           prizeDistributionTotal == 100,
           "Lottery: Prize distribution is not 100%"
       );
-      count = 1;
       factory = _factory;
       ruby = RubyToken(_ruby);
       RNG = IRandomNumberGenerator(_RNG);
@@ -136,26 +133,35 @@ contract Lottery is Ownable, Pausable {
           _choosenTicketNumbers.length == _ticketSize,
           "Lottery: Invalid chosen numbers"
       );
-      count = count + 1;
+
+      bool[] memory okTickets = new bool[](_ticketSize);
+      uint256 numOkTickets = 0;
+
       for (uint256 i = 0; i < _choosenTicketNumbers.length; i++) {
       	require(_choosenTicketNumbers[i] < uint256(10) ** lotterySize, "Lottery: Ticket Number is out of range");
-      	require(ticketsToPerson[_choosenTicketNumbers[i]] == address(0), "Lottery: Ticket Number is already exist");
-      	require(visited[_choosenTicketNumbers[i]] != count, "Lottery: Requested Ticket Numbers are not unique");
-      	visited[_choosenTicketNumbers[i]] = count;
+        if (ticketsToPerson[_choosenTicketNumbers[i]] == address(0)) {
+          okTickets[i] = true;
+          numOkTickets += 1;
+        }
       }
-      uint256 totalCost =  uint256(_ticketSize).mul(ticketPrice);
+
+      uint256 totalCost =  uint256(numOkTickets).mul(ticketPrice);
       ruby.transferFrom(
           msg.sender,
           address(this), 
           totalCost
       );
       rubyTotal = rubyTotal.add(totalCost);
+
     	for (uint256 i = 0; i < _choosenTicketNumbers.length; i++) {
-    		ticketsToPerson[_choosenTicketNumbers[i]] = msg.sender;
-        personToTickets[msg.sender].push(_choosenTicketNumbers[i]);
+        if (okTickets[i]) {
+    		  ticketsToPerson[_choosenTicketNumbers[i]] = msg.sender;
+          personToTickets[msg.sender].push(_choosenTicketNumbers[i]);
+        }
     	}
-      numTicketsSold += _choosenTicketNumbers.length;
-    	emit NewTickets(msg.sender, _ticketSize, _choosenTicketNumbers);
+      numTicketsSold += numOkTickets;
+
+    	emit NewTickets(msg.sender, numOkTickets);
     }
 
     /// @notice Draw winning numbers.
@@ -236,12 +242,12 @@ contract Lottery is Ownable, Pausable {
       return true;
     }
     function isTicketAvailable(uint256 ticket) external view returns (bool) {
-      return ticketsToPerson[ticket] != address(0);
+      return ticketsToPerson[ticket] == address(0);
     }
     function areTicketsAvailable(uint256[] calldata tickets) external view returns (bool[] memory) {
       bool[] memory available = new bool[](tickets.length);
       for (uint256 i = 0; i < tickets.length; i++) {
-        available[i] = ticketsToPerson[tickets[i]] != address(0);
+        available[i] = ticketsToPerson[tickets[i]] == address(0);
       }
       return available;
     }
@@ -259,6 +265,9 @@ contract Lottery is Ownable, Pausable {
     }
     function getLotterySize() external view returns(uint256) {
       return lotterySize;
+    }
+    function getNumTicketsSold() external view returns(uint256) {
+      return numTicketsSold;
     }
     function getTicketsRemaining() external view returns(uint256) {
       return lotterySize - numTicketsSold;
