@@ -840,12 +840,12 @@ describe("Lottery Factory contract", function() {
             // let balanceAfter = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
             // let diff = balanceAfter.minus(balanceBefore);
             assert.equal(
-                (await this.factoryInstance.getRewardAmount(this.owner.address)).toString(),
+                (await this.lotteryInstance.getRewardAmount(this.owner.address)).toString(),
                 lotto.newLotto.win.first.toString(),
                 "1st winner claim amount is wrong"
             );
             assert.equal(
-                await this.factoryInstance.getRewardNFT(this.owner.address),
+                await this.lotteryInstance.getRewardNFT(this.owner.address),
                 true,
                 "NFT reward to 1st winner is invalid"
             );

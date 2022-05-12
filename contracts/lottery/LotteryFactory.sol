@@ -154,16 +154,6 @@ contract LotteryFactory is OwnableUpgradeable {
         burn = _burn;
     }
 
-    // fixme not used
-    function getRewardAmount(address to) external view returns (uint256) {
-        return Lottery(getCurrentLotto()).getRewardAmount(to);
-    }
-
-    // fixme not used
-    function getRewardNFT(address to) external view returns(bool) {
-        return Lottery(getCurrentLotto()).getRewardNFT(to);
-    }
-
     function getRNG() external view returns (address) {
         return address(RNG);
     }
