@@ -851,4 +851,282 @@ describe("Lottery Factory contract", function() {
             );
         });
     });
+    describe("Un-won tickets burn and treasury (1 possible winner)", function() {
+        beforeEach( async function () {
+            await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1,
+                4,  // 10 ** 4 = 10000 tickets
+                lotto.newLotto.cost,
+                [50, 40, 10],
+                lotto.newLotto.day)
+            this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
+        });
+        it("0 tickets", async function() {
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
+
+            let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
+
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
+            let t_diff = t_balanceAfter.sub(t_balanceBefore);
+            let b_diff = b_balanceAfter.sub(b_balanceBefore);
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+
+            expect (diff).to.be.eq(0);
+            expect (b_diff).to.be.eq(0);
+            expect (t_diff).to.be.eq(0);
+        });
+        it("1 winner", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+
+            expect (price).to.be.eq(lotto.newLotto.cost);
+            expect (price).to.be.eq(ethers.utils.parseUnits("10", 18));
+
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price
+            );
+
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                1,
+                [lotto.newLotto.win.winningNumbersArr[0]]
+            );
+
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
+
+            let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
+
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
+            let t_diff = t_balanceAfter.sub(t_balanceBefore);
+            let b_diff = b_balanceAfter.sub(b_balanceBefore);
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+
+            // buyer wins 50 % aka 5 RUBY
+            expect (diff, 'Buyer wins 5').to.be.eq(lotto.newLotto.cost.div(2));
+            // burn 40% aka 4 RUBY
+            expect (b_diff, 'Burn 4').to.be.eq(ethers.utils.parseUnits("4", 18));
+            // treasury 10% aka 1 RUBY
+            expect (t_diff, 'Treasury 1').to.be.eq(ethers.utils.parseUnits("1", 18));
+        });
+        it("0 winner", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+
+            expect (price).to.be.eq(lotto.newLotto.cost);
+            expect (price).to.be.eq(ethers.utils.parseUnits("10", 18));
+
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price
+            );
+
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                1,
+                [0]  // not a winning number
+            );
+
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
+
+            let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
+
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
+            let t_diff = t_balanceAfter.sub(t_balanceBefore);
+            let b_diff = b_balanceAfter.sub(b_balanceBefore);
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+
+            // buyer 0
+            expect (diff, 'Buyer 0').to.be.eq(0);
+            // burn 40% aka 4 RUBY
+            expect (b_diff, 'Burn 0').to.be.eq(ethers.utils.parseUnits("4", 18));
+            // treasury 10% + Un-won 50% aka 6 RUBY
+            expect (t_diff, 'Treasury 0').to.be.eq(ethers.utils.parseUnits("6", 18));
+        });
+    });
+    describe("Un-won tickets burn and treasury (2 possible winners)", function() {
+        beforeEach( async function () {
+            await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1,
+                4,  // 10 ** 4 = 10000 tickets
+                lotto.newLotto.cost,
+                [30, 20, 40, 10],
+                lotto.newLotto.day)
+            this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
+        });
+        it("1 winner (1st)", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price
+            );
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                1,
+                [lotto.newLotto.win.winningNumbersArr[0]]
+            );
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
+
+            let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
+
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
+            let t_diff = t_balanceAfter.sub(t_balanceBefore);
+            let b_diff = b_balanceAfter.sub(b_balanceBefore);
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+
+            // buyer wins 1st place 30 % aka 3 RUBY
+            expect (diff, 'Buyer wins 3').to.be.eq(ethers.utils.parseUnits("3", 18));
+            // burn 40% aka 4 RUBY
+            expect (b_diff, 'Burn 4').to.be.eq(ethers.utils.parseUnits("4", 18));
+            // treasury 10% + Un-won 20% aka 3 RUBY
+            expect (t_diff, 'Treasury 3').to.be.eq(ethers.utils.parseUnits("3", 18));
+        });
+        it("1 winner (2nd)", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price
+            );
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                1,
+                [lotto.newLotto.win.winningNumbersArr[1]]
+            );
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
+
+            let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
+
+            let pot = await this.lotteryInstance.connect(this.buyer).getTotalRuby();
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
+            let t_diff = t_balanceAfter.sub(t_balanceBefore);
+            let b_diff = b_balanceAfter.sub(b_balanceBefore);
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+
+            // buyer wins 2nd place 20 % aka 2 RUBY
+            expect (diff, 'Buyer wins 2').to.be.eq(ethers.utils.parseUnits("2", 18));
+            // burn 40% aka 4 RUBY
+            expect (b_diff, 'Burn 4').to.be.eq(ethers.utils.parseUnits("4", 18));
+            // treasury 10% + Un-won 30% aka 4 RUBY
+            expect (t_diff, 'Treasury 3').to.be.eq(ethers.utils.parseUnits("4", 18));
+        });
+        it("1 winner (1st & 2nd)", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price.mul(2)
+            );
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                2,
+                [lotto.newLotto.win.winningNumbersArr[0], lotto.newLotto.win.winningNumbersArr[1]]
+            );
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
+
+            let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
+
+            let pot = await this.lotteryInstance.connect(this.buyer).getTotalRuby();
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
+            let t_diff = t_balanceAfter.sub(t_balanceBefore);
+            let b_diff = b_balanceAfter.sub(b_balanceBefore);
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+
+            // buyer wins 1&2 place 30% + 20%
+            expect (diff, 'Buyer wins 10').to.be.eq(pot.mul(50).div(100));
+            // burn 40%
+            expect (b_diff, 'Burn 8').to.be.eq(pot.mul(40).div(100));
+            // treasury 10%
+            expect (t_diff, 'Treasury 2').to.be.eq(pot.mul(10).div(100));
+        });
+        it("0 winner (2 tickets)", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+
+            expect (price).to.be.eq(lotto.newLotto.cost);
+            expect (price).to.be.eq(ethers.utils.parseUnits("10", 18));
+
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price.mul(2)
+            );
+
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                2,
+                [0, 1]  // not winning numbers
+            );
+
+            await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+            await network.provider.send("evm_mine");
+
+            let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
+
+            let pot = await this.lotteryInstance.connect(this.buyer).getTotalRuby();
+            expect (pot, 'Pot is 20').to.be.eq(ethers.utils.parseUnits("20", 18));
+
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+            let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
+            let t_diff = t_balanceAfter.sub(t_balanceBefore);
+            let b_diff = b_balanceAfter.sub(b_balanceBefore);
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+
+            // buyer
+            expect (diff, 'Buyer wins 0').to.be.eq(0);
+            // burn 40%
+            expect (b_diff, 'Burn 8').to.be.eq(pot.mul(40).div(100));
+            // treasury 10% + un-won 50%
+            expect (t_diff, 'Treasury 12').to.be.eq(pot.mul(60).div(100));
+        });
+    });
 });
