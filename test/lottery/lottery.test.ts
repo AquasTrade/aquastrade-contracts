@@ -16,6 +16,7 @@ describe("Lottery Factory contract", function() {
         this.owner = signers[0];
         this.buyer = signers[1];
         this.treasury = signers[2];
+        this.burner = signers[3];
 
         // Getting the lottery code (abi, bytecode, name)
         this.factoryContract = await ethers.getContractFactory("LotteryFactory");
@@ -32,7 +33,7 @@ describe("Lottery Factory contract", function() {
         this.nftInstance = await this.mock_erc721Contract.deploy("Lottery Bonus", "Bonus");
         this.factoryInstance = await upgrades.deployProxy(
             this.factoryContract,
-            [this.rubyInstance.address, this.randGenInstance.address]
+            [this.rubyInstance.address, this.randGenInstance.address, this.treasury.address, this.burner.address]
         );
         await this.factoryInstance.deployed();
         this.nftInstance.mint(this.owner.address, "");
@@ -49,19 +50,34 @@ describe("Lottery Factory contract", function() {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
             // Creating a new lottery
             await expect(
-                this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.emit(this.factoryInstance, lotto.events.new)
             // Checking that emitted event contains correct information
             .withArgs(
                 1
             );
+
+            let lotteryInstance = await this.lotteryContract.attach(this.factoryInstance.getCurrentLotto());
+
+            expect (
+                await lotteryInstance.getTicketPrice()
+            ).to.be.eq(lotto.newLotto.cost);
+
+            expect (
+                await lotteryInstance.getTicketERC20Symbol()
+            ).to.be.eq('RUBY');
+            expect (
+                await lotteryInstance.getTicketERC20Decimals()
+            ).to.be.eq(18);
+
+
         });
         /**
          * Testing that non-admins cannot create a lotto
          */
         it("Invalid admin", async function() {
             await expect(
-                this.factoryInstance.connect(this.buyer).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.buyer).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.be.revertedWith(lotto.errors.invalid_owner);
         });
         /**
@@ -74,14 +90,14 @@ describe("Lottery Factory contract", function() {
             await this.nftInstance.approve(this.factoryInstance.address, 3);
             // Creating a new lottery
             await expect(
-                this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.emit(this.factoryInstance, lotto.events.new)
             // Checking that emitted event contains correct information
             .withArgs(
                 1
             );
             await expect(
-                this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 3, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 3, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.emit(this.factoryInstance, lotto.events.new)
             // Checking that emitted event contains correct information
             .withArgs(
@@ -99,14 +115,14 @@ describe("Lottery Factory contract", function() {
             await nftInstance1.connect(this.owner).approve(this.factoryInstance.address, 1);
             // Creating a new lottery
             await expect(
-                this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.emit(this.factoryInstance, lotto.events.new)
             // Checking that emitted event contains correct information
             .withArgs(
                 1
             );
             await expect(
-                this.factoryInstance.connect(this.owner).createNewLotto(nftInstance1.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, nftInstance1.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.emit(this.factoryInstance, lotto.events.new)
             // Checking that emitted event contains correct information
             .withArgs(
@@ -123,14 +139,14 @@ describe("Lottery Factory contract", function() {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 3);
             // Creating a new lottery
             await expect(
-                this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.emit(this.factoryInstance, lotto.events.new)
             // Checking that emitted event contains correct information
             .withArgs(
                 1
             );
             await expect(
-                this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+                this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 2, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             ).to.be.revertedWith(lotto.errors.invalid_nft_owner);
         });
     });
@@ -142,7 +158,7 @@ describe("Lottery Factory contract", function() {
          */
         beforeEach( async function () {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
-            await this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
         });
         /**
@@ -409,7 +425,7 @@ describe("Lottery Factory contract", function() {
         beforeEach( async function () {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
             // Creating a new lottery
-            await this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day);
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day);
             this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
         });
         /**
@@ -473,7 +489,7 @@ describe("Lottery Factory contract", function() {
     describe("Claiming tickets tests", function() {
         beforeEach( async function () {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
-            await this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
             // Buying tickets
             // Getting the price to buy
@@ -531,7 +547,7 @@ describe("Lottery Factory contract", function() {
     describe("Claim Test for inividual winners", function() {
         beforeEach( async function () {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
-            await this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
             // Buying tickets
             // Getting the price to buy
@@ -682,7 +698,7 @@ describe("Lottery Factory contract", function() {
     describe("Withdrawal test", function() {
         beforeEach( async function () {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
-            await this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day)
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day)
             this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
             // Buying tickets
             // Getting the price to buy
@@ -742,7 +758,7 @@ describe("Lottery Factory contract", function() {
     describe("Lottery Factory view test", function() {
         beforeEach( async function () {
             await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
-            await this.factoryInstance.connect(this.owner).createNewLotto(this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, this.treasury.address, lotto.newLotto.day);
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1, lotto.setup.sizeOfLottery, lotto.newLotto.cost, lotto.newLotto.distribution, lotto.newLotto.day);
             this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
             // Buying tickets
             // Getting the price to buy

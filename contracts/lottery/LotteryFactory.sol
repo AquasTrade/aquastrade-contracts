@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,14 +12,13 @@ import "../interfaces/IRubyNFT.sol";
 
 contract LotteryFactory is OwnableUpgradeable {
 
-    // Safe math
     using SafeMath for uint256;
-    // Safe ERC20
-    using SafeERC20 for IERC20;
 
-    // Instance of Ruby token (collateral currency for lotto)
     address private ruby;
     address private RNG;
+    address private treasury;
+    address private burn;
+
     uint256 private constant MAX_WINNERS = 10;
 
     mapping (uint256 => Lottery) private allLotteries;
@@ -31,46 +29,84 @@ contract LotteryFactory is OwnableUpgradeable {
     //-------------------------------------------------------------------------
     // initializer
     //-------------------------------------------------------------------------
-    function initialize(address _ruby, address _randomNumberGenerator) public initializer {
+    function initialize(address _ruby, address _randomNumberGenerator, address _treasury, address _burn) public initializer {
         require(
           _ruby != address(0),
           "LotteryFactory: ruby cannot be 0 address"
         );
-        
         require(
           _randomNumberGenerator != address(0),
           "LotteryFactory: randomNumberGenerator cannot be 0 address"
         );
+        require(
+            _treasury != address(0),
+            "LotteryFactory: Treasury cannot be 0 address"
+        );
+        require(
+            _burn != address(0),
+            "LotteryFactory: Burn cannot be 0 address"
+        );
         ruby = _ruby;
         RNG = _randomNumberGenerator;
+        treasury = _treasury;
+        burn = _burn;
+
         OwnableUpgradeable.__Ownable_init();
     }
 
     /// @notice Create a new Lottery instance.
+    /// @param _collateral The ERC20 address for token to buy tickets
     /// @param _nft The NFT address for bonus.
     /// @param _tokenId The Bonus NFT ID.
     /// @param _lotterySize Digit count of ticket.
-    /// @param ticketPrice Cost per ticket in $ruby.
-    /// @param distribution An array defining the distribution of the prize pool.
-    /// @param duration The duration until no more tickets will be sold for the lottery from now.
-    function createNewLotto(address _nft, uint256 _tokenId, uint256 _lotterySize, uint256 ticketPrice, uint256[] calldata distribution, address _treasury, uint256 duration) external onlyOwner() {
+    /// @param _ticketPrice Cost per ticket in $ruby.
+    /// @param _distribution An array defining the distribution of the prize pool.
+    /// @param _duration The duration until no more tickets will be sold for the lottery from now.
+    function createNewLotto(address _collateral,
+                            address _nft,
+                            uint256 _tokenId,
+                            uint256 _lotterySize,
+                            uint256 _ticketPrice,
+                            uint256[] calldata _distribution,
+                            uint256 _duration) external onlyOwner() {
+        require(
+            _collateral != address(0),
+            "LotteryFactory: Collateral cannot be 0 address"
+        );
         require(
             _nft != address(0),
             "LotteryFactory: Nft cannot be 0 address"
         );
         require(
-            distribution.length >= 2,
+            _distribution.length > 2,
             "LotteryFactory: Invalid distribution"
         );
         require(
-            distribution.length <= MAX_WINNERS + 1,
+            _distribution.length <= MAX_WINNERS + 2,
             "LotteryFactory: Invalid distribution"
         );
-        require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "LotteryFactory: Owner of NFT is invalid");
+        require(
+            IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender,
+            "LotteryFactory: Owner of NFT is invalid");
+
         lotteryId ++;
-        allLotteries[lotteryId] = new Lottery(address(this), ruby, _nft, _tokenId, _lotterySize, ticketPrice, distribution, _treasury, duration, RNG);
+        allLotteries[lotteryId] = new Lottery(
+            address(this),
+            ruby,
+            _nft,
+            _tokenId,
+            _lotterySize,
+            _ticketPrice,
+            _distribution,
+            burn,
+            treasury,
+            _duration,
+            RNG);
+
         Lottery(allLotteries[lotteryId]).transferOwnership(owner());
+
         IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
+
         emit LotteryCreated(lotteryId);
     }
 
@@ -102,10 +138,28 @@ contract LotteryFactory is OwnableUpgradeable {
         ruby = _ruby;
     }
 
+    function setTreasury(address _treasury) external onlyOwner() {
+        require(
+            _treasury != address(0),
+            "LotteryFactory: Treasury cannot be 0 address"
+        );
+        treasury = _treasury;
+    }
+
+    function setBurn(address _burn) external onlyOwner() {
+        require(
+            _burn != address(0),
+            "LotteryFactory: Burn cannot be 0 address"
+        );
+        burn = _burn;
+    }
+
+    // fixme not used
     function getRewardAmount(address to) external view returns (uint256) {
         return Lottery(getCurrentLotto()).getRewardAmount(to);
     }
 
+    // fixme not used
     function getRewardNFT(address to) external view returns(bool) {
         return Lottery(getCurrentLotto()).getRewardNFT(to);
     }
@@ -115,7 +169,15 @@ contract LotteryFactory is OwnableUpgradeable {
     }
 
     function getRuby() external view returns (address) {
-        return address(ruby);
+        return ruby;
+    }
+
+    function getTreasury() external view returns (address) {
+        return treasury;
+    }
+
+    function getBurn() external view returns (address) {
+        return burn;
     }
 
     function costToBuyTickets(uint256 _ticketSize) external view returns(uint256) {

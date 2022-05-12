@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
-// Imported OZ helper contracts
+
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -9,25 +10,26 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./IRandomNumberGenerator.sol";
 import "../interfaces/IRubyNFT.sol";
-import "../token_mappings/RubyToken.sol";
+
 //import "hardhat/console.sol";
 
 contract Lottery is Ownable, Pausable {
     // Libraries
-    // Safe math
     using SafeMath for uint256;
-    // Safe ERC20
-    using SafeERC20 for RubyToken;
-    // Address functionality 
+    using SafeERC20 for IERC20;
     using Address for address;
+
     uint256 private constant MAX_WINNERS = 10;
 
     address private factory; // LotteryFactory address.
-    RubyToken private ruby; // Instance of Ruby token (collateral currency for lotto).
+    address private treasury; // Address to send
+    address private burn; // Address to send
+
+    IERC20 private ruby; // Instance of erc20 token (collateral currency for lotto).
     IRandomNumberGenerator internal RNG; // Instance of Random Number Generator.
     IRubyNFT private nft; // Instance of NFT for lottery reward.
-    uint256 private bonusTokenId; // ID of NFT for lottery reward.
 
+    uint256 private bonusTokenId; // ID of NFT for lottery reward.
     uint256 private startingTimestamp; // Block timestamp for start of lottery.
     uint256 private closingTimestamp; // Block timestamp for end of lottery.
     uint256 private lotterySize; // Digit count of ticket.
@@ -36,7 +38,6 @@ contract Lottery is Ownable, Pausable {
     uint256[] private winners; // The winning numbers.
     uint256 private ticketPrice; // Cost per ticket in $ruby.
     uint256[] private prizeDistribution; // An array defining the distribution of the prize pool.
-    address private treasury; // Address to send
     uint256 private numTicketsSold;
 
     mapping (uint256 => address) private ticketsToPerson;
@@ -47,15 +48,25 @@ contract Lottery is Ownable, Pausable {
     event DrewWinningNumber(uint256[] _winners);
     event RewardClaimed(address to);
 
-    constructor (address _factory, address _ruby, address _nft, uint256 _bonusTokenId, uint256 _lotterySize, uint256 _ticketPrice, uint256[] memory _prizeDistribution /*first, second, ..., last, burn, treasury*/, address _treasury, uint256 _duration, address _RNG) 
+    constructor (address _factory,
+                 address _ruby,
+                 address _nft,
+                 uint256 _bonusTokenId,
+                 uint256 _lotterySize,
+                 uint256 _ticketPrice,
+                 uint256[] memory _prizeDistribution /*first, second, ..., last, burn, treasury*/,
+                 address _burn,
+                 address _treasury,
+                 uint256 _duration,
+                 address _RNG) 
       public {
-    	require(
-          _ruby != address(0),
-          "Lottery: Ruby cannot be 0 address"
-      );
       require(
           _factory != address(0),
           "Lottery: Factory cannot be 0 address"
+      );
+    	require(
+          _ruby != address(0),
+          "Lottery: Ruby cannot be 0 address"
       );
       require(
           _nft != address(0),
@@ -68,6 +79,10 @@ contract Lottery is Ownable, Pausable {
       require(
           _treasury != address(0),
           "Lottery: Treasury cannot be 0 address"
+      );
+      require(
+          _burn != address(0),
+          "Lottery: Burn cannot be 0 address"
       );
     	require(
           _prizeDistribution.length >= 3,
@@ -90,11 +105,14 @@ contract Lottery is Ownable, Pausable {
           "Lottery: Prize distribution is not 100%"
       );
       factory = _factory;
-      ruby = RubyToken(_ruby);
+
+      ruby = IERC20(_ruby);
       RNG = IRandomNumberGenerator(_RNG);
       nft = IRubyNFT(_nft);
+
       bonusTokenId = _bonusTokenId;
       treasury = _treasury;
+      burn = _burn;
       ticketPrice = _ticketPrice;
     	lotterySize = _lotterySize;
     	startingTimestamp = getCurrentTime();
@@ -168,9 +186,18 @@ contract Lottery is Ownable, Pausable {
     function drawWinningNumbers() external closed() onlyOwner() {
     	require(winners.length == 0, "Lottery: Have already drawn the winning number");
       winners = RNG.getRandomNumber(lotterySize, winnersSize);
-      ruby.safeTransfer(treasury, rubyTotal.mul(prizeDistribution[prizeDistribution.length - 1]).div(100));
-      // ruby.burn(rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
-      ruby.safeTransfer(address(0xdeadbeef), rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
+
+      // percentage to treasury
+      if (prizeDistribution[prizeDistribution.length - 1] > 0) {
+        ruby.safeTransfer(treasury, rubyTotal.mul(prizeDistribution[prizeDistribution.length - 1]).div(100));
+      }
+      // percentage to burn
+      if (prizeDistribution[prizeDistribution.length - 2] > 0) {
+        ruby.safeTransfer(address(0xdeadbeef), rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
+      }
+
+      // todo: if the lottery was not won then transfer remainder to treasury
+
     	emit DrewWinningNumber(winners);
     }
 
@@ -302,17 +329,13 @@ contract Lottery is Ownable, Pausable {
     function getClaimed(address who) external view returns(bool) {
       return claimed[who];
     }
-
-    //-------------------------------------------------------------------------
-    // SET FUNCTIONS 
-    //-------------------------------------------------------------------------
-    function setTicketPrice(uint256 _price) external onlyOwner() {
-        ticketPrice = _price;
+    function getTicketPrice() external view returns(uint256) {
+      return ticketPrice;
     }
-    function setStartingTimestamp(uint256 _time) external onlyOwner() {
-      startingTimestamp = _time;
+    function getTicketERC20Symbol() external view returns(string memory) {
+      return ERC20(address(ruby)).symbol();
     }
-    function setClosingTimestamp(uint256 _time) external onlyOwner() {
-      closingTimestamp = _time;
+    function getTicketERC20Decimals() external view returns(uint8) {
+      return ERC20(address(ruby)).decimals();
     }
 }

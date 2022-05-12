@@ -21,7 +21,7 @@ The arguments are
 
 e.g 
 ```
-yarn createLottery --network rubyNewChain --nftaddress 0xd80BC0126A38c9F7b915e1B2B9f78280639cadb3 --nftid 0 --size 4 --price 10000000000000000000 --distribution "[40, 25, 10, 5, 15, 5]" --treasury 0xC3A46A18e6CB5bB8980EcbeCBd675B4D931FC4C0 --duration 7200 --mint 1
+yarn createLottery --network rubyNewChain --nftaddress 0xd80BC0126A38c9F7b915e1B2B9f78280639cadb3 --nftid 0 --size 4 --price 10000000000000000000 --distribution "[40, 25, 10, 5, 15, 5]" --duration 7200 --mint 1
 ```
 1. Draw Lottery
 
