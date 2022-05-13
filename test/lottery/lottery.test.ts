@@ -1,10 +1,9 @@
 import { expect, assert } from "chai";
 import { network, upgrades } from "hardhat";
-// import { BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 
 const { 
     lotto,
-    BigNumber,
     generateLottoNumbers
 } = require("./settings.ts");
 
@@ -17,6 +16,10 @@ describe("Lottery Factory contract", function() {
         this.buyer = signers[1];
         this.treasury = signers[2];
         this.burner = signers[3];
+
+        // from RNG_Test
+        // each num % (10 ** lotterySize)
+        this.RNG_NUMBERS = [126009, 5533037, 9311954, 5319410, 9952834, 3396771, 5720753]
 
         // Getting the lottery code (abi, bytecode, name)
         this.factoryContract = await ethers.getContractFactory("LotteryFactory");
@@ -234,8 +237,8 @@ describe("Lottery Factory contract", function() {
                 await this.lotteryInstance.getNumTicketsSold()
             ).to.be.eq(2);
             let myTickets = await this.lotteryInstance.getTickets(this.owner.address);
-            expect (new BigNumber(1).toString()).to.be.eq(myTickets[0])
-            expect (new BigNumber(2).toString()).to.be.eq(myTickets[1])
+            expect (BigNumber.from(1)).to.be.eq(myTickets[0])
+            expect (BigNumber.from(2)).to.be.eq(myTickets[1])
 
             expect (
                 await this.lotteryInstance.areTicketsAvailable([1, 2])
@@ -255,9 +258,9 @@ describe("Lottery Factory contract", function() {
                 await this.lotteryInstance.getNumTicketsSold()
             ).to.be.eq(3);
             let myTickets2 = await this.lotteryInstance.getTickets(this.owner.address);
-            expect (new BigNumber(1).toString()).to.be.eq(myTickets2[0])
-            expect (new BigNumber(2).toString()).to.be.eq(myTickets2[1])
-            expect (new BigNumber(3).toString()).to.be.eq(myTickets2[2])
+            expect (BigNumber.from(1)).to.be.eq(myTickets2[0])
+            expect (BigNumber.from(2)).to.be.eq(myTickets2[1])
+            expect (BigNumber.from(3)).to.be.eq(myTickets2[2])
 
             expect (
                 await this.lotteryInstance.areTicketsAvailable([1, 2, 3])
@@ -597,19 +600,17 @@ describe("Lottery Factory contract", function() {
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
-            let balanceBefore = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
+            let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
             await this.lotteryInstance.connect(this.owner).claimReward();
-            let balanceAfter = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
-            let diff = balanceAfter.minus(balanceBefore);
-            assert.equal(
-                diff.toString(),
-                lotto.newLotto.win.first.toString(),
-                "1st winner claim amount is wrong"
-            );
+            let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+            let diff = balanceAfter.sub(balanceBefore);
+            expect(diff,
+                   "1st winner claim amount is wrong").to.be.eq(lotto.newLotto.win.first);
+                
             assert.equal(
                 await this.nftInstance.ownerOf(1),
                 this.owner.address,
-                "NFT reward to 1st winner is invalid"
+                
             );
         });
         /**
@@ -632,15 +633,12 @@ describe("Lottery Factory contract", function() {
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
-            let balanceBefore = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
+            let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
             await this.lotteryInstance.connect(this.owner).claimReward();
-            let balanceAfter = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
-            let diff = balanceAfter.minus(balanceBefore);
-            assert.equal(
-                diff.toString(),
-                lotto.newLotto.win.second.toString(),
-                "2nd winner claim amount is wrong"
-            );
+            let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+            let diff = balanceAfter.sub(balanceBefore);
+            expect(diff,
+                  "2nd winner claim amount is wrong").to.be.eq(lotto.newLotto.win.second);
         });
         /**
          * Testing that claim for 3rd winner
@@ -662,15 +660,12 @@ describe("Lottery Factory contract", function() {
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
-            let balanceBefore = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
+            let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
             await this.lotteryInstance.connect(this.owner).claimReward();
-            let balanceAfter = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
-            let diff = balanceAfter.minus(balanceBefore);
-            assert.equal(
-                diff.toString(),
-                lotto.newLotto.win.third.toString(),
-                "3rd winner claim amount is wrong"
-            );
+            let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+            let diff = balanceAfter.sub(balanceBefore);
+            expect(diff,
+                  "3rd winner claim amount is wrong").to.be.eq(lotto.newLotto.win.third);
         });
         /**
          * Testing that claim for 4th winner
@@ -692,15 +687,12 @@ describe("Lottery Factory contract", function() {
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
             // Claiming winnings 
-            let balanceBefore = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
+            let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
             await this.lotteryInstance.connect(this.owner).claimReward();
-            let balanceAfter = new BigNumber((await this.rubyInstance.balanceOf(this.owner.address)).toString());
-            let diff = balanceAfter.minus(balanceBefore);
-            assert.equal(
-                diff.toString(),
-                lotto.newLotto.win.fourth.toString(),
-                "4th winner claim amount is wrong"
-            );
+            let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+            let diff = balanceAfter.sub(balanceBefore);
+            expect(diff,
+                  "4th winner claim amount is wrong").to.be.eq(lotto.newLotto.win.fourth);
         });
     });
     describe("Withdrawal test", function() {
@@ -735,15 +727,12 @@ describe("Lottery Factory contract", function() {
             await network.provider.send("evm_mine");
             // Drawing the numbers
             await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
-            let balanceBefore = new BigNumber((await this.rubyInstance.balanceOf(this.lotteryInstance.address)).toString());
+            let balanceBefore = await this.rubyInstance.balanceOf(this.lotteryInstance.address)
             await this.lotteryInstance.connect(this.owner).withdraw(lotto.buy.one.cost);
-            let balanceAfter = new BigNumber((await this.rubyInstance.balanceOf(this.lotteryInstance.address)).toString());
-            let diff = balanceBefore.minus(balanceAfter);
-            assert.equal(
-                diff.toString(),
-                lotto.buy.one.cost.toString(),
-                "Withdrawal amount is invalid"
-            );
+            let balanceAfter = await this.rubyInstance.balanceOf(this.lotteryInstance.address)
+            let diff = balanceBefore.sub(balanceAfter);
+            expect(diff,
+                   "Withdrawal amount is invalid").to.be.eq(lotto.buy.one.cost)
         });
 
         it("Invalid Withdrawal(Not Admin)", async function() {
@@ -1127,6 +1116,97 @@ describe("Lottery Factory contract", function() {
             expect (b_diff, 'Burn 8').to.be.eq(pot.mul(40).div(100));
             // treasury 10% + un-won 50%
             expect (t_diff, 'Treasury 12').to.be.eq(pot.mul(60).div(100));
+        });
+    });
+    describe("Small lottery", function() {
+        beforeEach( async function () {
+            this.ticketCost = ethers.utils.parseUnits("10", 18);
+            this.day = 24 * 60 * 60 * 1000
+            this.lotterySize = 1  // 10 tickets
+
+            await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
+            await this.factoryInstance.connect(this.owner).createNewLotto(this.rubyInstance.address, this.nftInstance.address, 1,
+                this.lotterySize,
+                this.ticketCost,
+                [50, 25, 25],
+                this.day)
+            this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
+        });
+        it("1 ticket 1 winner", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price
+            );
+
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                1,
+                [this.RNG_NUMBERS[0] % (10 ** this.lotterySize)]
+            );
+
+            // check bought numbers
+            let tickets = await this.lotteryInstance.connect(this.buyer).getTickets(this.buyer.address)
+            expect(tickets,
+                'Correct tickets').to.be.eql([BigNumber.from((this.RNG_NUMBERS[0] % (10 ** this.lotterySize)))])
+
+            expect (
+                await this.lotteryInstance.isTicketAvailable(this.RNG_NUMBERS[0] % (10 ** this.lotterySize))
+            ).to.be.eq(false);
+
+            await network.provider.send("evm_increaseTime", [this.day + 10]);
+            await network.provider.send("evm_mine");
+
+            let pot = await this.lotteryInstance.connect(this.buyer).getTotalRuby();
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let winningNumbers = await this.lotteryInstance.connect(this.buyer).getWinningNumbers()
+            expect(winningNumbers,
+                'Correct winning numbers').to.be.eql([BigNumber.from((this.RNG_NUMBERS[0] % (10 ** this.lotterySize)))])
+            let winningAddresses = await this.lotteryInstance.connect(this.buyer).getWinningAddresses()
+            expect(winningAddresses,
+                'Buyer is the winner').to.be.eql([this.buyer.address])
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+            expect (diff, 'Buyer wins half the pot').to.be.eq(pot.div(2));
+        });
+        it("2 duplicate tickets 1 winner", async function() {
+            let price = await this.lotteryInstance.getTicketPrice();
+            await this.rubyInstance.connect(this.buyer).approve(
+                this.lotteryInstance.address,
+                price.mul(2)
+            );
+
+            await this.lotteryInstance.connect(this.buyer).buyTicket(
+                2,
+                [this.RNG_NUMBERS[0] % (10 ** this.lotterySize), this.RNG_NUMBERS[0] % (10 ** this.lotterySize)]
+            );
+
+            // check bought numbers
+            let tickets = await this.lotteryInstance.connect(this.buyer).getTickets(this.buyer.address)
+            expect(tickets,
+                'Correct tickets').to.be.eql([BigNumber.from((this.RNG_NUMBERS[0] % (10 ** this.lotterySize)))])
+
+            await network.provider.send("evm_increaseTime", [this.day + 10]);
+            await network.provider.send("evm_mine");
+
+            let pot = await this.lotteryInstance.connect(this.buyer).getTotalRuby();
+            await this.lotteryInstance.connect(this.owner).drawWinningNumbers()
+
+            let winningNumbers = await this.lotteryInstance.connect(this.buyer).getWinningNumbers()
+            expect(winningNumbers,
+                'Correct winning numbers').to.be.eql([BigNumber.from((this.RNG_NUMBERS[0] % (10 ** this.lotterySize)))])
+            let winningAddresses = await this.lotteryInstance.connect(this.buyer).getWinningAddresses()
+            expect(winningAddresses,
+                'Buyer is the winner').to.be.eql([this.buyer.address])
+
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await this.lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let diff = balanceAfter.sub(balanceBefore);
+            expect (diff, 'Buyer wins half the pot').to.be.eq(pot.div(2));
         });
     });
 });

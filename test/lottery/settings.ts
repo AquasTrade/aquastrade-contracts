@@ -1,5 +1,4 @@
 const { ethers } = require("ethers");
-const { BigNumber } = require("bignumber.js");
 
 const lotto = {
     setup: {
@@ -85,6 +84,5 @@ function generateLottoNumbers({
 
 module.exports = {
     lotto,
-    BigNumber,
     generateLottoNumbers
 }
