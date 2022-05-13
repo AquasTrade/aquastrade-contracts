@@ -8,10 +8,10 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./Lottery.sol";
 import "../interfaces/IRubyNFT.sol";
+
 // import "hardhat/console.sol";
 
 contract LotteryFactory is OwnableUpgradeable {
-
     using SafeMath for uint256;
 
     address private ruby;
@@ -21,7 +21,7 @@ contract LotteryFactory is OwnableUpgradeable {
 
     uint256 private constant MAX_WINNERS = 10;
 
-    mapping (uint256 => Lottery) private allLotteries;
+    mapping(uint256 => Lottery) private allLotteries;
     uint256 private lotteryId;
 
     event LotteryCreated(uint256 _lotteryId);
@@ -29,23 +29,16 @@ contract LotteryFactory is OwnableUpgradeable {
     //-------------------------------------------------------------------------
     // initializer
     //-------------------------------------------------------------------------
-    function initialize(address _ruby, address _randomNumberGenerator, address _treasury, address _burn) public initializer {
-        require(
-          _ruby != address(0),
-          "LotteryFactory: ruby cannot be 0 address"
-        );
-        require(
-          _randomNumberGenerator != address(0),
-          "LotteryFactory: randomNumberGenerator cannot be 0 address"
-        );
-        require(
-            _treasury != address(0),
-            "LotteryFactory: Treasury cannot be 0 address"
-        );
-        require(
-            _burn != address(0),
-            "LotteryFactory: Burn cannot be 0 address"
-        );
+    function initialize(
+        address _ruby,
+        address _randomNumberGenerator,
+        address _treasury,
+        address _burn
+    ) public initializer {
+        require(_ruby != address(0), "LotteryFactory: ruby cannot be 0 address");
+        require(_randomNumberGenerator != address(0), "LotteryFactory: randomNumberGenerator cannot be 0 address");
+        require(_treasury != address(0), "LotteryFactory: Treasury cannot be 0 address");
+        require(_burn != address(0), "LotteryFactory: Burn cannot be 0 address");
         ruby = _ruby;
         RNG = _randomNumberGenerator;
         treasury = _treasury;
@@ -62,32 +55,23 @@ contract LotteryFactory is OwnableUpgradeable {
     /// @param _ticketPrice Cost per ticket in $ruby.
     /// @param _distribution An array defining the distribution of the prize pool.
     /// @param _duration The duration until no more tickets will be sold for the lottery from now.
-    function createNewLotto(address _collateral,
-                            address _nft,
-                            uint256 _tokenId,
-                            uint256 _lotterySize,
-                            uint256 _ticketPrice,
-                            uint256[] calldata _distribution,
-                            uint256 _duration) external onlyOwner() {
-        require(
-            _collateral != address(0),
-            "LotteryFactory: Collateral cannot be 0 address"
-        );
-        require(
-            _distribution.length > 2,
-            "LotteryFactory: Invalid distribution"
-        );
-        require(
-            _distribution.length <= MAX_WINNERS + 2,
-            "LotteryFactory: Invalid distribution"
-        );
+    function createNewLotto(
+        address _collateral,
+        address _nft,
+        uint256 _tokenId,
+        uint256 _lotterySize,
+        uint256 _ticketPrice,
+        uint256[] calldata _distribution,
+        uint256 _duration
+    ) external onlyOwner {
+        require(_collateral != address(0), "LotteryFactory: Collateral cannot be 0 address");
+        require(_distribution.length > 2, "LotteryFactory: Invalid distribution");
+        require(_distribution.length <= MAX_WINNERS + 2, "LotteryFactory: Invalid distribution");
         if (_nft != address(0)) {
-            require(
-                IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender,
-                "LotteryFactory: Owner of NFT is invalid");
+            require(IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender, "LotteryFactory: Owner of NFT is invalid");
         }
 
-        lotteryId ++;
+        lotteryId++;
         allLotteries[lotteryId] = new Lottery(
             address(this),
             lotteryId,
@@ -100,7 +84,8 @@ contract LotteryFactory is OwnableUpgradeable {
             burn,
             treasury,
             _duration,
-            RNG);
+            RNG
+        );
 
         Lottery(allLotteries[lotteryId]).transferOwnership(owner());
 
@@ -111,47 +96,35 @@ contract LotteryFactory is OwnableUpgradeable {
         emit LotteryCreated(lotteryId);
     }
 
-    function getCurrentLotto() public view returns(address) {
+    function getCurrentLotto() public view returns (address) {
         return address(allLotteries[lotteryId]);
     }
 
-    function getLotto(uint256 _lotteryId) external view returns(address) {
+    function getLotto(uint256 _lotteryId) external view returns (address) {
         return address(allLotteries[_lotteryId]);
     }
 
-    function getCurrentLottoryId() external view returns(uint256) {
+    function getCurrentLottoryId() external view returns (uint256) {
         return lotteryId;
     }
 
-    function setRNG(address _RNG) external onlyOwner() {
-        require(
-            _RNG != address(0),
-            "LotteryFactory: RNG cannot be 0 address"
-        );
+    function setRNG(address _RNG) external onlyOwner {
+        require(_RNG != address(0), "LotteryFactory: RNG cannot be 0 address");
         RNG = _RNG;
     }
 
-    function setRuby(address _ruby) external onlyOwner() {
-        require(
-            _ruby != address(0),
-            "LotteryFactory: Ruby cannot be 0 address"
-        );
+    function setRuby(address _ruby) external onlyOwner {
+        require(_ruby != address(0), "LotteryFactory: Ruby cannot be 0 address");
         ruby = _ruby;
     }
 
-    function setTreasury(address _treasury) external onlyOwner() {
-        require(
-            _treasury != address(0),
-            "LotteryFactory: Treasury cannot be 0 address"
-        );
+    function setTreasury(address _treasury) external onlyOwner {
+        require(_treasury != address(0), "LotteryFactory: Treasury cannot be 0 address");
         treasury = _treasury;
     }
 
-    function setBurn(address _burn) external onlyOwner() {
-        require(
-            _burn != address(0),
-            "LotteryFactory: Burn cannot be 0 address"
-        );
+    function setBurn(address _burn) external onlyOwner {
+        require(_burn != address(0), "LotteryFactory: Burn cannot be 0 address");
         burn = _burn;
     }
 
@@ -171,11 +144,11 @@ contract LotteryFactory is OwnableUpgradeable {
         return burn;
     }
 
-    function costToBuyTickets(uint256 _ticketSize) external view returns(uint256) {
-      return Lottery(getCurrentLotto()).costToBuyTickets(_ticketSize);
+    function costToBuyTickets(uint256 _ticketSize) external view returns (uint256) {
+        return Lottery(getCurrentLotto()).costToBuyTickets(_ticketSize);
     }
 
     function getWinningNumbers() external view returns (uint256[] memory) {
-      return Lottery(getCurrentLotto()).getWinningNumbers();
+        return Lottery(getCurrentLotto()).getWinningNumbers();
     }
 }
