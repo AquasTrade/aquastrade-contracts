@@ -123,13 +123,10 @@ contract Lottery is Ownable, Pausable {
         // Ensuring that there are the right amount of chosen numbers
         require(_choosenTicketNumbers.length == _ticketSize, "Lottery: Invalid chosen numbers");
 
-        bool[] memory okTickets = new bool[](_ticketSize);
         uint256 numOkTickets = 0;
-
         for (uint256 i = 0; i < _choosenTicketNumbers.length; i++) {
             require(_choosenTicketNumbers[i] < uint256(10)**lotterySize, "Lottery: Ticket Number is out of range");
             if (ticketsToPerson[_choosenTicketNumbers[i]] == address(0)) {
-                okTickets[i] = true;
                 numOkTickets += 1;
                 ticketsToPerson[_choosenTicketNumbers[i]] = msg.sender;
                 personToTickets[msg.sender].push(_choosenTicketNumbers[i]);
@@ -162,7 +159,9 @@ contract Lottery is Ownable, Pausable {
         uint256 unwon = 0;
         for (uint256 i = 0; i < winnersSize; i++) {
             address winAddress = ticketsToPerson[winners[i]];
-            if (winAddress == address(0)) unwon = unwon.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+            if (winAddress == address(0)) {
+              unwon = unwon.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+            }
         }
         ruby.safeTransfer(treasury, unwon);
 
@@ -208,7 +207,9 @@ contract Lottery is Ownable, Pausable {
         for (uint256 i = 0; i < winnersSize; i++) {
             uint256 winner = winners[i];
             address winAddress = ticketsToPerson[winner];
-            if (winAddress == to) prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+            if (winAddress == to) {
+              prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+            }
         }
         return prize;
     }
@@ -269,6 +270,7 @@ contract Lottery is Ownable, Pausable {
         return personToTickets[person];
     }
 
+    /// @notice Number of digits of the ticket, e.g. 4 = 10**4 = 10000 tickets
     function getLotterySize() external view returns (uint256) {
         return lotterySize;
     }

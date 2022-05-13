@@ -51,8 +51,8 @@ contract LotteryFactory is OwnableUpgradeable {
     /// @param _collateral The ERC20 address for token to buy tickets
     /// @param _nft The NFT address for bonus (can be zero for no nft prize)
     /// @param _tokenId The Bonus NFT ID
-    /// @param _lotterySize Digit count of ticket.
-    /// @param _ticketPrice Cost per ticket in $ruby.
+    /// @param _lotterySize Digit count of ticket (e.g. 4 = 10^4 = 10000 tickets)
+    /// @param _ticketPrice Cost per ticket in collateral tokens
     /// @param _distribution An array defining the distribution of the prize pool.
     /// @param _duration The duration until no more tickets will be sold for the lottery from now.
     function createNewLotto(
