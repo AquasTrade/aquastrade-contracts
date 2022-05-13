@@ -194,12 +194,19 @@ contract Lottery is Ownable, Pausable {
         ruby.safeTransfer(burn, rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
       }
 
-      // todo: if the lottery was not won then transfer remainder to treasury
+      // any un-won collateral goes to treasury
+      uint256 unwon = 0;
+      for (uint256 i = 0; i < winnersSize; i++) {
+        address winAddress = ticketsToPerson[winners[i]];
+        if (winAddress == address(0))
+          unwon = unwon.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+      }
+      ruby.safeTransfer(treasury, unwon);
 
     	emit DrewWinningNumber(winners);
     }
 
-    function withdraw(uint256 _amount) external drew() onlyOwner() {
+    function withdraw(uint256 _amount) external closed() onlyOwner() {
       ruby.safeTransfer(
           msg.sender, 
           _amount

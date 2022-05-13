@@ -726,7 +726,6 @@ describe("Lottery Factory contract", function() {
             await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
             await network.provider.send("evm_mine");
             // Drawing the numbers
-            await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
             let balanceBefore = await this.rubyInstance.balanceOf(this.lotteryInstance.address)
             await this.lotteryInstance.connect(this.owner).withdraw(lotto.buy.one.cost);
             let balanceAfter = await this.rubyInstance.balanceOf(this.lotteryInstance.address)
@@ -746,10 +745,10 @@ describe("Lottery Factory contract", function() {
             ).to.be.revertedWith(lotto.errors.invalid_owner);
         });
 
-        it("Invalid Withdrawal(before draw)", async function() {
+        it("Invalid Withdrawal(before closed)", async function() {
             await expect(
                 this.lotteryInstance.connect(this.owner).withdraw(lotto.buy.one.cost)
-            ).to.be.revertedWith(lotto.errors.invalid_claim_draw);
+            ).to.be.revertedWith("Lottery: Ticket selling is not yet closed");
         });
     });
     describe("Lottery Factory view test", function() {
