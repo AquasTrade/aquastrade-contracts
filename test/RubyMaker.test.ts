@@ -63,7 +63,7 @@ describe("RubyMaker", function () {
     await this.factory.setPairCreator(this.router.address, true);
 
     // deploy the staker with dummy addresses, not really relevant for these tests
-    await deploy(this, [["staker", this.RubyStaker, [this.rubyToken.address]]]);
+    await deploy(this, [["staker", this.RubyStaker, [this.rubyToken.address, 9]]]);  //maxNumRewards=9
 
     this.rubyMaker = await deployRubyMaker(this.owner.address, this.factory.address, this.staker.address, this.rubyToken.address, this.usdp.address, burnPercent)
 
