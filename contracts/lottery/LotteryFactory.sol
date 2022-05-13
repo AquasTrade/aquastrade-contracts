@@ -56,8 +56,8 @@ contract LotteryFactory is OwnableUpgradeable {
 
     /// @notice Create a new Lottery instance.
     /// @param _collateral The ERC20 address for token to buy tickets
-    /// @param _nft The NFT address for bonus.
-    /// @param _tokenId The Bonus NFT ID.
+    /// @param _nft The NFT address for bonus (can be zero for no nft prize)
+    /// @param _tokenId The Bonus NFT ID
     /// @param _lotterySize Digit count of ticket.
     /// @param _ticketPrice Cost per ticket in $ruby.
     /// @param _distribution An array defining the distribution of the prize pool.
@@ -74,10 +74,6 @@ contract LotteryFactory is OwnableUpgradeable {
             "LotteryFactory: Collateral cannot be 0 address"
         );
         require(
-            _nft != address(0),
-            "LotteryFactory: Nft cannot be 0 address"
-        );
-        require(
             _distribution.length > 2,
             "LotteryFactory: Invalid distribution"
         );
@@ -85,9 +81,11 @@ contract LotteryFactory is OwnableUpgradeable {
             _distribution.length <= MAX_WINNERS + 2,
             "LotteryFactory: Invalid distribution"
         );
-        require(
-            IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender,
-            "LotteryFactory: Owner of NFT is invalid");
+        if (_nft != address(0)) {
+            require(
+                IRubyNFT(_nft).ownerOf(_tokenId) == msg.sender,
+                "LotteryFactory: Owner of NFT is invalid");
+        }
 
         lotteryId ++;
         allLotteries[lotteryId] = new Lottery(
@@ -106,7 +104,9 @@ contract LotteryFactory is OwnableUpgradeable {
 
         Lottery(allLotteries[lotteryId]).transferOwnership(owner());
 
-        IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
+        if (_nft != address(0)) {
+            IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
+        }
 
         emit LotteryCreated(lotteryId);
     }

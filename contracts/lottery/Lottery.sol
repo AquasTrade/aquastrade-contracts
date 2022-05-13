@@ -27,7 +27,7 @@ contract Lottery is Ownable, Pausable {
 
     IERC20 private ruby; // Instance of erc20 token (collateral currency for lotto).
     IRandomNumberGenerator internal RNG; // Instance of Random Number Generator.
-    IRubyNFT private nft; // Instance of NFT for lottery reward.
+    address private nft; // Address of instance of IRubyNFT (or 0)
 
     uint256 private ID; // ID of this lottery
     uint256 private bonusTokenId; // ID of NFT for lottery reward.
@@ -71,10 +71,6 @@ contract Lottery is Ownable, Pausable {
           "Lottery: Ruby cannot be 0 address"
       );
       require(
-          _nft != address(0),
-          "Lottery: Nft cannot be 0 address"
-      );
-      require(
           _RNG != address(0),
           "Lottery: Random Number Generator cannot be 0 address"
       );
@@ -111,7 +107,7 @@ contract Lottery is Ownable, Pausable {
 
       ruby = IERC20(_ruby);
       RNG = IRandomNumberGenerator(_RNG);
-      nft = IRubyNFT(_nft);
+      nft = _nft;
 
       bonusTokenId = _bonusTokenId;
       treasury = _treasury;
@@ -217,7 +213,11 @@ contract Lottery is Ownable, Pausable {
     function claimReward() external closed() drew() {
       uint256 prize = 0;
       require(claimed[msg.sender] == false, "Lottery: Already Claimed");
-      if (ticketsToPerson[winners[0]] == msg.sender) nft.safeTransferFrom(address(this), msg.sender, bonusTokenId);
+      if (ticketsToPerson[winners[0]] == msg.sender) {
+        if (nft != address(0)) {
+          IRubyNFT(nft).safeTransferFrom(address(this), msg.sender, bonusTokenId);
+        }
+      }
       for (uint256 i = 0; i < winnersSize; i++) {
         uint256 winner = winners[i];
         address winAddress = ticketsToPerson[winner];
@@ -252,7 +252,9 @@ contract Lottery is Ownable, Pausable {
     /// @notice Check the reward NFT.
     /// @param to The address where you want to check the reward NFT.
     function getRewardNFT(address to) public view drew() returns(bool) {
-      if (ticketsToPerson[winners[0]] == to) return true;
+      if ((ticketsToPerson[winners[0]] == to) && (nft != address(0))) {
+        return true;
+      }
       return false;
     }
 
@@ -271,7 +273,7 @@ contract Lottery is Ownable, Pausable {
       return winnerAddresses;
     }
     function hasNFTPrize() external view returns (bool) {
-      return true;
+      return nft != address(0);
     }
     function isTicketAvailable(uint256 ticket) external view returns (bool) {
       return ticketsToPerson[ticket] == address(0);
@@ -311,16 +313,22 @@ contract Lottery is Ownable, Pausable {
       return prizeDistribution;
     }
     function getBonusNFT() external view returns(address) {
-      return address(nft);
+      return nft;
     }
     function getBonusId() external view returns(uint256) {
       return bonusTokenId;
     }
     function getNftDescription() external view returns(string memory) {
-      return nft.description();
+      if (nft == address(0)) {
+        return '{}';
+      }
+      return IRubyNFT(nft).description();
     }
     function getVisualAppearance() external view returns(string memory) {
-      return nft.visualAppearance();
+      if (nft == address(0)) {
+        return '{}';
+      }
+      return IRubyNFT(nft).visualAppearance();
     }
     function isOpened() external view returns(bool) {
       return getCurrentTime() >= startingTimestamp && getCurrentTime() < closingTimestamp;

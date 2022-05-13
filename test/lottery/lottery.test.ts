@@ -62,10 +62,23 @@ describe("Lottery Factory contract", function() {
 
             let lotteryInstance = await this.lotteryContract.attach(this.factoryInstance.getCurrentLotto());
 
+            expect(
+                await lotteryInstance.hasNFTPrize(),
+                "NFT prize"
+            ).to.be.eq(true)
+            expect(
+                await lotteryInstance.getBonusNFT(),
+                "NFT address"
+            ).to.be.eq(this.nftInstance.address)
+
             expect (
                 await lotteryInstance.getTicketPrice()
             ).to.be.eq(lotto.newLotto.cost);
 
+            expect(
+                await lotteryInstance.getTicketERC20(),
+                "Collateral address"
+            ).to.be.eq(this.rubyInstance.address)
             expect (
                 await lotteryInstance.getTicketERC20Symbol()
             ).to.be.eq('RUBY');
@@ -1165,11 +1178,58 @@ describe("Lottery Factory contract", function() {
             expect(winningAddresses,
                 'Buyer is the winner').to.be.eql([this.buyer.address])
 
+            let nftBalanceBefore = await this.nftInstance.balanceOf(this.buyer.address);
             let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
             await this.lotteryInstance.connect(this.buyer).claimReward();
             let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let nftBalanceAfter = await this.nftInstance.balanceOf(this.buyer.address);
+      
             let diff = balanceAfter.sub(balanceBefore);
-            expect (diff, 'Buyer wins half the pot').to.be.eq(pot.div(2));
+            expect(diff, "Buyer wins half the pot").to.be.eq(pot.div(2));
+      
+            let nftDiff = nftBalanceAfter.sub(nftBalanceBefore);
+            expect(nftDiff, "Buyer wins NFT").to.be.eq(1);
+        });
+        it("1 ticket 1 winner (without NFT)", async function() {
+            await this.factoryInstance.connect(this.owner).createNewLotto(
+              this.rubyInstance.address,
+              ethers.constants.AddressZero,
+              0,
+              this.lotterySize,
+              this.ticketCost,
+              [50, 25, 25],
+              this.day,
+            );
+            let lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
+      
+            expect(
+              await lotteryInstance.hasNFTPrize(),
+              "No NFT prize"
+            ).to.be.eq(false)
+      
+            let price = await lotteryInstance.getTicketPrice();
+            await this.rubyInstance.connect(this.buyer).approve(lotteryInstance.address, price);
+      
+            await lotteryInstance.connect(this.buyer).buyTicket(1, [this.RNG_NUMBERS[0] % 10 ** this.lotterySize]);
+            
+            await network.provider.send("evm_increaseTime", [this.day + 10]);
+            await network.provider.send("evm_mine");
+      
+            let pot = await lotteryInstance.connect(this.buyer).getTotalRuby();
+            await lotteryInstance.connect(this.owner).drawWinningNumbers();
+      
+            let nftBalanceBefore = await this.nftInstance.balanceOf(this.buyer.address);
+            let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+            await lotteryInstance.connect(this.buyer).claimReward();
+            let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
+            let nftBalanceAfter = await this.nftInstance.balanceOf(this.buyer.address);
+      
+            let diff = balanceAfter.sub(balanceBefore);
+            expect(diff, "Buyer wins half the pot").to.be.eq(pot.div(2));
+      
+            let nftDiff = nftBalanceAfter.sub(nftBalanceBefore);
+            expect(nftDiff, "Buyer wins NO NFT").to.be.eq(0);
+      
         });
         it("2 duplicate tickets 1 winner", async function() {
             let price = await this.lotteryInstance.getTicketPrice();
