@@ -163,6 +163,8 @@ contract Lottery is Ownable, Pausable {
         if (ticketsToPerson[_choosenTicketNumbers[i]] == address(0)) {
           okTickets[i] = true;
           numOkTickets += 1;
+          ticketsToPerson[_choosenTicketNumbers[i]] = msg.sender;
+          personToTickets[msg.sender].push(_choosenTicketNumbers[i]);
         }
       }
 
@@ -173,13 +175,6 @@ contract Lottery is Ownable, Pausable {
           totalCost
       );
       rubyTotal = rubyTotal.add(totalCost);
-
-    	for (uint256 i = 0; i < _choosenTicketNumbers.length; i++) {
-        if (okTickets[i]) {
-    		  ticketsToPerson[_choosenTicketNumbers[i]] = msg.sender;
-          personToTickets[msg.sender].push(_choosenTicketNumbers[i]);
-        }
-    	}
       numTicketsSold += numOkTickets;
 
     	emit NewTickets(msg.sender, numOkTickets);
