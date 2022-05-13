@@ -20,6 +20,7 @@ describe("RubyMasterChef", function () {
     this.MockERC20 = await ethers.getContractFactory("MockERC20", this.minter);
     this.SushiToken = await ethers.getContractFactory("SushiToken");
 
+    this.maxNumOfRewards = 9;
     this.treasuryPercent = 100;
     this.lpPercent = 1000 - this.treasuryPercent;
     this.rubyPerSec = 10;
@@ -42,7 +43,7 @@ describe("RubyMasterChef", function () {
     this.ruby = await this.RubyToken.deploy(); // b=1
     await this.ruby.deployed();
 
-    this.staker = await this.rubyStaker.deploy(this.ruby.address);
+    this.staker = await this.rubyStaker.deploy(this.ruby.address, this.maxNumOfRewards);
 
     this.partnerToken = await this.SushiToken.deploy(); // b=2
     await this.partnerToken.deployed();
@@ -58,7 +59,7 @@ describe("RubyMasterChef", function () {
         this.treasury.address,
         "10",
         startTime,
-        "1100",
+        "1100",// treasury percent max is 1000
       ),
     ).to.be.revertedWith("RubyMasterChef: invalid treasury percent value.");
   });
