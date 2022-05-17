@@ -26,7 +26,7 @@
     "@types/node": "^16.7.10",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.13.0",
-    "@uniswap/v2-core": "git://github.com/uniswap/uniswap-v2-core.git#27f6354bae6685612c182c3bc7577e61bc8717e3",
+    "@uniswap/v2-core": "https://github.com/uniswap/uniswap-v2-core.git#27f6354bae6685612c182c3bc7577e61bc8717e3",
     "chai": "^4.3.4",
     "commitizen": "^4.2.4",
     "cross-env": "^7.0.3",
