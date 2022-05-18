@@ -1,5 +1,5 @@
 /* eslint no-use-before-define: "warn" */
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 
 import l1Artifacts from "../../ima_bridge/l1_artifacts.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
@@ -13,7 +13,7 @@ import { address as RinkebyUSDC } from "../../deployments/rinkeby/MockUSDC.json"
 import { address as RinkebyUSDP } from "../../deployments/rinkeby/MockUSDP.json";
 import { address as RinkebyUSDT } from "../../deployments/rinkeby/MockUSDT.json";
 
-const SCHAIN_NAME = process.env.STOCKY_SCHAIN_CHAINNAME;
+const SCHAIN_NAME = "fancy-rasalhague";
 
 
 const bridgeEth = async (signer: SignerWithAddress) => {
@@ -131,6 +131,10 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
 
 const main = async () => {
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
+
+  if (network.name !== "rinkeby") {
+    throw new Error("Not supported (these are mock tokens)");
+  }
 
   // await bridgeL1tokensToL2(signer);
   await bridgeEth(signer);
