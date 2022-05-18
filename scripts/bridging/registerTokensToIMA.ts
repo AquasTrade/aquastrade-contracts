@@ -12,13 +12,15 @@ import { address as RinkebyUSDC } from "../../deployments/rinkeby/MockUSDC.json"
 import { address as RinkebyUSDP } from "../../deployments/rinkeby/MockUSDP.json";
 import { address as RinkebyUSDT } from "../../deployments/rinkeby/MockUSDT.json";
 
-import { address as RubyUSDC } from "../../deployments/stocky/RubyUSDC.json";
-import { address as RubyUSDT } from "../../deployments/stocky/RubyUSDT.json";
-import { address as RubyDAI } from "../../deployments/stocky/RubyDAI.json";
-import { address as RubyUSDP } from "../../deployments/stocky/RubyUSDP.json";
-import { address as Ruby } from "../../deployments/stocky/RubyToken.json";
+/* Note: this hardcodes the configuration networkName=chain-name: rubyNewChain=fancy-rasalhague
+   for a new test chain, change the network name and the chain name appropriately */
+import { address as RubyUSDC } from "../../deployments/rubyNewChain/RubyUSDC.json";
+import { address as RubyUSDT } from "../../deployments/rubyNewChain/RubyUSDT.json";
+import { address as RubyDAI } from "../../deployments/rubyNewChain/RubyDAI.json";
+import { address as RubyUSDP } from "../../deployments/rubyNewChain/RubyUSDP.json";
+import { address as Ruby } from "../../deployments/rubyNewChain/RubyToken.json";
 
-const SCHAIN_NAME = process.env.STOCKY_SCHAIN_CHAINNAME;
+const SCHAIN_NAME = "fancy-rasalhague";
 
 const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
   const tokenManagerAddress = l2Artifacts.token_manager_erc20_address;
@@ -43,6 +45,7 @@ const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
   console.log(`L2 tokens registered to IMA`);
 
 };
+
 
 const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
   const depositBoxAddress = l1Artifacts.deposit_box_erc20_address;
@@ -75,10 +78,16 @@ const main = async () => {
 
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  if (network.name === "stocky" ) {
+  if (network.name === "rubyNewChain" ) {
     await registerL2TokensToIMA(signer);
   } else if (network.name === "rinkeby") {
     await registerL1TokensToIMA(signer);
+  } else if (network.name === "mainnet") {
+    throw new Error("Europa chain is MS controlled. Call DepositBox.addERC20TokenByOwner from Gnosis Safe");
+  } else if (network.name === "europa") {
+    throw new Error("Europa chain is MS controlled. Use multisig-cli and Gnosis Safe");
+  } else {
+    console.log("Network not supported")
   }
 };
 
