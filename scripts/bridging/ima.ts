@@ -46,31 +46,13 @@ const addChainConnectorRoleSchain = async (signer: SignerWithAddress) => {
 
 }
 
-const addChainConnectorRoleMainnet = async (signer: SignerWithAddress) => {
-  const msgProxyAddr = l1Artifacts.message_proxy_mainnet_address;
-  const msgProxyABI = l1Artifacts.message_proxy_mainnet_abi;
-  const msgProxyContract = new ethers.Contract(msgProxyAddr, msgProxyABI, signer);
-
-  let chainConnectorRole = await msgProxyContract.CHAIN_CONNECTOR_ROLE();
-  // let isConnected = await msgProxyContract.isConnectedChain("fancy-rasalhague");
-  let isConnected = await msgProxyContract.isConnectedChain("fancy-rasalhague");
-
-  console.log("chainConnectorRole", chainConnectorRole);
-  console.log("isConnectedChain", isConnected);
-
-  let res = await msgProxyContract.callStatic.grantRole(chainConnectorRole, signer.address);
-  console.log("res", res)
-  let rec = await res.wait(1);
-  console.log("rec", rec);
-
-}
 
 const registerSchain = async (signer: SignerWithAddress) => {
   const msgProxyAddr = l1Artifacts.message_proxy_mainnet_address;
   const msgProxyABI = l1Artifacts.message_proxy_mainnet_abi;
   const msgProxyContract = new ethers.Contract(msgProxyAddr, msgProxyABI, signer);
 
-  let res = await msgProxyContract.addConnectedChain("fancy-rasalhague");
+  let res = await msgProxyContract.addConnectedChain("stocky");
   console.log("res", res)
   const receipt = await res.wait(1);
     console.log("receipt", receipt)
@@ -83,12 +65,10 @@ const main = async () => {
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
     // await registerSchain(signer);
-    // await addChainConnectorRole(signer);
-    // await addChainConnectorRoleMainnet(signer);
-    // await addChainConnectorRoleSchain(signer)
-    // await enableAutomaticDeployment(signer);
 
-    await configController(signer);
+    // await configController(signer);
+    // await addChainConnectorRoleSchain(signer);
+    await enableAutomaticDeployment(signer);
 };
 
 main()

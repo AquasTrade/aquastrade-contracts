@@ -1,5 +1,5 @@
 /* eslint no-use-before-define: "warn" */
-import { ethers,  network } from "hardhat";
+import { ethers } from "hardhat";
 
 import l1Artifacts from "../../ima_bridge/l1_artifacts.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
@@ -13,12 +13,14 @@ import { address as RinkebyUSDC } from "../../deployments/rinkeby/MockUSDC.json"
 import { address as RinkebyUSDP } from "../../deployments/rinkeby/MockUSDP.json";
 import { address as RinkebyUSDT } from "../../deployments/rinkeby/MockUSDT.json";
 
+const SCHAIN_NAME = process.env.STOCKY_SCHAIN_CHAINNAME;
+
 
 const bridgeEth = async (signer: SignerWithAddress) => {
   const depositBoxAddress = l1Artifacts.deposit_box_eth_address;
   const depositBoxABI = l1Artifacts.deposit_box_eth_abi;
   const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
-  const res = await depositBoxContract.deposit("fancy-rasalhague", { value: ethers.utils.parseUnits("0.5", 18), gasLimit: 6500000 });
+  const res = await depositBoxContract.deposit(SCHAIN_NAME, { value: "80000000000000000"});
   await res.wait(1);
   console.log("eth bridged")
 }
@@ -44,10 +46,10 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
   let balanceOfUsdpBefore = await usdpRinkeby.balanceOf(signer.address);
   let balanceOfUsdtBefore = await usdtRinkeby.balanceOf(signer.address);
 
-  // if ((await RubyTokenMainnetContract.allowance(signer.address, depositBoxAddress)).lt(amountRuby)) {
-  //   let res = await RubyTokenMainnetContract.approve(depositBoxAddress, amountRuby);
-  //   await res.wait(1);
-  // }
+  if ((await RubyTokenMainnetContract.allowance(signer.address, depositBoxAddress)).lt(amountRuby)) {
+    let res = await RubyTokenMainnetContract.approve(depositBoxAddress, amountRuby);
+    await res.wait(1);
+  }
 
   if ((await daiRinkeby.allowance(signer.address, depositBoxAddress)).lt(amountStable18)) {
     let res = await daiRinkeby.approve(depositBoxAddress, amountStable18);
@@ -69,33 +71,33 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
     await res.wait(1);
   }
 
-  // let res = await depositBoxContract.depositERC20("fancy-rasalhague", RubyMainnet, amountRuby);
-  // await res.wait(1);
-
-  let res = await depositBoxContract.depositERC20("fancy-rasalhague", daiRinkeby.address, amountStable18);
+  let res = await depositBoxContract.depositERC20(SCHAIN_NAME, RubyMainnet, amountRuby);
   await res.wait(1);
 
-  res = await depositBoxContract.depositERC20("fancy-rasalhague", usdcRinkeby.address, amountStable6);
+  res = await depositBoxContract.depositERC20(SCHAIN_NAME, daiRinkeby.address, amountStable18);
   await res.wait(1);
 
-  res = await depositBoxContract.depositERC20("fancy-rasalhague", usdpRinkeby.address, amountStable18);
+  res = await depositBoxContract.depositERC20(SCHAIN_NAME, usdcRinkeby.address, amountStable6);
   await res.wait(1);
 
-  res = await depositBoxContract.depositERC20("fancy-rasalhague", usdtRinkeby.address, amountStable6);
+  res = await depositBoxContract.depositERC20(SCHAIN_NAME, usdpRinkeby.address, amountStable18);
   await res.wait(1);
 
-  // let balanceOfRubyAfter = await RubyTokenMainnetContract.balanceOf(signer.address);
+  res = await depositBoxContract.depositERC20(SCHAIN_NAME, usdtRinkeby.address, amountStable6);
+  await res.wait(1);
+
+  let balanceOfRubyAfter = await RubyTokenMainnetContract.balanceOf(signer.address);
   let balanceOfDaiAfter = await daiRinkeby.balanceOf(signer.address);
   let balanceOfUsdcAfter = await usdcRinkeby.balanceOf(signer.address);
   let balanceOfUsdpAfter = await usdpRinkeby.balanceOf(signer.address);
   let balanceOfUsdtAfter = await usdtRinkeby.balanceOf(signer.address);
 
-  // console.log(
-  //   `RUBY balance, before: ${ethers.utils.formatUnits(balanceOfRubyBefore, 18)}, after: ${ethers.utils.formatUnits(
-  //     balanceOfRubyAfter,
-  //     18,
-  //   )}`,
-  // );
+  console.log(
+    `RUBY balance, before: ${ethers.utils.formatUnits(balanceOfRubyBefore, 18)}, after: ${ethers.utils.formatUnits(
+      balanceOfRubyAfter,
+      18,
+    )}`,
+  );
 
   console.log(
     `DAI balance, before: ${ethers.utils.formatUnits(balanceOfDaiBefore, 18)}, after: ${ethers.utils.formatUnits(
@@ -105,7 +107,7 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
   );
 
   console.log(
-    `USDC balance, before: ${ethers.utils.formatUnits(balanceOfUsdcBefore, 18)}, after: ${ethers.utils.formatUnits(
+    `USDC balance, before: ${ethers.utils.formatUnits(balanceOfUsdcBefore, 6)}, after: ${ethers.utils.formatUnits(
       balanceOfUsdcAfter,
       6,
     )}`,
@@ -119,7 +121,7 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
   );
 
   console.log(
-    `USDT balance, before: ${ethers.utils.formatUnits(balanceOfUsdtBefore, 18)}, after: ${ethers.utils.formatUnits(
+    `USDT balance, before: ${ethers.utils.formatUnits(balanceOfUsdtBefore, 6)}, after: ${ethers.utils.formatUnits(
       balanceOfUsdtAfter,
       6,
     )}`,
@@ -130,7 +132,7 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
 const main = async () => {
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
-    // await bridgeL1tokensToL2(signer);
+  // await bridgeL1tokensToL2(signer);
   await bridgeEth(signer);
 };
 

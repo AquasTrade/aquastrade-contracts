@@ -9,8 +9,7 @@ const connectSchain = async (signer: SignerWithAddress) => {
     const tokenManagerLinkerABI = l2artifacts.token_manager_linker_abi;
     const tokenManagerLinkerContract = new ethers.Contract(tokenManagerLinkerAddress, tokenManagerLinkerABI, signer);
   
-    let tx = await tokenManagerLinkerContract.callStatic.connectSchain('whispering-turais');
-    console.log
+    let tx = await tokenManagerLinkerContract.connectSchain('whispering-turais');
     const rec = await tx.wait(1);
     console.log("receipt", rec);
 
@@ -27,8 +26,6 @@ const connectSchain = async (signer: SignerWithAddress) => {
 
     const amount = ethers.utils.parseUnits("1", 6);
 
-    // console.log("usdcContract balance", await usdcContract.balanceOf(signer.address))
-
     let approveTx = await usdcContract.approve(tokenManagerErc20Addr, amount);
 
     let rec = await approveTx.wait(1);
@@ -44,7 +41,8 @@ const connectSchain = async (signer: SignerWithAddress) => {
   const main = async () => {
     const signer: SignerWithAddress = (await ethers.getSigners())[0];
   
-      // await connectSchain(signer);
+
+      await connectSchain(signer);
       await bridgeToSchain(signer);
   };
   

@@ -12,49 +12,36 @@ import { address as RinkebyUSDC } from "../../deployments/rinkeby/MockUSDC.json"
 import { address as RinkebyUSDP } from "../../deployments/rinkeby/MockUSDP.json";
 import { address as RinkebyUSDT } from "../../deployments/rinkeby/MockUSDT.json";
 
-import { address as RubyUSDC } from "../../deployments/rubyNewChain/RubyUSDC.json";
-import { address as RubyUSDT } from "../../deployments/rubyNewChain/RubyUSDT.json";
-import { address as RubyDAI } from "../../deployments/rubyNewChain/RubyDAI.json";
-import { address as RubyUSDP } from "../../deployments/rubyNewChain/RubyUSDP.json";
+import { address as RubyUSDC } from "../../deployments/stocky/RubyUSDC.json";
+import { address as RubyUSDT } from "../../deployments/stocky/RubyUSDT.json";
+import { address as RubyDAI } from "../../deployments/stocky/RubyDAI.json";
+import { address as RubyUSDP } from "../../deployments/stocky/RubyUSDP.json";
+import { address as Ruby } from "../../deployments/stocky/RubyToken.json";
 
-import { address as RubyUSDC2 } from "../../deployments/testSchainv2/RubyUSDC.json";
-
+const SCHAIN_NAME = process.env.STOCKY_SCHAIN_CHAINNAME;
 
 const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
   const tokenManagerAddress = l2Artifacts.token_manager_erc20_address;
   const tokenManagerABI = l2Artifacts.token_manager_erc20_abi;
   const tokenManagerContract = new ethers.Contract(tokenManagerAddress, tokenManagerABI, signer);
 
-  // let clone = await tokenManagerContract.clonesErc20("0x0785b4b9847b9ce0ef0b85f78d36ac3cd5dee447b0e156cfbf4e84bfad2973a6", RubyDAI);
+  let res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RubyMainnet, Ruby);
+  const receipt = await res.wait(1);
 
-  // console.log("clone addr", clone)
-
-  // console.log("registering to new chain...")
-  // let res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RubyMainnet, Ruby);
-  // const receipt = await res.wait(1);
-  // console.log("receipt", receipt);
-
-  // let res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyDAI, RubyDAI);
-  // await res.wait(1);
-
-  // let res = await tokenManagerContract.addERC20TokenByOwner("fancy-rasalhague", RubyUSDC, RubyUSDC2);
-  // // console.log("Res", res)
-  // await res.wait(1);
-
-  let res = await tokenManagerContract.callStatic.addERC20TokenByOwner("whispering-turais", RubyUSDC2, RubyUSDC);
-  // console.log("Res", res)
+  res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyDAI, RubyDAI);
   await res.wait(1);
-  // res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDP, RubyUSDP);
-  // await res.wait(1);
 
-  // res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDT, RubyUSDT);
-  // await res.wait(1);
+  res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDP, RubyUSDP);
+  await res.wait(1);
 
-  // const rubyAddress = await tokenManagerContract.clonesErc20("fancy-rasalhague", RubyMainnet);
+  res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDT, RubyUSDT);
+  await res.wait(1);
 
+  res = await tokenManagerContract.addERC20TokenByOwner("Mainnet", RinkebyUSDC, RubyUSDC);
+  await res.wait(1);
 
-  // console.log("TokenManager registered tokens: ");
-  // console.log(`Ruby, original: ${Ruby}, registered: ${rubyAddress}`);
+  console.log(`L2 tokens registered to IMA`);
+
 };
 
 const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
@@ -62,46 +49,33 @@ const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
   const depositBoxABI = l1Artifacts.deposit_box_erc20_abi;
   const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
 
-  const rubyExists = await depositBoxContract.getSchainToERC20("fancy-rasalhague", RubyMainnet);
-
-  let res;
-
-  // if (!rubyExists) {
-  //   console.log("Registering RUBY...");
-  //   res = await depositBoxContract.addERC20TokenByOwner("fancy-rasalhague", RubyMainnet);
-  //   await res.wait(1);
-  // }
-
+  let res = await depositBoxContract.addERC20TokenByOwner(SCHAIN_NAME, RubyMainnet);
+  await res.wait(1);
 
   console.log("Registering USDC...");
-  res = await depositBoxContract.addERC20TokenByOwner("fancy-rasalhague", RinkebyUSDC);
+  res = await depositBoxContract.addERC20TokenByOwner(SCHAIN_NAME, RinkebyUSDC);
   await res.wait(1);
 
   console.log("Registering DAI...");
-  res = await depositBoxContract.addERC20TokenByOwner("fancy-rasalhague", RinkebyDAI);
+  res = await depositBoxContract.addERC20TokenByOwner(SCHAIN_NAME, RinkebyDAI);
   await res.wait(1);
 
   console.log("Registering USDP...");
-  res = await depositBoxContract.addERC20TokenByOwner("fancy-rasalhague", RinkebyUSDP);
+  res = await depositBoxContract.addERC20TokenByOwner(SCHAIN_NAME, RinkebyUSDP);
   await res.wait(1);
 
   console.log("Registering USDT...");
-  res = await depositBoxContract.addERC20TokenByOwner("fancy-rasalhague", RinkebyUSDT);
+  res = await depositBoxContract.addERC20TokenByOwner(SCHAIN_NAME, RinkebyUSDT);
   await res.wait(1);
 
-  // const sChainHash = "0x7cef6e298b91c11477b769ff449417928f4d2bcf03594bb34bbc24ed08d3fdf0";
-  // const registeredRubyAddress = await depositBoxContract.getSchainToERC20("fancy-rasalhague", RubyMainnet);
-
-  console.log("Deposit box registered tokens: ");
-  // console.log(`Ruby, original: ${RubyMainnet}, registered: ${registeredRubyAddress}`);
+  console.log(`L1 tokens registered to IMA`);
 };
 
 const main = async () => {
-  // console.log("process argv", process.argv);
 
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  if (network.name === "rubyNewChain" || network.name === "testSchainv2" ) {
+  if (network.name === "stocky" ) {
     await registerL2TokensToIMA(signer);
   } else if (network.name === "rinkeby") {
     await registerL1TokensToIMA(signer);
