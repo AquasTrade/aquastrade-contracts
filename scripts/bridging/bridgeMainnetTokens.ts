@@ -1,7 +1,7 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers, network } from "hardhat";
 
-import l1Artifacts from "../../ima_bridge/l1_artifacts.json";
+import l1Artifacts from "../../ima_bridge/l1_artifacts.mainnet.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 require("dotenv").config();
