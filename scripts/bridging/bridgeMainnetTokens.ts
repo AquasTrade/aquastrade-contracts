@@ -21,15 +21,13 @@ const bridgeEth = async (signer: SignerWithAddress) => {
   console.log(
     `ETH balance, before: ${ethers.utils.formatEther(balanceBefore)}`)
 
-  // bridge half
-  const res = await depositBoxContract.deposit(SCHAIN_NAME, { value: balanceBefore.div(2) });
+  // bridge 1/5
+  const res = await depositBoxContract.deposit(SCHAIN_NAME, { value: balanceBefore.div(5) });
   await res.wait(1);
-
-  //console.log("ETH bridged")
 
   let balanceAfter = await ethers.provider.getBalance(signer.address);
   console.log(
-    `ETH balance, after: ${ethers.utils.formatEther(balanceAfter.div(2))}`)
+    `ETH balance, after: ${ethers.utils.formatEther(balanceAfter)}`)
 }
 
 const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
@@ -71,8 +69,13 @@ const main = async () => {
 
   console.log("Address:", signer.address);
 
-  await bridgeL1tokensToL2(signer);
+  // await bridgeL1tokensToL2(signer);
   // await bridgeEth(signer);
+  
+  let ethBalance = await ethers.provider.getBalance(signer.address);
+  console.log(
+    `ETH balance: ${ethers.utils.formatEther(ethBalance)}`)
+
 };
 
 main()
