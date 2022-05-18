@@ -24,9 +24,8 @@ manage chain configuration.
 
 ### Tools
 * Ubuntu 20.04 LTS
-* multisig-cli  
-  http  
-  `b3e02e3e33140c6a40d4812ef74133cadb39331d`
+* multisigwallet-cli  
+  https://github.com/skalenetwork/multisigwallet-cli (version `b3e02e3e33140c6a40d4812ef74133cadb39331d`)
 
 ### Chain
 
@@ -44,7 +43,7 @@ manage chain configuration.
 ### Useful Addresses
 
 * Chain Originator Key  
-  `0xc7D...855`  
+  `0xc7DFdc89093E6b6C9f8D81329F09Ec5C73C6A855`  
     * From Jasper trezor
     * 1 Signer on Chain Owner MS (L1)
     * 1 Signer on Chain Owner MS (L2)
@@ -54,7 +53,7 @@ manage chain configuration.
 * Deployer  
   `0x0fe812C977646525E824D5dCC3f37A0Cf153B13b`
 * Chain Owner Gnosis Safe (L1)  
-  `0x7A1...609`
+  `0x7A14B74866B656D46788E889029a943A6AF26609`
 
 
 ### Useful Pre-deploy Contract Addresses (L2 Side)
@@ -70,15 +69,18 @@ These addresses are used in configuration commands below
 
 ### Preparation
 
-1. Gassing the pre-deployed MS from L1 (to test things work)
-
-`$ npx msig encodeData elated-tan-skat Etherbase partiallyRetrieve 0xD244519000000000000000000000000000000000 100000000`
+1. Gassing the pre-deployed MS from L1 (to test things work)  
+   ```
+   $ npx msig encodeData elated-tan-skat Etherbase partiallyRetrieve 0xD244519000000000000000000000000000000000 100000000
+   ```
 
 2. Granting the MSW permission to change deployer configuration  
   * `DEPLOYER_ADMIN_ROLE = keccak256("DEPLOYER_ADMIN_ROLE")`
   * `0xD244519000000000000000000000000000000000`  MultiSigWallet on L2
-
-`$ npx msig encodeData elated-tan-skat ConfigController grantRole 0x9544cf69999ca161b850d3ca69235f410d88604f143ae3be6650b68b133a5dae 0xD244519000000000000000000000000000000000`
+  * use multisigwallet-cli to create the payload for gnosis safe  
+    ```
+    $ npx msig encodeData elated-tan-skat ConfigController grantRole 0x9544cf69999ca161b850d3ca69235f410d88604f143ae3be6650b68b133a5dae 0xD244519000000000000000000000000000000000
+    ```
 
 Now the MSW wallet on L2 has `DEPLOYER_ADMIN_ROLE` so can call `ConfigController.addToWhitelist()`
 
@@ -117,10 +119,12 @@ using the `multisig-cli` tool, but rather by calling SCs on L1 directly.
     cant be copy-pasted into Gnosis and I cant find it written simply anywhere else!
 
 * Ruby Token
-  * L1: **Use DepositBoxERC20 notes above, and Gnosis Safe UI to call this**
+  * L1: **Use DepositBoxERC20 notes above, and Gnosis Safe UI to call this**  
   `addERC20TokenByOwner("elated-tan-skat", "0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23")`
   * L2:  
-  `$ npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23 0x2B4e4899b53E8b7958c4591a6d02f9C0b5c50F8f`
+    ```
+    $ npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23 0x2B4e4899b53E8b7958c4591a6d02f9C0b5c50F8f
+    ```
   
 * USDT
 * USDC
