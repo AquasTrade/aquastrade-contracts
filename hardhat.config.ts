@@ -23,6 +23,7 @@ const defaultNetwork = "localhost";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
+const ADMIN_PKEY = process.env.ADMIN_PKEY || "";
 const ADMIN_PKEY_TESTNET = process.env.ADMIN_PKEY_TESTNET || "";
 const ADMIN_PKEY_TESTNET_SCHAIN2 = process.env.ADMIN_PKEY_NEW_SCHAIN || "";
 
@@ -38,6 +39,11 @@ const config: HardhatUserConfig = {
     },
     treasury: {
       default: 0,
+      europa: "0xfE3fd4C4bb91800347Cb4eE367332f417E70eb4a"
+    },
+    management: {
+      default: 0,
+      europa: "0x60592CB8ceD45A2dc432CB1Fe49c2Fa1a6bfa423"
     },
   },
   etherscan: {
@@ -57,30 +63,22 @@ const config: HardhatUserConfig = {
     rubyNewChain: {
       url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",
       accounts: [ADMIN_PKEY_TESTNET],
-      // accounts: {
-      //   mnemonic: process.env.MNEMONIC,
-      // },
     },
     testSchainv2: {
       url: "https://testnet-proxy.skalenodes.com/v1/whispering-turais",
       accounts: [ADMIN_PKEY_TESTNET_SCHAIN2],
-      // accounts: {
-      //   mnemonic: process.env.MNEMONIC,
-      // },
+    },
+    europa: {
+      url: "https://mainnet.skalenodes.com/v1/elated-tan-skat",
+      accounts: [ADMIN_PKEY],
     },
     mainnet: {
       url: "https://mainnet.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
-      },
+      accounts: [ADMIN_PKEY],
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
       accounts: [ADMIN_PKEY_TESTNET],
-      //
-      // accounts: {
-      //   mnemonic: process.env.MNEMONIC,
-      // },
     },
   },
   solidity: {
