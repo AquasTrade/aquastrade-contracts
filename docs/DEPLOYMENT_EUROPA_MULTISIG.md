@@ -119,7 +119,7 @@ using the `multisig-cli` tool, but rather by calling SCs on L1 directly.
     cant be copy-pasted into Gnosis and I cant find it written simply anywhere else!
 
 * Ruby Token
-  * L1: **Use DepositBoxERC20 notes above, and Gnosis Safe UI to call this**  
+  * L1: **Use notes above, and Gnosis Safe UI to call DepositBoxERC20.addERC20TokenByOwner like this**  
   `addERC20TokenByOwner("elated-tan-skat", "0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23")`
   * L2:  
     ```
