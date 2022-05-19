@@ -73,7 +73,7 @@ const bridgeL1RubyToL2 = async (signer: SignerWithAddress) => {
 };
 
 
-const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string) => {
+const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string, fracAmount: number) => {
   const depositBoxAddress = l1Artifacts.deposit_box_erc20_address;
   const depositBoxABI = l1Artifacts.deposit_box_erc20_abi;
   const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
@@ -86,21 +86,34 @@ const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string) => 
   const ERC20decimals = await ERC20.decimals();
 
   let erc20Balance = await ERC20.balanceOf(signer.address);
-  const amountToTx = erc20Balance.div(1);
+  const amountToTx = erc20Balance.div(fracAmount);
 
   console.log(`${ERC20name} balance, before: ${ethers.utils.formatUnits(erc20Balance, ERC20decimals)}`);
 
-  if ((await ERC20.allowance(signer.address, depositBoxAddress)).lt(amountToTx)) {
-    console.log('need approve');
-    // let res = await ERC20.approve(depositBoxAddress, amountToTx);
-    // await res.wait(1);
+  if (amountToTx.gt(0)) {
+
+    // revoke
+	  // let res = await ERC20.connect(signer).revoke(depositBoxAddress);
+	  // await res.wait(1);
+
+		if ((await ERC20.allowance(signer.address, depositBoxAddress)).lt(amountToTx)) {
+			console.log("increasing allowance");
+		  let res = await ERC20.connect(signer).approve(depositBoxAddress, amountToTx);
+		  await res.wait(1);
+		}
+
+		// manual gas limit to get the tx to fail at least
+		// let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx, {gasLimit: 300000});
+
+	  let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx);
+	  await res.wait(1);
+
+  } else {
+    console.log("skipping (0-balance)");
   }
 
-//  let res = await depositBoxContract.depositERC20(SCHAIN_NAME, RubyMainnet, amountToTx);
-//  await res.wait(1);
-
-  erc20Balance = await ERC20.balanceOf(signer.address);
-  console.log(`${ERC20name} balance, after: ${ethers.utils.formatUnits(erc20Balance, ERC20decimals)}`);
+	erc20Balance = await ERC20.balanceOf(signer.address);
+	console.log(`${ERC20name} balance, after: ${ethers.utils.formatUnits(erc20Balance, ERC20decimals)}`);
 
 };
 
@@ -116,11 +129,11 @@ const main = async () => {
 
   // await bridgeL1RubyToL2(signer);
   
-  // await bridgeL1TokensToL2(signer, 'USDP');
-  // await bridgeL1TokensToL2(signer, 'USDT');
-  // await bridgeL1TokensToL2(signer, 'USDC');
-  // await bridgeL1TokensToL2(signer, 'DAI');
-  // await bridgeL1TokensToL2(signer, 'SKL');
+  // await bridgeL1TokensToL2(signer, 'USDP', 1 /* all of it */);
+  // await bridgeL1TokensToL2(signer, 'USDT', 1 /* half of it */);
+  // await bridgeL1TokensToL2(signer, 'USDC', 1 /* all of it */);
+  // await bridgeL1TokensToL2(signer, 'DAI', 1 /* all of it */);
+  // await bridgeL1TokensToL2(signer, 'SKL', 1 /* all of it */);
   // await bridgeL1TokensToL2(signer, 'WBTC');
 
   // await bridgeEth(signer);
