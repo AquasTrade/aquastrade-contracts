@@ -1,0 +1,15 @@
+{"RUBY":{"address": "0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23",
+         "decimals": 18},
+ "WBTC":{"address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+         "decimals": 8},
+ "USDT":{"address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+         "decimals": 6},
+ "USDC":{"address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+         "decimals": 6},
+ "DAI":{"address": "0x6b175474e89094c44da98b954eedeac495271d0f",
+        "decimals": 18},
+ "USDP":{"address": "0x8e870d67f660d95d5be530380d0ec0bd388289e1",
+        "decimals": 18},
+ "SKL":{"address": "0x00c83aecc790e8a4453e5dd3b0b4b3680501a7a7",
+        "decimals": 18}
+}
