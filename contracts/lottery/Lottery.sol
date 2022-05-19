@@ -11,8 +11,6 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./IRandomNumberGenerator.sol";
 import "../interfaces/IRubyNFT.sol";
 
-//import "hardhat/console.sol";
-
 contract Lottery is Ownable, Pausable {
     // Libraries
     using SafeMath for uint256;
@@ -21,7 +19,6 @@ contract Lottery is Ownable, Pausable {
 
     uint256 private constant MAX_WINNERS = 10;
 
-    address private factory; // LotteryFactory address.
     address private treasury; // Address to send
     address private burn; // Address to send
 
@@ -50,7 +47,6 @@ contract Lottery is Ownable, Pausable {
     event RewardClaimed(address to);
 
     constructor(
-        address _factory,
         uint256 _ID,
         address _ruby,
         address _nft,
@@ -63,7 +59,6 @@ contract Lottery is Ownable, Pausable {
         uint256 _duration,
         address _RNG
     ) public {
-        require(_factory != address(0), "Lottery: Factory cannot be 0 address");
         require(_ruby != address(0), "Lottery: Ruby cannot be 0 address");
         require(_RNG != address(0), "Lottery: Random Number Generator cannot be 0 address");
         require(_treasury != address(0), "Lottery: Treasury cannot be 0 address");
@@ -77,12 +72,16 @@ contract Lottery is Ownable, Pausable {
         }
         // Ensuring that prize distribution total is 100%
         require(prizeDistributionTotal == 100, "Lottery: Prize distribution is not 100%");
-        factory = _factory;
-        ID = _ID;
+        require(_duration > 60, "Lottery: min duration 1 minute");
+        require(_duration < (60*60*24*30), "Lottery: max duration 1 month");
+        require(_lotterySize <= 5, "Lottery: max 100k tickets");
 
         ruby = IERC20(_ruby);
         RNG = IRandomNumberGenerator(_RNG);
-        nft = _nft;
+
+        // both can be 0 if no NFT prize
+        ID = _ID;    // can be 0
+        nft = _nft;  // can be 0
 
         bonusTokenId = _bonusTokenId;
         treasury = _treasury;
@@ -116,6 +115,10 @@ contract Lottery is Ownable, Pausable {
         _unpause();
     }
 
+    function stop() external onlyOwner {
+        closingTimestamp = getCurrentTime();
+    }
+
     /// @notice Buy ticket for lottery.
     /// @param _ticketSize The number of tickets to buy.
     /// @param _choosenTicketNumbers An array containing the ticket numbers to buy.
@@ -134,7 +137,7 @@ contract Lottery is Ownable, Pausable {
         }
 
         uint256 totalCost = uint256(numOkTickets).mul(ticketPrice);
-        ruby.transferFrom(msg.sender, address(this), totalCost);
+        ruby.safeTransferFrom(msg.sender, address(this), totalCost);
         rubyTotal = rubyTotal.add(totalCost);
         numTicketsSold += numOkTickets;
 
@@ -170,6 +173,9 @@ contract Lottery is Ownable, Pausable {
 
     function withdraw(uint256 _amount) external closed onlyOwner {
         ruby.safeTransfer(msg.sender, _amount);
+        if (nft != address(0)) {
+            IRubyNFT(nft).safeTransferFrom(address(this), msg.sender, bonusTokenId);
+        }
     }
 
     /// @notice Claim rewards to caller if he/she bought winning ticket
@@ -188,7 +194,7 @@ contract Lottery is Ownable, Pausable {
                 prize = prize.add(rubyTotal.mul(prizeDistribution[i]).div(100));
             }
         }
-        ruby.transfer(address(msg.sender), prize);
+        ruby.safeTransfer(address(msg.sender), prize);
         claimed[msg.sender] = true;
         emit RewardClaimed(msg.sender);
     }

@@ -8,9 +8,8 @@ const lotto = {
         distribution: [40, 25, 10, 5, 15, 5],
         prize: ethers.utils.parseUnits("1000", 18),
         cost: ethers.utils.parseUnits("10", 18),
-        closeIncrease: 24 * 60 * 60 * 1000 + 10,
-        endIncrease: 20000,
-        day: 24 * 60 * 60 * 1000,
+        closeIncrease: 24 * 60 * 60 + 10,
+        duration: 24 * 60 * 60,
         win: {
             blankWinningNumbers: "",
             winningNumbers: "6009,3037,1954,9410",

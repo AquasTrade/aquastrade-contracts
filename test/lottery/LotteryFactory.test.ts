@@ -13,6 +13,7 @@ describe("Lottery Factory contract", function () {
     this.buyer = signers[1];
     this.treasury = signers[2];
     this.burner = signers[3];
+    this.nobody = signers[4];
 
     // from RNG_Test
     // each num % (10 ** lotterySize)
@@ -56,7 +57,7 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
       )
         .to.emit(this.factoryInstance, lotto.events.new)
@@ -78,9 +79,9 @@ describe("Lottery Factory contract", function () {
       expect(await lotteryInstance.getTicketsRemaining()).to.be.eq(10 ** lotto.setup.sizeOfLottery);
     });
     /**
-     * Testing that non-admins cannot create a lotto
+     * Testing that non-admins cannot create a lotto, pause a lotto, stop a lotto
      */
-    it("Invalid admin", async function () {
+    it("Invalid admin (factory)", async function () {
       await expect(
         this.factoryInstance
           .connect(this.buyer)
@@ -91,9 +92,35 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
       ).to.be.revertedWith(lotto.errors.invalid_owner);
+    });
+    it("Invalid admin (lottery)", async function () {
+      await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
+      await this.factoryInstance
+        .connect(this.owner)
+        .createNewLotto(
+          this.rubyInstance.address,
+          this.nftInstance.address,
+          1,
+          lotto.setup.sizeOfLottery,
+          lotto.newLotto.cost,
+          lotto.newLotto.distribution,
+          lotto.newLotto.duration,
+        );
+      this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
+
+      await expect(
+        this.lotteryInstance.connect(this.buyer).pause()
+      ).to.be.revertedWith(lotto.errors.invalid_owner)
+      await expect(
+        this.lotteryInstance.connect(this.buyer).unpause()
+      ).to.be.revertedWith(lotto.errors.invalid_owner)
+      await expect(
+        this.lotteryInstance.connect(this.buyer).stop()
+      ).to.be.revertedWith(lotto.errors.invalid_owner)
+
     });
     /**
      * Create multiple Lottery
@@ -114,10 +141,9 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
-      )
-        .to.emit(this.factoryInstance, lotto.events.new)
+      ).to.emit(this.factoryInstance, lotto.events.new)
         // Checking that emitted event contains correct information
         .withArgs(1);
       await expect(
@@ -130,10 +156,9 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
-      )
-        .to.emit(this.factoryInstance, lotto.events.new)
+      ).to.emit(this.factoryInstance, lotto.events.new)
         // Checking that emitted event contains correct information
         .withArgs(2);
     });
@@ -157,10 +182,9 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
-      )
-        .to.emit(this.factoryInstance, lotto.events.new)
+      ).to.emit(this.factoryInstance, lotto.events.new)
         // Checking that emitted event contains correct information
         .withArgs(1);
       await expect(
@@ -173,10 +197,9 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
-      )
-        .to.emit(this.factoryInstance, lotto.events.new)
+      ).to.emit(this.factoryInstance, lotto.events.new)
         // Checking that emitted event contains correct information
         .withArgs(2);
     });
@@ -199,10 +222,9 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
-      )
-        .to.emit(this.factoryInstance, lotto.events.new)
+      ).to.emit(this.factoryInstance, lotto.events.new)
         // Checking that emitted event contains correct information
         .withArgs(1);
       await expect(
@@ -215,7 +237,7 @@ describe("Lottery Factory contract", function () {
             lotto.setup.sizeOfLottery,
             lotto.newLotto.cost,
             lotto.newLotto.distribution,
-            lotto.newLotto.day,
+            lotto.newLotto.duration,
           ),
       ).to.be.revertedWith(lotto.errors.invalid_nft_owner);
     });
@@ -237,7 +259,7 @@ describe("Lottery Factory contract", function () {
           lotto.setup.sizeOfLottery,
           lotto.newLotto.cost,
           lotto.newLotto.distribution,
-          lotto.newLotto.day,
+          lotto.newLotto.duration,
         );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
     });
@@ -400,7 +422,7 @@ describe("Lottery Factory contract", function () {
       // Approving lotto to spend cost
       await this.rubyInstance.connect(this.owner).approve(this.lotteryInstance.address, price);
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Batch buying tokens
       await expect(this.lotteryInstance.connect(this.owner).buyTicket(10, ticketNumbers)).to.be.revertedWith(
@@ -421,7 +443,7 @@ describe("Lottery Factory contract", function () {
           lotto.setup.sizeOfLottery,
           lotto.newLotto.cost,
           lotto.newLotto.distribution,
-          lotto.newLotto.day,
+          lotto.newLotto.duration,
         );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
     });
@@ -431,7 +453,7 @@ describe("Lottery Factory contract", function () {
     it("Set winning numbers", async function () {
       // Setting the time so that we can set winning numbers
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
@@ -446,7 +468,7 @@ describe("Lottery Factory contract", function () {
      */
     it("Invalid winning numbers (owner)", async function () {
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await expect(this.lotteryInstance.connect(this.buyer).drawWinningNumbers()).to.be.revertedWith(
@@ -459,7 +481,7 @@ describe("Lottery Factory contract", function () {
     it("Invalid winning numbers (already chosen)", async function () {
       // Setting the time so that we can set winning numbers
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
@@ -491,7 +513,7 @@ describe("Lottery Factory contract", function () {
           lotto.setup.sizeOfLottery,
           lotto.newLotto.cost,
           lotto.newLotto.distribution,
-          lotto.newLotto.day,
+          lotto.newLotto.duration,
         );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
       // Buying tickets
@@ -514,18 +536,45 @@ describe("Lottery Factory contract", function () {
     it("Invalid claim (incorrect time)", async function () {
       // Setting current time so that drawing is correct
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
 
       // Setting the time backward
-      await network.provider.send("evm_increaseTime", [-lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [-lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Claiming winnings
       await expect(this.lotteryInstance.connect(this.buyer).claimReward()).to.be.revertedWith(
         lotto.errors.invalid_claim_time,
       );
+    });
+    it("Invalid claim (not closed, so close early)", async function () {
+      await expect(this.lotteryInstance.connect(this.buyer).claimReward()).to.be.revertedWith(
+        lotto.errors.invalid_claim_time,
+      );
+
+      // advance until only half way finished
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration / 2]);
+      await network.provider.send("evm_mine");
+
+      await expect(this.lotteryInstance.connect(this.buyer).claimReward()).to.be.revertedWith(
+        lotto.errors.invalid_claim_time,
+      );
+
+      // also can't draw
+      await expect(this.lotteryInstance.connect(this.owner).drawWinningNumbers()).to.be.revertedWith(
+        lotto.errors.invalid_claim_time,
+      );
+
+      await this.lotteryInstance.connect(this.owner).stop();  // sets end to current block
+
+      // go forward 1s
+      await network.provider.send("evm_increaseTime", [1]);
+      await network.provider.send("evm_mine");
+
+      await expect(this.lotteryInstance.connect(this.owner).drawWinningNumbers());
+      await expect(this.lotteryInstance.connect(this.buyer).claimReward());
     });
     /**
      * Testing that a claim cannot happen until the winning numbers are
@@ -533,7 +582,7 @@ describe("Lottery Factory contract", function () {
      */
     it("Invalid claim (winning numbers not chosen)", async function () {
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Claiming winnings
       await expect(this.lotteryInstance.connect(this.buyer).claimReward()).to.be.revertedWith(
@@ -553,7 +602,7 @@ describe("Lottery Factory contract", function () {
           lotto.setup.sizeOfLottery,
           lotto.newLotto.cost,
           lotto.newLotto.distribution,
-          lotto.newLotto.day,
+          lotto.newLotto.duration,
         );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
       // Buying tickets
@@ -575,40 +624,40 @@ describe("Lottery Factory contract", function () {
      */
     it("Claim Test (1st winner)", async function () {
       let price = await this.lotteryInstance.costToBuyTickets(1);
-      await this.rubyInstance.connect(this.owner).approve(this.lotteryInstance.address, price);
-      await this.lotteryInstance.connect(this.owner).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[0]]);
+      await this.rubyInstance.connect(this.buyer).approve(this.lotteryInstance.address, price);
+      await this.lotteryInstance.connect(this.buyer).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[0]]);
       // Setting current time so that drawing is correct
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
       // Claiming winnings
-      let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
-      await this.lotteryInstance.connect(this.owner).claimReward();
-      let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+      let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+      await this.lotteryInstance.connect(this.buyer).claimReward();
+      let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "1st winner claim amount is wrong").to.be.eq(lotto.newLotto.win.first);
 
-      assert.equal(await this.nftInstance.ownerOf(1), this.owner.address);
+      assert.equal(await this.nftInstance.ownerOf(1), this.buyer.address);
     });
     /**
      * Testing that claim for 2nd winner
      */
     it("Claim Test (2nd winner)", async function () {
       let price = await this.lotteryInstance.costToBuyTickets(1);
-      await this.rubyInstance.connect(this.owner).approve(this.lotteryInstance.address, price);
-      await this.lotteryInstance.connect(this.owner).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[1]]);
+      await this.rubyInstance.connect(this.buyer).approve(this.lotteryInstance.address, price);
+      await this.lotteryInstance.connect(this.buyer).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[1]]);
       // Setting current time so that drawing is correct
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
       // Claiming winnings
-      let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
-      await this.lotteryInstance.connect(this.owner).claimReward();
-      let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+      let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+      await this.lotteryInstance.connect(this.buyer).claimReward();
+      let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "2nd winner claim amount is wrong").to.be.eq(lotto.newLotto.win.second);
     });
@@ -617,18 +666,18 @@ describe("Lottery Factory contract", function () {
      */
     it("Claim Test (3rd winner)", async function () {
       let price = await this.lotteryInstance.costToBuyTickets(1);
-      await this.rubyInstance.connect(this.owner).approve(this.lotteryInstance.address, price);
-      await this.lotteryInstance.connect(this.owner).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[2]]);
+      await this.rubyInstance.connect(this.buyer).approve(this.lotteryInstance.address, price);
+      await this.lotteryInstance.connect(this.buyer).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[2]]);
       // Setting current time so that drawing is correct
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
       // Claiming winnings
-      let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
-      await this.lotteryInstance.connect(this.owner).claimReward();
-      let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+      let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+      await this.lotteryInstance.connect(this.buyer).claimReward();
+      let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "3rd winner claim amount is wrong").to.be.eq(lotto.newLotto.win.third);
     });
@@ -637,18 +686,18 @@ describe("Lottery Factory contract", function () {
      */
     it("Claim Test (4th winner)", async function () {
       let price = await this.lotteryInstance.costToBuyTickets(1);
-      await this.rubyInstance.connect(this.owner).approve(this.lotteryInstance.address, price);
-      await this.lotteryInstance.connect(this.owner).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[3]]);
+      await this.rubyInstance.connect(this.buyer).approve(this.lotteryInstance.address, price);
+      await this.lotteryInstance.connect(this.buyer).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[3]]);
       // Setting current time so that drawing is correct
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
       // Claiming winnings
-      let balanceBefore = await this.rubyInstance.balanceOf(this.owner.address);
-      await this.lotteryInstance.connect(this.owner).claimReward();
-      let balanceAfter = await this.rubyInstance.balanceOf(this.owner.address);
+      let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
+      await this.lotteryInstance.connect(this.buyer).claimReward();
+      let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "4th winner claim amount is wrong").to.be.eq(lotto.newLotto.win.fourth);
     });
@@ -665,7 +714,7 @@ describe("Lottery Factory contract", function () {
           lotto.setup.sizeOfLottery,
           lotto.newLotto.cost,
           lotto.newLotto.distribution,
-          lotto.newLotto.day,
+          lotto.newLotto.duration,
         );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
       // Buying tickets
@@ -685,7 +734,7 @@ describe("Lottery Factory contract", function () {
 
     it("Custom Withdrawal", async function () {
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       let balanceBefore = await this.rubyInstance.balanceOf(this.lotteryInstance.address);
@@ -697,7 +746,7 @@ describe("Lottery Factory contract", function () {
 
     it("Invalid Withdrawal(Not Admin)", async function () {
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
@@ -711,6 +760,28 @@ describe("Lottery Factory contract", function () {
         "Lottery: Ticket selling is not yet closed",
       );
     });
+
+    it("Total Withdrawal", async function () {
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
+      await network.provider.send("evm_mine");
+
+      let nftBalanceBeforeL = await this.nftInstance.balanceOf(this.lotteryInstance.address);
+      expect(nftBalanceBeforeL).to.be.eq(1);
+      let nftBalanceBeforeB = await this.nftInstance.balanceOf(this.owner.address);
+      expect(nftBalanceBeforeB).to.be.eq(0);
+
+      let balanceBefore = await this.rubyInstance.balanceOf(this.lotteryInstance.address);
+      await this.lotteryInstance.connect(this.owner).withdraw(balanceBefore);
+
+      let balanceAfter = await this.rubyInstance.balanceOf(this.lotteryInstance.address);
+      expect(balanceAfter).to.be.eq(0);
+
+      let nftBalanceAfterL = await this.nftInstance.balanceOf(this.lotteryInstance.address);
+      expect(nftBalanceAfterL).to.be.eq(0);
+      let nftBalanceAfterB = await this.nftInstance.balanceOf(this.owner.address);
+      expect(nftBalanceAfterB).to.be.eq(1);
+    });
+
   });
   describe("Lottery Factory view test", function () {
     beforeEach(async function () {
@@ -724,7 +795,7 @@ describe("Lottery Factory contract", function () {
           lotto.setup.sizeOfLottery,
           lotto.newLotto.cost,
           lotto.newLotto.distribution,
-          lotto.newLotto.day,
+          lotto.newLotto.duration,
         );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
       // Buying tickets
@@ -754,7 +825,7 @@ describe("Lottery Factory contract", function () {
     it("Get winning numbers", async function () {
       // Setting the time so that we can set winning numbers
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
@@ -773,7 +844,7 @@ describe("Lottery Factory contract", function () {
       await this.lotteryInstance.connect(this.owner).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[0]]);
       // Setting current time so that drawing is correct
       // Setting the time forward
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
@@ -804,12 +875,12 @@ describe("Lottery Factory contract", function () {
         4, // 10 ** 4 = 10000 tickets
         lotto.newLotto.cost,
         [50, 40, 10],
-        lotto.newLotto.day,
+        lotto.newLotto.duration,
       );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
     });
     it("0 tickets", async function () {
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
 
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
@@ -841,7 +912,7 @@ describe("Lottery Factory contract", function () {
 
       await this.lotteryInstance.connect(this.buyer).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[0]]);
 
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
 
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
@@ -879,7 +950,7 @@ describe("Lottery Factory contract", function () {
         [0], // not a winning number
       );
 
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
 
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
@@ -915,7 +986,7 @@ describe("Lottery Factory contract", function () {
         4, // 10 ** 4 = 10000 tickets
         lotto.newLotto.cost,
         [30, 20, 40, 10],
-        lotto.newLotto.day,
+        lotto.newLotto.duration,
       );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
     });
@@ -923,7 +994,7 @@ describe("Lottery Factory contract", function () {
       let price = await this.lotteryInstance.getTicketPrice();
       await this.rubyInstance.connect(this.buyer).approve(this.lotteryInstance.address, price);
       await this.lotteryInstance.connect(this.buyer).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[0]]);
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
 
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
@@ -952,7 +1023,7 @@ describe("Lottery Factory contract", function () {
       let price = await this.lotteryInstance.getTicketPrice();
       await this.rubyInstance.connect(this.buyer).approve(this.lotteryInstance.address, price);
       await this.lotteryInstance.connect(this.buyer).buyTicket(1, [lotto.newLotto.win.winningNumbersArr[1]]);
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
 
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
@@ -984,7 +1055,7 @@ describe("Lottery Factory contract", function () {
       await this.lotteryInstance
         .connect(this.buyer)
         .buyTicket(2, [lotto.newLotto.win.winningNumbersArr[0], lotto.newLotto.win.winningNumbersArr[1]]);
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
 
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
@@ -1023,7 +1094,7 @@ describe("Lottery Factory contract", function () {
         [0, 1], // not winning numbers
       );
 
-      await network.provider.send("evm_increaseTime", [lotto.newLotto.closeIncrease]);
+      await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
 
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
@@ -1055,7 +1126,7 @@ describe("Lottery Factory contract", function () {
   describe("Small lottery", function () {
     beforeEach(async function () {
       this.ticketCost = ethers.utils.parseUnits("10", 18);
-      this.day = 24 * 60 * 60 * 1000;
+      this.duration = 24 * 60 * 60;
       this.lotterySize = 1; // 10 tickets
 
       await this.nftInstance.connect(this.owner).approve(this.factoryInstance.address, 1);
@@ -1068,7 +1139,7 @@ describe("Lottery Factory contract", function () {
           this.lotterySize,
           this.ticketCost,
           [50, 25, 25],
-          this.day,
+          this.duration,
         );
       this.lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
     });
@@ -1086,7 +1157,7 @@ describe("Lottery Factory contract", function () {
         false,
       );
 
-      await network.provider.send("evm_increaseTime", [this.day + 10]);
+      await network.provider.send("evm_increaseTime", [this.duration + 10]);
       await network.provider.send("evm_mine");
 
       let pot = await this.lotteryInstance.connect(this.buyer).getTotalRuby();
@@ -1121,7 +1192,7 @@ describe("Lottery Factory contract", function () {
           this.lotterySize,
           this.ticketCost,
           [50, 25, 25],
-          this.day,
+          this.duration,
         );
       let lotteryInstance = this.lotteryContract.attach(await this.factoryInstance.getCurrentLotto());
 
@@ -1132,7 +1203,7 @@ describe("Lottery Factory contract", function () {
 
       await lotteryInstance.connect(this.buyer).buyTicket(1, [this.RNG_NUMBERS[0] % 10 ** this.lotterySize]);
 
-      await network.provider.send("evm_increaseTime", [this.day + 10]);
+      await network.provider.send("evm_increaseTime", [this.duration + 10]);
       await network.provider.send("evm_mine");
 
       let pot = await lotteryInstance.connect(this.buyer).getTotalRuby();
@@ -1162,7 +1233,7 @@ describe("Lottery Factory contract", function () {
       let tickets = await this.lotteryInstance.connect(this.buyer).getTickets(this.buyer.address);
       expect(tickets, "Correct tickets").to.be.eql([BigNumber.from(this.RNG_NUMBERS[0] % 10 ** this.lotterySize)]);
 
-      await network.provider.send("evm_increaseTime", [this.day + 10]);
+      await network.provider.send("evm_increaseTime", [this.duration + 10]);
       await network.provider.send("evm_mine");
 
       let pot = await this.lotteryInstance.connect(this.buyer).getTotalRuby();
