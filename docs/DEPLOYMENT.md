@@ -100,7 +100,7 @@ or: `yarn deploy --tags StableSwap`
 8. Seed the stablePool:
 
 ```
-yarn deploy --tags SeedStablePool`
+yarn deploy --tags SeedStablePool
 ```
 
 9. Ruby Router:
@@ -127,7 +127,19 @@ yarn deploy --tags SeedRubyProfileNFT
 yarn deploy --tags Multicall2`
 ```
 
-13. Governance:
+13. Faucet
+
+```
+yarn deploy --tags Faucet
+```
+
+14. Seed faucet
+
+```
+yarn seedFaucet
+```
+
+15. Governance:
 
 ```
 yarn deploy --tags Timelock
