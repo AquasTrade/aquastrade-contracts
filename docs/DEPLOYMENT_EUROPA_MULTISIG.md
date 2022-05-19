@@ -175,5 +175,8 @@ Note: all these commands above were generated using
 
 #### Bridging Tokens
 
-Note: this is more or less eqlivalent to
+* There is a script for bridging ETH, Ruby or any generic ERC20 over the
+  bridge. Edit before use to set the amounts.
+  [bridgeMainnetTokens.ts](../scripts/bridging/bridgeMainnetTokens.ts).
+
 
