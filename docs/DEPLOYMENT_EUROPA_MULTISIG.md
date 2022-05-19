@@ -54,6 +54,8 @@ manage chain configuration.
   `0x0fe812C977646525E824D5dCC3f37A0Cf153B13b`
 * Chain Owner Gnosis Safe (L1)  
   `0x7A14B74866B656D46788E889029a943A6AF26609`
+* IMA Bridge  
+  `0x8629703a9903515818C2FeB45a6f6fA5df8Da404`
 
 
 ### Useful Pre-deploy Contract Addresses (L2 Side)
@@ -121,15 +123,57 @@ using the `multisig-cli` tool, but rather by calling SCs on L1 directly.
 * Ruby Token
   * L1: **Use notes above, and Gnosis Safe UI to call DepositBoxERC20.addERC20TokenByOwner like this**  
   `addERC20TokenByOwner("elated-tan-skat", "0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23")`
-  * L2:  
+  * L2:  **Send encoded TX to IMA bridge**  
     ```
     $ npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23 0x2B4e4899b53E8b7958c4591a6d02f9C0b5c50F8f
     ```
-  
-* USDT
-* USDC
-* SKL
-* Dai
-* WBTC
 
+* DAI  
+```
+addERC20TokenByOwner("elated-tan-skat", "0x6b175474e89094c44da98b954eedeac495271d0f")
+
+npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x6b175474e89094c44da98b954eedeac495271d0f 0xD05C4be5f3be302d376518c9492EC0147Fa5A718`
+```
+
+* SKL  
+```
+addERC20TokenByOwner("elated-tan-skat", "0x00c83aecc790e8a4453e5dd3b0b4b3680501a7a7")
+
+npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x00c83aecc790e8a4453e5dd3b0b4b3680501a7a7 0xE0595a049d02b7674572b0d59cd4880Db60EDC50
+```
+
+* USDP  
+```
+addERC20TokenByOwner("elated-tan-skat", "0x8e870d67f660d95d5be530380d0ec0bd388289e1")
+
+npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x8e870d67f660d95d5be530380d0ec0bd388289e1 0x73d22d8a2D1f59Bf5Bcf62cA382481a2073FAF58
+```
+
+* USDT  
+```
+addERC20TokenByOwner("elated-tan-skat", "0xdac17f958d2ee523a2206206994597c13d831ec7")
+
+npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0xdac17f958d2ee523a2206206994597c13d831ec7 0x1c0491E3396AD6a35f061c62387a95d7218FC515
+```
+
+* USDC  
+```
+addERC20TokenByOwner("elated-tan-skat", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
+
+npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 0x5F795bb52dAC3085f578f4877D450e2929D2F13d
+```
+
+* WBTC  
+```
+addERC20TokenByOwner("elated-tan-skat", "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599")
+
+npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x2260fac5e5542a773aa44fbcfedf7c193bc2c599 0xcb011E86DF014a46F4e3AC3F3cbB114A4EB80870
+```
+
+Note: all these commands above were generated using
+[this script](../scripts/bridging/gen_registerTokensToIMA_MULTISIG.py).
+
+#### Bridging Tokens
+
+Note: this is more or less eqlivalent to
 
