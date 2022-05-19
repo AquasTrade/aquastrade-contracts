@@ -8,6 +8,7 @@ yarn createLottery --nftaddress $nftAddress --nftid $nftid --size $size --price 
 
 The arguments are
 
+* `$collateral`: Address of collateral token.
 * `$nftAddress`: Address of bonus NFT.(e.g. 0x431638081e7F63D90E1bED5f15f6BFfed09C9597)
 * `$nftid`: Token ID of bonus NFT.(This has no meaning if `mint=1`)
 * `$size`: Digit count of ticket.
@@ -21,7 +22,7 @@ The arguments are
 
 e.g 
 ```
-yarn createLottery --network rubyNewChain --nftaddress 0xd80BC0126A38c9F7b915e1B2B9f78280639cadb3 --nftid 0 --size 4 --price 10000000000000000000 --distribution "[40, 25, 10, 5, 15, 5]" --duration 7200 --mint 1
+yarn createLottery --network rubyNewChain --collateral 0x83B38f79cFFB47CF74f7eC8a5F8D7DD69349fBf7 --nftaddress 0xd80BC0126A38c9F7b915e1B2B9f78280639cadb3 --nftid 0 --size 4 --price 10000000000000000000 --distribution "[40, 25, 10, 5, 15, 5]" --duration 7200 --mint 1
 ```
 1. Draw Lottery
 

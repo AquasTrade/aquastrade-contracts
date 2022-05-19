@@ -5,6 +5,7 @@ import { utils } from "ethers";
 import { LotteryFactory, RubyFreeSwapNFT, Lottery } from "../../typechain";
 
 interface CreateLotteryArguments {
+  collateral: string,
   nftaddress: string,
   nftid: number,
   size: number,
@@ -20,7 +21,7 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   const account = (await ethers.getSigners())[0];
 
   const factoryAddr = require(`../../deployments/${network.name}/LotteryFactory.json`).address;
-  const rubyAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
+  // const rubyAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
 
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
   const rubyNFT: RubyFreeSwapNFT = (await ethers.getContractAt('RubyFreeSwapNFT', taskArgs.nftaddress)) as RubyFreeSwapNFT;
@@ -39,7 +40,7 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   console.log('NFT token approved');
 
   const distObj = JSON.parse(taskArgs.distribution);
-  tx = await factory.createNewLotto(rubyAddr, taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
+  tx = await factory.createNewLotto(taskArgs.collateral, taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
   await tx.wait();
 
   console.log('New Lottery Created');
@@ -57,6 +58,7 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
 };
 
 task("createLottery", "Create a new Lottery")
+  .addParam("collateral")
   .addParam("nftaddress")
   .addParam("nftid")
   .addParam("size")

@@ -74,7 +74,7 @@ contract LotteryFactory is OwnableUpgradeable {
         lotteryId++;
         allLotteries[lotteryId] = new Lottery(
             lotteryId,
-            ruby,
+            _collateral,
             _nft,
             _tokenId,
             _lotterySize,
