@@ -11,17 +11,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const symbol = "RPNFT";
 
   const description = JSON.stringify({
-    "description": "swap fees",
-    "feeReduction": 1000, 
-    "lpFeeDeduction": 3,
-    "randomMetadata": {}
+    "description": "Your unique 3D profile gem on Ruby Exchange",
+    "title": "Profile NFT",
+    "previewImage": "",
   });
 
   const visualAppearance = JSON.stringify({
-    "att1": 1,
-    "att2": 2, 
-    "att3": 3,
+    "type": "profile",
+    "seed": "__tokenId",
   });
+
 
   if (RubyProfileNFT) {
     log(`reusing "RubyProfileNFT" at ${RubyProfileNFT.address}`);
