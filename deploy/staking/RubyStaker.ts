@@ -16,7 +16,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   await deploy("RubyStaker", {
     from: deployer,
-    args: [RUBY_TOKEN_ADDRESS],
+    args: [RUBY_TOKEN_ADDRESS, 9],
     log: true,
     deterministicDeployment: false,
   });
