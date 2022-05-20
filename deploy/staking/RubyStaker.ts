@@ -14,9 +14,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyToken")).address;
   }
 
+  // deploy with 9 (max num rewards - same value as used in tests)
   await deploy("RubyStaker", {
     from: deployer,
-    args: [RUBY_TOKEN_ADDRESS],
+    args: [RUBY_TOKEN_ADDRESS, 9],
     log: true,
     deterministicDeployment: false,
   });
