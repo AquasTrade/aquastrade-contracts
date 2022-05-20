@@ -15,10 +15,10 @@ const main = async () => {
 
   //// check this nonce is reasonable and is 1 higher than the one in etherscan
   ////const tx = {
-  ////	nonce: 13,  // nonce
-  ////	to: ethers.constants.AddressZero,
-  ////	data: '0x',
-  ////	gasPrice: 50000000000  // from gastracker gwei -> wei
+  ////  nonce: 13,  // nonce
+  ////  to: ethers.constants.AddressZero,
+  ////  data: '0x',
+  ////  gasPrice: 50000000000  // from gastracker gwei -> wei
   ////}; // costs 21000 gas
   ////await signer.sendTransaction(tx);
   

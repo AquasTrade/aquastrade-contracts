@@ -93,27 +93,27 @@ const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string, fra
   if (amountToTx.gt(0)) {
 
     // revoke
-	  // let res = await ERC20.connect(signer).revoke(depositBoxAddress);
-	  // await res.wait(1);
+    // let res = await ERC20.connect(signer).revoke(depositBoxAddress);
+    // await res.wait(1);
 
-		if ((await ERC20.allowance(signer.address, depositBoxAddress)).lt(amountToTx)) {
-			console.log("increasing allowance");
-		  let res = await ERC20.connect(signer).approve(depositBoxAddress, amountToTx);
-		  await res.wait(1);
-		}
+    if ((await ERC20.allowance(signer.address, depositBoxAddress)).lt(amountToTx)) {
+      console.log("increasing allowance");
+      let res = await ERC20.connect(signer).approve(depositBoxAddress, amountToTx);
+      await res.wait(1);
+    }
 
-		// manual gas limit to get the tx to fail at least
-		// let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx, {gasLimit: 300000});
+    // manual gas limit to get the tx to fail at least
+    // let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx, {gasLimit: 300000});
 
-	  let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx);
-	  await res.wait(1);
+    let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx);
+    await res.wait(1);
 
   } else {
     console.log("skipping (0-balance)");
   }
 
-	erc20Balance = await ERC20.balanceOf(signer.address);
-	console.log(`${ERC20name} balance, after: ${ethers.utils.formatUnits(erc20Balance, ERC20decimals)}`);
+  erc20Balance = await ERC20.balanceOf(signer.address);
+  console.log(`${ERC20name} balance, after: ${ethers.utils.formatUnits(erc20Balance, ERC20decimals)}`);
 
 };
 
