@@ -9,7 +9,7 @@ yarn createLottery --nftaddress $nftAddress --nftid $nftid --size $size --price 
 The arguments are
 
 * `$collateral`: Address of collateral token.
-* `$nftAddress`: Address of bonus NFT.(e.g. 0x431638081e7F63D90E1bED5f15f6BFfed09C9597)
+* `$nftAddress`: Address of bonus NFT.(`0x0000000000000000000000000000000000000000` for no NFT)
 * `$nftid`: Token ID of bonus NFT.(This has no meaning if `mint=1`)
 * `$size`: Digit count of ticket.
 * `$price`: Cost per ticket in $ruby.
