@@ -102,6 +102,8 @@ const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string, fra
       await res.wait(1);
     }
 
+    console.log("depositing to depositBox");
+
     // manual gas limit to get the tx to fail at least
     // let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx, {gasLimit: 300000});
 
@@ -134,7 +136,7 @@ const main = async () => {
   // await bridgeL1TokensToL2(signer, 'USDC', 1 /* all of it */);
   // await bridgeL1TokensToL2(signer, 'DAI', 1 /* all of it */);
   // await bridgeL1TokensToL2(signer, 'SKL', 1 /* all of it */);
-  // await bridgeL1TokensToL2(signer, 'WBTC');
+  // await bridgeL1TokensToL2(signer, 'WBTC', 1 /* all of it */);
 
   // await bridgeEth(signer);
   
