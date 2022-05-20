@@ -3,8 +3,10 @@ import type { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, network } = hre;
-  const { deploy } = deployments;
+  const { deploy, getOrNull, log } = deployments;
   const { deployer } = await getNamedAccounts();
+
+  const RubyStaker = await getOrNull("RubyStaker");
 
   let RUBY_TOKEN_ADDRESS = "";
 
@@ -14,15 +16,26 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyToken")).address;
   }
 
-  await deploy("RubyStaker", {
-    from: deployer,
-    args: [RUBY_TOKEN_ADDRESS, 9],
-    log: true,
-    deterministicDeployment: false,
-  });
+  if (RubyStaker) {
+    log(`reusing "RubyStaker" at ${RubyStaker.address}`);
+  } else {
+    await deploy("RubyStaker", {
+      from: deployer,
+      log: true,
+      proxy: {
+        viaAdminContract: "RubyProxyAdmin",
+        proxyContract: "OpenZeppelinTransparentProxy",
+        execute: {
+          methodName: "initialize",
+          args: [deployer, RUBY_TOKEN_ADDRESS, 9],
+        },
+      },
+      skipIfAlreadyDeployed: true,
+    });
+  }
 };
 
-func.tags = ["RubyStaker", "Staking"];
+func.tags = ["RubyStaker", "Staking", "RubyProxyAdmin"];
 func.dependencies = [];
 
 export default func;

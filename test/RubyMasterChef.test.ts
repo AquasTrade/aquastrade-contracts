@@ -2,6 +2,7 @@ const { ethers, network } = require("hardhat");
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ADDRESS_ZERO, advanceTimeByTimestamp, latest, assertStakerBalances } from "./utilities";
+import { deployRubyStaker } from "./utilities/deployment";
 
 describe("RubyMasterChef", function () {
   before(async function () {
@@ -14,7 +15,6 @@ describe("RubyMasterChef", function () {
     this.minter = this.signers[4];
 
     this.rubyMasterChef = await ethers.getContractFactory("RubyMasterChef");
-    this.rubyStaker = await ethers.getContractFactory("RubyStaker");
     this.SimpleRewarderPerSec = await ethers.getContractFactory("SimpleRewarderPerSec");
     this.RubyToken = await ethers.getContractFactory("RubyTokenMintable");
     this.MockERC20 = await ethers.getContractFactory("MockERC20", this.minter);
@@ -43,7 +43,7 @@ describe("RubyMasterChef", function () {
     this.ruby = await this.RubyToken.deploy(); // b=1
     await this.ruby.deployed();
 
-    this.staker = await this.rubyStaker.deploy(this.ruby.address, this.maxNumOfRewards);
+    this.staker = await deployRubyStaker(this.owner.address, this.ruby.address, this.maxNumOfRewards);
 
     this.partnerToken = await this.SushiToken.deploy(); // b=2
     await this.partnerToken.deployed();
