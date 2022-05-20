@@ -24,24 +24,30 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   // const rubyAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
 
   const factory: LotteryFactory = (await ethers.getContractAt("LotteryFactory", factoryAddr)) as LotteryFactory;
-  const rubyNFT: RubyFreeSwapNFT = (await ethers.getContractAt('RubyFreeSwapNFT', taskArgs.nftaddress)) as RubyFreeSwapNFT;
+  if (taskArgs.nftaddress != '0x0000000000000000000000000000000000000000') {
+    const rubyNFT: RubyFreeSwapNFT = (await ethers.getContractAt('RubyFreeSwapNFT', taskArgs.nftaddress)) as RubyFreeSwapNFT;
 
-  if (taskArgs.mint == "1") {
-    console.log('Trying to mint');
-    let tx = (await rubyNFT.mint(account.address));
+    if (taskArgs.mint == "1") {
+      console.log('Trying to mint');
+      let tx = (await rubyNFT.mint(account.address));
+      await tx.wait();
+      taskArgs.nftid = (await rubyNFT.nftIds()).toNumber() - 1;
+      console.log('Minted NFT');
+    }
+
+    console.log('Lottery NFT', taskArgs.nftid);
+    let tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftid));
     await tx.wait();
-    taskArgs.nftid = (await rubyNFT.nftIds()).toNumber() - 1;
-    console.log('Minted NFT');
+    console.log('NFT token approved');
+
+    const distObj = JSON.parse(taskArgs.distribution);
+    tx = await factory.createNewLotto(taskArgs.collateral, taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
+    await tx.wait();
+  } else {
+    const distObj = JSON.parse(taskArgs.distribution);
+    let tx = await factory.createNewLotto(taskArgs.collateral, taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
+    await tx.wait();
   }
-
-  console.log('Lottery NFT', taskArgs.nftid);
-  let tx = (await rubyNFT.approve(factoryAddr, taskArgs.nftid));
-  await tx.wait();
-  console.log('NFT token approved');
-
-  const distObj = JSON.parse(taskArgs.distribution);
-  tx = await factory.createNewLotto(taskArgs.collateral, taskArgs.nftaddress, taskArgs.nftid, taskArgs.size, taskArgs.price, distObj, taskArgs.duration);
-  await tx.wait();
 
   console.log('New Lottery Created');
 
