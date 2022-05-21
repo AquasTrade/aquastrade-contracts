@@ -147,6 +147,8 @@ contract RubyStaker is OwnableUpgradeable, ReentrancyGuardUpgradeable, IRubyStak
         require(_maxNumRewards <= 10, "RubyStaker: Invalid maximum number of rewards.");
 
         OwnableUpgradeable.__Ownable_init();
+        ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
+
         transferOwnership(_owner);
 
         rubyToken = IERC20(_rubyToken);
