@@ -11,6 +11,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./IRandomNumberGenerator.sol";
 import "../interfaces/IRubyNFT.sol";
 
+// import "hardhat/console.sol";
+
 contract Lottery is Ownable, Pausable {
     // Libraries
     using SafeMath for uint256;
@@ -43,7 +45,7 @@ contract Lottery is Ownable, Pausable {
     mapping(address => bool) private claimed;
 
     event NewTickets(address who, uint256 ticketSize);
-    event DrewWinningNumber(uint256[] _winners);
+    event DrewWinningNumber(uint256 lotteryID, uint256 nwinners, address[] winnerAddresses);
     event RewardClaimed(address to);
 
     constructor(
@@ -158,17 +160,23 @@ contract Lottery is Ownable, Pausable {
             ruby.safeTransfer(burn, rubyTotal.mul(prizeDistribution[prizeDistribution.length - 2]).div(100));
         }
 
+        uint256 nwinners = 0;
+
         // any un-won collateral goes to treasury
         uint256 unwon = 0;
         for (uint256 i = 0; i < winnersSize; i++) {
             address winAddress = ticketsToPerson[winners[i]];
             if (winAddress == address(0)) {
               unwon = unwon.add(rubyTotal.mul(prizeDistribution[i]).div(100));
+            } else {
+              nwinners += 1;
             }
         }
         ruby.safeTransfer(treasury, unwon);
 
-        emit DrewWinningNumber(winners);
+        // emit all winning addresses
+        address[] memory winningAddresses = getWinningAddresses();
+        emit DrewWinningNumber(ID, nwinners, winningAddresses);
     }
 
     function withdraw(uint256 _amount) external closed onlyOwner {
@@ -235,7 +243,7 @@ contract Lottery is Ownable, Pausable {
         return ticketPrice * _ticketSize;
     }
 
-    function getWinningAddresses() external view drew returns (address[] memory) {
+    function getWinningAddresses() public view drew returns (address[] memory) {
         address[] memory winnerAddresses = new address[](winnersSize);
         for (uint256 i = 0; i < winnersSize; i++) {
             uint256 winner = winners[i];

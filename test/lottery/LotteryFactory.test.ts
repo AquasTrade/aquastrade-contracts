@@ -1000,7 +1000,11 @@ describe("Lottery Factory contract", function () {
       let t_balanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
       let b_balanceBefore = await this.rubyInstance.balanceOf(this.burner.address);
 
-      await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
+      await expect (
+        await this.lotteryInstance.connect(this.owner).drawWinningNumbers(),
+        "Emit correct draw winners event").to.emit(
+          this.lotteryInstance,"DrewWinningNumber").withArgs(
+            await this.lotteryInstance.getID(), 1, [this.buyer.address, ethers.constants.AddressZero])
 
       let t_balanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
       let b_balanceAfter = await this.rubyInstance.balanceOf(this.burner.address);
@@ -1123,7 +1127,7 @@ describe("Lottery Factory contract", function () {
       expect(t_diff, "Treasury 12").to.be.eq(pot.mul(60).div(100));
     });
   });
-  describe("Small lottery", function () {
+  describe("Small lottery (1 winner)", function () {
     beforeEach(async function () {
       this.ticketCost = ethers.utils.parseUnits("10", 18);
       this.duration = 24 * 60 * 60;
