@@ -142,7 +142,7 @@ contract RubyStaker is OwnableUpgradeable, ReentrancyGuardUpgradeable, IRubyStak
     function initialize(
         address _owner,
         address _rubyToken,
-        uint256 _maxNumRewards) public {
+        uint256 _maxNumRewards) public initializer {
         require(_rubyToken != address(0), "RubyStaker: Invalid ruby token.");
         require(_maxNumRewards <= 10, "RubyStaker: Invalid maximum number of rewards.");
 
