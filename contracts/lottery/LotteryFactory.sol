@@ -24,7 +24,7 @@ contract LotteryFactory is OwnableUpgradeable {
     mapping(uint256 => Lottery) private allLotteries;
     uint256 private lotteryId;
 
-    event LotteryCreated(uint256 _lotteryId);
+    event LotteryCreated(uint256 _lotteryId, address _lottery, address _collateral, address _nft);
 
     //-------------------------------------------------------------------------
     // initializer
@@ -92,7 +92,7 @@ contract LotteryFactory is OwnableUpgradeable {
             IRubyNFT(_nft).transferFrom(msg.sender, address(allLotteries[lotteryId]), _tokenId);
         }
 
-        emit LotteryCreated(lotteryId);
+        emit LotteryCreated(lotteryId, address(allLotteries[lotteryId]), _collateral, _nft);
     }
 
     function getCurrentLotto() public view returns (address) {

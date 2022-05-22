@@ -59,10 +59,7 @@ describe("Lottery Factory contract", function () {
             lotto.newLotto.distribution,
             lotto.newLotto.duration,
           ),
-      )
-        .to.emit(this.factoryInstance, lotto.events.new)
-        // Checking that emitted event contains correct information
-        .withArgs(1);
+      ).to.emit(this.factoryInstance, lotto.events.new)
 
       let lotteryInstance = await this.lotteryContract.attach(this.factoryInstance.getCurrentLotto());
 
@@ -144,8 +141,7 @@ describe("Lottery Factory contract", function () {
             lotto.newLotto.duration,
           ),
       ).to.emit(this.factoryInstance, lotto.events.new)
-        // Checking that emitted event contains correct information
-        .withArgs(1);
+
       await expect(
         this.factoryInstance
           .connect(this.owner)
@@ -159,8 +155,7 @@ describe("Lottery Factory contract", function () {
             lotto.newLotto.duration,
           ),
       ).to.emit(this.factoryInstance, lotto.events.new)
-        // Checking that emitted event contains correct information
-        .withArgs(2);
+
     });
     /**
      * Create multiple Lottery with different NFT collection
@@ -185,8 +180,7 @@ describe("Lottery Factory contract", function () {
             lotto.newLotto.duration,
           ),
       ).to.emit(this.factoryInstance, lotto.events.new)
-        // Checking that emitted event contains correct information
-        .withArgs(1);
+
       await expect(
         this.factoryInstance
           .connect(this.owner)
@@ -200,8 +194,6 @@ describe("Lottery Factory contract", function () {
             lotto.newLotto.duration,
           ),
       ).to.emit(this.factoryInstance, lotto.events.new)
-        // Checking that emitted event contains correct information
-        .withArgs(2);
     });
     /**
      * Wrong nft this.owner Lottery
@@ -225,8 +217,7 @@ describe("Lottery Factory contract", function () {
             lotto.newLotto.duration,
           ),
       ).to.emit(this.factoryInstance, lotto.events.new)
-        // Checking that emitted event contains correct information
-        .withArgs(1);
+
       await expect(
         this.factoryInstance
           .connect(this.owner)
