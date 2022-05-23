@@ -25,7 +25,7 @@ contract LotteryBurner is OwnableUpgradeable {
     }
 
     function burn() external onlyOwner {
-        uint256 toburn = IERC20(rubyToken).balanceOf(address(this)) - burned;
+        uint256 toburn = IERC20(rubyToken).balanceOf(address(this));
         RubyToken(rubyToken).burn(toburn);
         burned += toburn;
     }
