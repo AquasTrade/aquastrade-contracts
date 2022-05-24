@@ -14,7 +14,6 @@ import "../interfaces/IRubyNFT.sol";
 contract LotteryFactory is OwnableUpgradeable {
     using SafeMath for uint256;
 
-    address private ruby;
     address private RNG;
     address private treasury;
     address private burn;
@@ -30,16 +29,13 @@ contract LotteryFactory is OwnableUpgradeable {
     // initializer
     //-------------------------------------------------------------------------
     function initialize(
-        address _ruby,
         address _randomNumberGenerator,
         address _treasury,
         address _burn
     ) public initializer {
-        require(_ruby != address(0), "LotteryFactory: ruby cannot be 0 address");
         require(_randomNumberGenerator != address(0), "LotteryFactory: randomNumberGenerator cannot be 0 address");
         require(_treasury != address(0), "LotteryFactory: Treasury cannot be 0 address");
         require(_burn != address(0), "LotteryFactory: Burn cannot be 0 address");
-        ruby = _ruby;
         RNG = _randomNumberGenerator;
         treasury = _treasury;
         burn = _burn;
@@ -112,11 +108,6 @@ contract LotteryFactory is OwnableUpgradeable {
         RNG = _RNG;
     }
 
-    function setRuby(address _ruby) external onlyOwner {
-        require(_ruby != address(0), "LotteryFactory: Ruby cannot be 0 address");
-        ruby = _ruby;
-    }
-
     function setTreasury(address _treasury) external onlyOwner {
         require(_treasury != address(0), "LotteryFactory: Treasury cannot be 0 address");
         treasury = _treasury;
@@ -129,10 +120,6 @@ contract LotteryFactory is OwnableUpgradeable {
 
     function getRNG() external view returns (address) {
         return address(RNG);
-    }
-
-    function getRuby() external view returns (address) {
-        return ruby;
     }
 
     function getTreasury() external view returns (address) {

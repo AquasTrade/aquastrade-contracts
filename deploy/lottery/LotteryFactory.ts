@@ -8,7 +8,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const LotteryFactory = await getOrNull("LotteryFactory");
   const LotteryBurner = await get("LotteryBurner");
-  const RubyToken = await get("RubyToken");
 
   let RandomNumberGenerator = null;
   if ((network.name === "hardhat") || (network.name === "localhost")) {
@@ -29,7 +28,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         proxyContract: "OpenZeppelinTransparentProxy",
         execute: {
           methodName: "initialize",
-          args: [RubyToken.address, RandomNumberGenerator.address, treasury, LotteryBurner.address],
+          args: [RandomNumberGenerator.address, treasury, LotteryBurner.address],
         },
       },
       skipIfAlreadyDeployed: true,
@@ -38,5 +37,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["RubyProxyAdmin", "RubyToken", "RandomNumberGenerator", "LotteryBurner"];
+func.dependencies = ["RubyProxyAdmin", "RandomNumberGenerator", "LotteryBurner"];
 func.tags = ["LotteryFactory", "Lottery"];

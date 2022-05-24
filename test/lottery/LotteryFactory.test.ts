@@ -31,7 +31,6 @@ describe("Lottery Factory contract", function () {
     this.randGenInstance = await this.randGenContract.deploy();
     this.nftInstance = await this.mock_erc721Contract.deploy("Lottery Bonus", "Bonus");
     this.factoryInstance = await upgrades.deployProxy(this.factoryContract, [
-      this.rubyInstance.address,
       this.randGenInstance.address,
       this.treasury.address,
       this.burner.address,
