@@ -35,7 +35,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 };
 
-func.tags = ["RubyStaker", "Staking", "RubyProxyAdmin"];
-func.dependencies = [];
+func.tags = ["RubyStaker", "Staking"];
+func.dependencies = ["RubyProxyAdmin"];
 
 export default func;
