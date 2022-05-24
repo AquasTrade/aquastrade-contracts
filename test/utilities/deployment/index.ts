@@ -19,7 +19,8 @@ import {
   RubyNFTAdmin,
   RubyProfileNFT,
   RubyFreeSwapNFT,
-  RubyMaker
+  RubyMaker,
+  RubyStaker
 } from "../../../typechain";
 
 
@@ -213,6 +214,17 @@ export const deployRubyMaker = async (owner: string, factory: string, staker: st
   return rubyMaker;
 
 }
+
+
+export const deployRubyStaker = async (owner: string, ruby: string, maxNumRewards: number): Promise<RubyStaker> => {
+
+  let RubyStaker = await ethers.getContractFactory("RubyStaker");
+  const rubyStaker: RubyStaker = await upgrades.deployProxy(RubyStaker, [owner, ruby, maxNumRewards]);
+  await rubyStaker.deployed();
+  return rubyStaker;
+
+}
+
 
 export const deployNftsAndNftAdmin = async (ownerAddress: string) => {
 
