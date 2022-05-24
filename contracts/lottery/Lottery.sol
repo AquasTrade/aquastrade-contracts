@@ -91,7 +91,7 @@ contract Lottery is Ownable, Pausable {
         ticketPrice = _ticketPrice;
         lotterySize = _lotterySize;
         startingTimestamp = getCurrentTime();
-        closingTimestamp = startingTimestamp + _duration;
+        closingTimestamp = startingTimestamp.add(_duration);
         prizeDistribution = _prizeDistribution;
     }
 
@@ -141,7 +141,7 @@ contract Lottery is Ownable, Pausable {
         uint256 totalCost = uint256(numOkTickets).mul(ticketPrice);
         ruby.safeTransferFrom(msg.sender, address(this), totalCost);
         rubyTotal = rubyTotal.add(totalCost);
-        numTicketsSold += numOkTickets;
+        numTicketsSold = numTicketsSold.add(numOkTickets);
 
         emit NewTickets(msg.sender, numOkTickets);
     }
@@ -240,7 +240,7 @@ contract Lottery is Ownable, Pausable {
     /// @notice Cost to buy tickets in $ruby.
     /// @param _ticketSize The number of tickets to buy.
     function costToBuyTickets(uint256 _ticketSize) external view returns (uint256) {
-        return ticketPrice * _ticketSize;
+        return ticketPrice.mul(_ticketSize);
     }
 
     function getWinningAddresses() public view drew returns (address[] memory) {
@@ -294,7 +294,7 @@ contract Lottery is Ownable, Pausable {
     }
 
     function getTicketsRemaining() external view returns (uint256) {
-        return (10**lotterySize) - numTicketsSold;
+        return uint256(10**lotterySize).sub(numTicketsSold);
     }
 
     function getTotalRuby() external view returns (uint256) {
