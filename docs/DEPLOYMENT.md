@@ -47,8 +47,25 @@ yarn deploy --tags RubyNFTAdmin
 
 2. AMM:
 
-Before deploying AMM, ensure that the `initCodeHash` is correct for the correct network: `yarn initCodeHash --network $network`.
+#### initCodeHash
+
+Before deploying AMM, ensure that the `initCodeHash` is correct for the correct version of the code and for the correct network: `yarn initCodeHash --network $network`.
+
 This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at line 33, where the "// init code hash" comment is set. (NOTE: without the `0x` symbol)
+
+Note: do NOT commit the value you find to the codebase because for the tests to pass
+the value in the repository should be that generated using `--network hardhat`.
+
+Current values (at time of this commit, post audit)
+
+* hardhat  
+  `0xaced2ededb8bce81917b80e9c38ddb1d0c392ebbfc1db63136f1343141a4ceaf`
+* rubyNewChain (fancy-rasalhague)  
+  `0xba9f7d123cf1f1b0f57891be300d90939d1a591af80a90cfb7e904a821927963`
+
+
+#### Contracts
+
 
 ```
 yarn deploy --tags UniswapV2Factory
