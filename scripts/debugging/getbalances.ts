@@ -15,6 +15,8 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
   let erc20Addr;
   if (symbol == 'RUBY') {
     erc20Addr = require(`../../deployments/${network.name}/RubyToken.json`).address;
+  } else if (symbol == 'ETHC' ) {
+    erc20Addr = '0xD2Aaa00700000000000000000000000000000000';
   } else {
     erc20Addr = require(`../../deployments/${network.name}/Ruby${symbol}.json`).address;
   }
@@ -31,11 +33,17 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
 const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
   const ethers = hre.ethers;
   const network = hre.network;
-  await getERC20Balance(taskArgs.address, 'USDP', hre)
-  await getERC20Balance(taskArgs.address, 'USDT', hre)
-  await getERC20Balance(taskArgs.address, 'USDC', hre)
-  await getERC20Balance(taskArgs.address, 'DAI', hre)
-  await getERC20Balance(taskArgs.address, 'RUBY', hre)
+  if (network.name === 'mainnet' || network.name === 'rinkeby' || network.name === 'localhost') {
+    console.log('ETH balance', ethers.utils.formatEther(await ethers.provider.getBalance(taskArgs.address)));
+  } else {
+    console.log('sFUEL balance', ethers.utils.formatEther(await ethers.provider.getBalance(taskArgs.address)));
+    await getERC20Balance(taskArgs.address, 'ETHC', hre)
+    await getERC20Balance(taskArgs.address, 'USDP', hre)
+    await getERC20Balance(taskArgs.address, 'USDT', hre)
+    await getERC20Balance(taskArgs.address, 'USDC', hre)
+    await getERC20Balance(taskArgs.address, 'DAI', hre)
+    await getERC20Balance(taskArgs.address, 'RUBY', hre)
+  }
 };
 
 task("balances", "Get balances for relevant tokens etc")
