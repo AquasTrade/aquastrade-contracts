@@ -1,10 +1,9 @@
 import fs from "fs";
 import { ethers, network } from "hardhat";
 import { utils } from "ethers";
-import { RubyMasterChef, UniswapV2Factory } from "../../typechain";
+import { RubyMasterChef } from "../../typechain";
 
 const masterChefAddr = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
-const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
 
 const addSingleRewardFarms = async (masterChef: RubyMasterChef, lpTokenAddr: string, allocPoints: number) => {
   const zeroAddress = "0x0000000000000000000000000000000000000000";
@@ -36,16 +35,17 @@ const debug = async (masterChef: RubyMasterChef) => {
 
 const main = async () => {
   const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", masterChefAddr)) as RubyMasterChef;
-  const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
 
   // Need to generate Mock LP addresses first (hardhat run createMockLPs.ts)
-  const pools = JSON.parse(fs.readFileSync("./deployment_addresses/new_pools_addr.json", {encoding: "utf-8"}));
+  const pools = JSON.parse(fs.readFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, {encoding: "utf-8"}));
   const poolAddresses: string[] = Object.values(pools);
   
   console.log("pool addresses", poolAddresses)
 
+  // ATTN for some reason I had to run the script twice... maybe because of alloc points?
+  //      if so, just run it manually
   for (let i = 0; i < poolAddresses.length; i++) {
-    await addSingleRewardFarms(masterChef, poolAddresses[i], 100);
+     await addSingleRewardFarms(masterChef, poolAddresses[i], 100);
   }
 
   await debug(masterChef);

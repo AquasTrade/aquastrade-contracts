@@ -23,13 +23,21 @@ const main = async () => {
 
   const rubyToken = await getRubyToken();
 
-  const amount = ethers.utils.parseUnits("130000000", 18);
+  const balanceOfMasterChef1 = ethers.utils.formatUnits(await rubyToken.balanceOf(masterChefAddr), 18);
+  console.log("Balance of RubyMasterChef", balanceOfMasterChef1);
+
+  const HUMAN_AMOUNT = "100";
+  console.log("Trasferring", HUMAN_AMOUNT, "RUBY to RubyMasterChef")
+
+  const amount = ethers.utils.parseUnits(HUMAN_AMOUNT, 18);
+
   const res = await rubyToken.transfer(masterChefAddr, amount);
   await res.wait(1);
 
-  const balanceOfMasterChef = ethers.utils.formatUnits(await rubyToken.balanceOf(masterChefAddr));
+  const balanceOfMasterChef2 = ethers.utils.formatUnits(await rubyToken.balanceOf(masterChefAddr), 18);
 
-  console.log("Balance Of RubyMasterChef", balanceOfMasterChef);
+  console.log("Balance of RubyMasterChef", balanceOfMasterChef2);
+  console.log("Address of RubyMasterChef", masterChefAddr)
 };
 
 main()

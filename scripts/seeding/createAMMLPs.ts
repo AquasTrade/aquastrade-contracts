@@ -1,17 +1,17 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair } from "../../typechain";
+import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair, RubyUSDP, RubyToken } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import fs from "fs";
 
 
-const usdpAddr = require(`../../deployments/${network.name}/RubyUSDP.json`).address;
-const rubyAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
-const ethcAddr = "0xD2Aaa00700000000000000000000000000000000";
+//const usdpAddr = require(`../../deployments/${network.name}/RubyUSDP.json`).address;
+// const rubyAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
+const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
 
-const routerAddr = require(`../../deployments/${network.name}/UniswapV2Router02.json`).address;
-const factoryAddr = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
+const ROUTER_ADDR = require(`../../deployments/${network.name}/UniswapV2Router02.json`).address;
+const FACTORY_ADDR = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
 
 const addLiquidity = async (
   tokenA: string,
@@ -22,8 +22,7 @@ const addLiquidity = async (
   deadline: BigNumber,
 ) => {
 
-
-  const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", routerAddr)) as UniswapV2Router02;
+  const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", ROUTER_ADDR)) as UniswapV2Router02;
   const res = await router.addLiquidity(
     tokenA,
     tokenB,
@@ -35,8 +34,7 @@ const addLiquidity = async (
     deadline,
   )
 
-    console.log("res", res)
-
+  //  console.log("res", res)
   const receipt = await res.wait(1);
 
   if (receipt.status) {
@@ -73,68 +71,76 @@ const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
   }
 };
 
-const writeRubyPoolAddrs = async (factory: UniswapV2Factory) => {
+const writeRubyPoolAddrs = async (factory: UniswapV2Factory, usdpAddr: string, rubyAddr: string, ethcAddr: string) => {
   const rubyPoolAddrs: Record<string, string> = {};
 
   rubyPoolAddrs.usdpRUBY = await factory.getPair(usdpAddr, rubyAddr);
   rubyPoolAddrs.usdpETHC = await factory.getPair(usdpAddr, ethcAddr);
 
-  fs.writeFileSync("./deployment_addresses/new_pools_addr.json", JSON.stringify(rubyPoolAddrs));
+  fs.writeFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, JSON.stringify(rubyPoolAddrs));
 };
 
-const approveTokens = async (tokenAddrs: string[]) => {
-  console.log("Approving tokens...");
-  const amount = ethers.constants.MaxUint256
+const approveTokens = async (tokens: any[], routerAddr: string, amount: BigNumber) => {
+  for (const token of tokens) {
+    const symbol = await token.symbol();
+    const decimals = await token.decimals();
 
-  for (let tokenAddr of tokenAddrs) {
-    console.log(`Approving token ${tokenAddr}...`);
-    const tokenContract: MockERC20 = (await ethers.getContractAt("MockERC20", tokenAddr)) as MockERC20;
-    await tokenContract.approve(routerAddr, amount);
-    console.log(`Token ${tokenAddr} approved...`);
+    console.log(`Aproving ${routerAddr} to spend ${symbol} token... for ${ethers.utils.formatUnits(amount, decimals)}`);
+
+    const res = await token.approve(routerAddr, amount);
+    await res.wait(1);
   }
+  console.log("Tokens approved!");
 };
 
 const main = async () => {
-  console.log(network.name);
-
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  // approve tokens
-  await approveTokens([usdpAddr, rubyAddr, ethcAddr]);
+  if (network.name !== "rubyNewChain") {
+    throw new Error("Not Supported (anyway this is dangerous, you chould check the numbers here")
+  }
 
-  const blockNumber = await ethers.provider.getBlockNumber();
-  const blockData = await ethers.provider.getBlock(blockNumber);
-  const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+  const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", FACTORY_ADDR)) as UniswapV2Factory;
+  console.log("Can I create AMM LPs", await factory.pairCreators(deployer.address));
 
-  // PRICING
-  // 1 ETHC = 10,000,000 RUBY
-  // 1 ETHC = 10,000,000 USDP
-  // 1 RUBY = 1 USDP
+  const ruby = (await ethers.getContract("RubyToken")) as RubyToken;
+  const usdp = (await ethers.getContract("RubyUSDP")) as RubyUSDP;
+  const ethc = (await ethers.getContractAt("MockERC20", ETHC_ADDR)) as MockERC20;  // works for approve() ABI
 
-  console.log("rubyAddr", rubyAddr);
-  console.log("usdpAddr", usdpAddr);
-  console.log("ethcAddr", ethcAddr);
+  // ATTN: PRICING be careful
 
+  const amountRUBY = ethers.utils.parseUnits("1000", 18); // 1000
+  const amountETHC = ethers.utils.parseUnits("0.04", 18); // 0.04
 
+  const amountUSDPRUBY = ethers.utils.parseUnits("1000", 18); // 1000
+  const amountUSDPETHC = ethers.utils.parseUnits("1000", 18); // 1000
 
-  const amountRUBY = ethers.utils.parseUnits("10000000", 18); // 10,000,000
-  const amountETHC = ethers.utils.parseUnits("0.5", 18); // 1
+  // ATTN: approve tokens, only approve what is needed
+  await approveTokens([usdp], ROUTER_ADDR, amountUSDPRUBY.add(amountUSDPETHC));
+  await approveTokens([ruby], ROUTER_ADDR, amountRUBY);
+  await approveTokens([ethc], ROUTER_ADDR, amountETHC);
 
-  const amountUSDPRUBY = ethers.utils.parseUnits("10000000", 18); // 10,000,000
-  const amountUSDPETHC = ethers.utils.parseUnits("10000000", 18); // 10,000,000
-
+  let blockNumber;
+  let blockData;
+  let deadline;
 
   // USDP-RUBY
-  // await addLiquidity(usdpAddr, rubyAddr, amountUSDPRUBY, amountRUBY, deployer.address, deadline);
+  blockNumber = await ethers.provider.getBlockNumber();
+  blockData = await ethers.provider.getBlock(blockNumber);
+  deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
 
-  // USDP-ETH (TODO)
-  await addLiquidity(usdpAddr, ethcAddr, amountUSDPETHC, amountETHC, deployer.address, deadline);
+  await addLiquidity(usdp.address, ruby.address, amountUSDPRUBY, amountRUBY, deployer.address, deadline);
 
-  const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddr)) as UniswapV2Factory;
+  // // USDP-ETH
+  blockNumber = await ethers.provider.getBlockNumber();
+  blockData = await ethers.provider.getBlock(blockNumber);
+  deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+
+  await addLiquidity(usdp.address, ethc.address, amountUSDPETHC, amountETHC, deployer.address, deadline);
 
   await debugPairs(factory, deployer.address);
 
-  await writeRubyPoolAddrs(factory);
+  await writeRubyPoolAddrs(factory, usdp.address, ruby.address, ethc.address);
 };
 
 main()

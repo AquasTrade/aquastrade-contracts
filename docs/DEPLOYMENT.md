@@ -90,9 +90,19 @@ yarn deploy --tags SeedAMM
 
 5. Farm
 
-a) Deploy ruby token if not deployed `yarn deploy --tags RubyTokenMainnet` or `yarn deploy --tags RubyToken`
-b) Deploy RubyMasterChef `yarn deploy --tags RubyMasterChef`
-c) Seed RubyMasterChef with RUBY tokens `yarn transferRUBYtoMS`
+* Deploy ruby token if not deployed  
+  `yarn deploy --tags RubyTokenMainnet` or `yarn deploy --tags RubyToken`
+
+Set the ruby emissions, percentage, and start date (if not now)
+
+* Deploy RubyMasterChef  
+  `yarn deploy --tags RubyMasterChef`
+
+* Check ruby token balance (of deployer)  
+  `yarn balances --network $network --address $deployer`
+
+* Seed RubyMasterChef with RUBY tokens  
+  `yarn transferRUBYtoMS --network $network`
 
 6. Set staking rewards
 
@@ -116,9 +126,11 @@ or: `yarn deploy --tags StableSwap`
 
 8. Seed the stablePool:
 
-```
-yarn deploy --tags SeedStablePool
-```
+* check USDX balances  
+  `yarn balances --network $network --address $deployer`
+
+* seed  
+  `yarn deploy --tags SeedStablePool`
 
 9. Ruby Router:
 
@@ -152,12 +164,29 @@ yarn deploy --tags Faucet
 
 14. Seed faucet
 
+Note check amounts and network first!
+
 ```
 yarn seedFaucet
 ```
 
 15. Governance:
 
+(skipped in favour of MS governance I think)
+
+
 ```
 yarn deploy --tags Timelock
 ```
+
+16. Creating AMM Liquidty Pools and Farms
+
+Note: read the contents of both files correctly, and take heed of the ATTN parts
+
+* Liquidty pools (sets the price)  
+  `yarn createAMMLPs --network rubyNewChain`
+* Farms (per default, single reward token (RUBY))  
+  `yarn createFarms --network rubyNewChain`
+
+
+
