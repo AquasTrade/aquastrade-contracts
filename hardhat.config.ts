@@ -13,6 +13,9 @@ import "hardhat-watcher";
 import "solidity-coverage";
 import "@typechain/hardhat";
 
+import "./scripts/debugging/getbalances.ts"
+import "./scripts/debugging/getaddresses.ts"
+
 import { resolve } from "path";
 import { config as dotenvConfig } from "dotenv";
 
