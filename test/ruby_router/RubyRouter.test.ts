@@ -99,6 +99,13 @@ describe("RubyRouter", function () {
 
     expect(ammRouterAddr).to.be.eq(this.ammRouter.address);
     expect(stablePoolEnabled).to.be.eq(true);
+
+    // Note: this is tested here to explicitly document that in this test the stable pool
+    // token ordering is different to what we deploy in prod (which is USDP, DAI, USDC, USDT)
+    expect(await this.rubyStablePool.getTokenIndex(this.usdp.address)).to.be.eq(1);
+    expect(await this.rubyStablePool.getTokenIndex(this.dai.address)).to.be.eq(0);
+    expect(await this.rubyStablePool.getTokenIndex(this.usdc.address)).to.be.eq(2);
+    expect(await this.rubyStablePool.getTokenIndex(this.usdt.address)).to.be.eq(3);
   });
 
   it("Routing should work as expected starting from the AMM", async function () {
@@ -111,6 +118,8 @@ describe("RubyRouter", function () {
 
     const amountsOut = await this.ammRouter.getAmountsOut(tokenInAmount, [tokenIn.address, stableTokenIn.address], feeMultiplier);
     const stableTokenInAmount = amountsOut[amountsOut.length - 1];
+
+    expect(amountsOut.length).to.be.eq(2)
 
     const stableTokenInIndex = await this.rubyStablePool.getTokenIndex(stableTokenIn.address);
     const stableTokenOutIndex = await this.rubyStablePool.getTokenIndex(stableTokenOut.address);
