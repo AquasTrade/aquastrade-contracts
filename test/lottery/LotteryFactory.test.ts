@@ -620,15 +620,18 @@ describe("Lottery Factory contract", function () {
       // Setting the time forward
       await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
+      let treasuryBalanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
+      let treasuryBalanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+      let treasuryDiff = treasuryBalanceAfter.sub(treasuryBalanceBefore);
       // Claiming winnings
       let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
       await this.lotteryInstance.connect(this.buyer).claimReward();
       let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "1st winner claim amount is wrong").to.be.eq(lotto.newLotto.win.first);
-
+      expect(treasuryDiff, "Treasury funding is wrong").to.be.eq(lotto.newLotto.treasury[0]);
       assert.equal(await this.nftInstance.ownerOf(1), this.buyer.address);
     });
     /**
@@ -642,14 +645,18 @@ describe("Lottery Factory contract", function () {
       // Setting the time forward
       await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
+      let treasuryBalanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
+      let treasuryBalanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+      let treasuryDiff = treasuryBalanceAfter.sub(treasuryBalanceBefore);
       // Claiming winnings
       let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
       await this.lotteryInstance.connect(this.buyer).claimReward();
       let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "2nd winner claim amount is wrong").to.be.eq(lotto.newLotto.win.second);
+      expect(treasuryDiff, "Treasury funding is wrong").to.be.eq(lotto.newLotto.treasury[1]);
     });
     /**
      * Testing that claim for 3rd winner
@@ -662,14 +669,18 @@ describe("Lottery Factory contract", function () {
       // Setting the time forward
       await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
+      let treasuryBalanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
+      let treasuryBalanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+      let treasuryDiff = treasuryBalanceAfter.sub(treasuryBalanceBefore);
       // Claiming winnings
       let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
       await this.lotteryInstance.connect(this.buyer).claimReward();
       let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "3rd winner claim amount is wrong").to.be.eq(lotto.newLotto.win.third);
+      expect(treasuryDiff, "Treasury funding is wrong").to.be.eq(lotto.newLotto.treasury[2]);
     });
     /**
      * Testing that claim for 4th winner
@@ -682,14 +693,18 @@ describe("Lottery Factory contract", function () {
       // Setting the time forward
       await network.provider.send("evm_increaseTime", [lotto.newLotto.duration + 10]);
       await network.provider.send("evm_mine");
+      let treasuryBalanceBefore = await this.rubyInstance.balanceOf(this.treasury.address);
       // Drawing the numbers
       await this.lotteryInstance.connect(this.owner).drawWinningNumbers();
+      let treasuryBalanceAfter = await this.rubyInstance.balanceOf(this.treasury.address);
+      let treasuryDiff = treasuryBalanceAfter.sub(treasuryBalanceBefore);
       // Claiming winnings
       let balanceBefore = await this.rubyInstance.balanceOf(this.buyer.address);
       await this.lotteryInstance.connect(this.buyer).claimReward();
       let balanceAfter = await this.rubyInstance.balanceOf(this.buyer.address);
       let diff = balanceAfter.sub(balanceBefore);
       expect(diff, "4th winner claim amount is wrong").to.be.eq(lotto.newLotto.win.fourth);
+      expect(treasuryDiff, "Treasury funding is wrong").to.be.eq(lotto.newLotto.treasury[3]);
     });
   });
   describe("Withdrawal test", function () {

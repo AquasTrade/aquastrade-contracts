@@ -10,6 +10,7 @@ const lotto = {
         cost: ethers.utils.parseUnits("10", 18),
         closeIncrease: 24 * 60 * 60 + 10,
         duration: 24 * 60 * 60,
+        treasury: [ethers.utils.parseUnits("225", 18), ethers.utils.parseUnits("300", 18), ethers.utils.parseUnits("375", 18), ethers.utils.parseUnits("400", 18)],
         win: {
             blankWinningNumbers: "",
             winningNumbers: "6009,3037,1954,9410",
