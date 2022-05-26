@@ -64,6 +64,7 @@
     "deploy": "hardhat deploy",
     "accounts": "hardhat accounts",
     "balances": "hardhat balances",
+    "export-abis": "yarn run hardhat export-abi",
     "etherscan-verify": "hardhat etherscan-verify --api-key ZG3GNW27H3216I9X5JGRXIJWX25CZDABFZ",
     "clean": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat clean",
     "compile": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat compile",

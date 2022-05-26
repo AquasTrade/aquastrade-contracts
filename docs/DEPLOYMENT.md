@@ -188,5 +188,17 @@ Note: read the contents of both files correctly, and take heed of the ATTN parts
 * Farms (per default, single reward token (RUBY))  
   `yarn createFarms --network rubyNewChain`
 
+17. Post deploy tasks
 
+* sanity check that the code hash is the same as you deployed and recorded in this document  
+  `yarn initCodeHash --network $network`
+* check ABIs are up to date  
+  `yarn export-abis --network $network`
+* make a test ruby router swap (default is dry run)  
+  `npx hardhat run scripts/debugging/testrrswap.ts --network $network`
+
+# Re-deployment (SCs not using upgradeable)
+
+* in general, but especially if redeploying anything that calls into Uni,
+  ensure the code hash is the same as that was deployed and recorded in this doc.
 
