@@ -6,8 +6,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import fs from "fs";
 
 
-//const usdpAddr = require(`../../deployments/${network.name}/RubyUSDP.json`).address;
-// const rubyAddr = require(`../../deployments/${network.name}/RubyToken.json`).address;
 const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
 
 const ROUTER_ADDR = require(`../../deployments/${network.name}/UniswapV2Router02.json`).address;
