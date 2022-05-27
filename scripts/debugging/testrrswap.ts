@@ -14,6 +14,7 @@ const STABLE_SWAP_ADDR = require(`../../deployments/${network.name}/RubyUSD4Pool
 
 const USDP_ADDR = require(`../../deployments/${network.name}/RubyUSDP.json`).address;
 const USDT_ADDR = require(`../../deployments/${network.name}/RubyUSDT.json`).address;
+const RUBY_ADDR = require(`../../deployments/${network.name}/RubyToken.json`).address;
 const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
 
 const RUBY_ROUTER_ABI = require(`../../deployments/${network.name}/RubyRouter.json`).abi;
@@ -151,6 +152,9 @@ const main = async () => {
 
     await swapERC20ToUSDT(true,  // true to simulate and not swap
         ETHC_ADDR, "0.001", signer);
+
+    // await swapERC20ToUSDT(true,  // true to simulate and not swap
+    //     RUBY_ADDR, "100", signer);
   
 };
   
