@@ -108,10 +108,10 @@ const main = async () => {
   // ATTN: PRICING be careful
 
   const amountRUBY = ethers.utils.parseUnits("1000", 18); // 1000
-  const amountETHC = ethers.utils.parseUnits("0.04", 18); // 0.04
-
   const amountUSDPRUBY = ethers.utils.parseUnits("1000", 18); // 1000
-  const amountUSDPETHC = ethers.utils.parseUnits("1000", 18); // 1000
+
+  const amountETHC = ethers.utils.parseUnits("0.02", 18);
+  const amountUSDPETHC = ethers.utils.parseUnits("500", 18);
 
   // ATTN: approve tokens, only approve what is needed
   await approveTokens([usdp], ROUTER_ADDR, amountUSDPRUBY.add(amountUSDPETHC));
