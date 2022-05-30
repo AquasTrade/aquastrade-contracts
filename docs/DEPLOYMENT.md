@@ -197,8 +197,14 @@ Note: read the contents of both files correctly, and take heed of the ATTN parts
 * make a test ruby router swap (default is dry run)  
   `npx hardhat run scripts/debugging/testrrswap.ts --network $network`
 
-# Re-deployment (SCs not using upgradeable)
+# How to Re-deployment (SCs not using upgradeable)
 
 * in general, but especially if redeploying anything that calls into Uni,
   ensure the code hash is the same as that was deployed and recorded in this doc.
+
+# Post-deployment tasks
+
+* update addresses in backend
+* update ABIs in backend
+* update code hash in backend
 
