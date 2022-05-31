@@ -170,7 +170,18 @@ Note check amounts and network first!
 yarn seedFaucet
 ```
 
-15. Governance:
+15. Lottery:
+
+```
+yarn deploy --tags RandomNumberGenerator
+yarn deploy --tags LotteryFactory
+```
+
+or
+
+`yarn deploy --tags Lottery`
+
+16. Governance:
 
 (skipped in favour of MS governance I think)
 
@@ -179,7 +190,7 @@ yarn seedFaucet
 yarn deploy --tags Timelock
 ```
 
-16. Creating AMM Liquidty Pools and Farms
+17. Creating AMM Liquidty Pools and Farms
 
 Note: read the contents of both files correctly, and take heed of the ATTN parts
 
@@ -188,7 +199,7 @@ Note: read the contents of both files correctly, and take heed of the ATTN parts
 * Farms (per default, single reward token (RUBY))  
   `yarn createFarms --network rubyNewChain`
 
-17. Post deploy tasks
+18. Post deploy tasks
 
 * sanity check that the code hash is the same as you deployed and recorded in this document  
   `yarn initCodeHash --network $network`
@@ -207,4 +218,3 @@ Note: read the contents of both files correctly, and take heed of the ATTN parts
 * update addresses in backend
 * update ABIs in backend
 * update code hash in backend
-

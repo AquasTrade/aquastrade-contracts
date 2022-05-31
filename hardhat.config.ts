@@ -12,6 +12,8 @@ import "hardhat-spdx-license-identifier";
 import "hardhat-watcher";
 import "solidity-coverage";
 import "@typechain/hardhat";
+import "./scripts/lottery/createLottery.ts"
+import "./scripts/lottery/drawLottery.ts"
 
 import "./scripts/debugging/getbalances.ts"
 import "./scripts/debugging/getaddresses.ts"
