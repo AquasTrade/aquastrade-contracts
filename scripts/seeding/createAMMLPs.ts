@@ -5,6 +5,8 @@ import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair, RubyUSDP
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import fs from "fs";
 
+import { debugPairs } from "../utils";
+
 
 const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
 
@@ -42,32 +44,6 @@ const addLiquidity = async (
   }
 };
 
-
-const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
-  const pairLength = (await factory.allPairsLength()).toNumber();
-
-  for (let i = 0; i < pairLength; i++) {
-    const pairAddr = await factory.allPairs(i);
-    const univ2Pair: UniswapV2Pair = (await ethers.getContractAt("UniswapV2Pair", pairAddr)) as UniswapV2Pair;
-
-    const pairFactory = await univ2Pair.factory();
-    const token0 = await univ2Pair.token0();
-    const token1 = await univ2Pair.token1();
-    const reserves = await univ2Pair.getReserves();
-
-    const balance = await univ2Pair.balanceOf(deployerAddr);
-
-    console.log(`========================================`);
-    console.log("Pair debug info:");
-    console.log(`Pair addr: ${pairAddr}`);
-    console.log(`Factory: ${pairFactory}`);
-    console.log(`Token 0: ${token0}`);
-    console.log(`Token 1: ${token1}`);
-    console.log(`Reserves : ${reserves}`);
-    console.log(`Deployer balance : ${balance}`);
-    console.log(`========================================`);
-  }
-};
 
 const writeRubyPoolAddrs = async (factory: UniswapV2Factory, usdpAddr: string, rubyAddr: string, ethcAddr: string) => {
   const rubyPoolAddrs: Record<string, string> = {};
