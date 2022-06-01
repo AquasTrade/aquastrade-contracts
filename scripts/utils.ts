@@ -46,10 +46,10 @@ export const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string
 
     console.log(`========================================`);
     console.log("Pair debug info:");
-    console.log(`Pair addr: 0x${pairAddr}`);
-    console.log(`Factory: 0x${pairFactory}`);
-    console.log(`Token 0: ${await token0.symbol()}@0x${token0Address}`);
-    console.log(`Token 1: ${await token1.symbol()}@0x${token1Address}`);
+    console.log(`Pair addr: ${pairAddr}`);
+    console.log(`Factory: ${pairFactory}`);
+    console.log(`Token 0: ${await token0.symbol()}@${token0Address}`);
+    console.log(`Token 1: ${await token1.symbol()}@${token1Address}`);
     console.log(`Token0 Reserves : ${ethers.utils.formatUnits(reserves0, await token0.decimals())}`);
     console.log(`Token1 Reserves : ${ethers.utils.formatUnits(reserves1, await token1.decimals())}`);
     console.log(`Deployer balance : ${ethers.utils.formatUnits(await univ2Pair.balanceOf(deployerAddr), await univ2Pair.decimals())}`);
