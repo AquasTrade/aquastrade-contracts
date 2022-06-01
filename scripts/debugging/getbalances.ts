@@ -43,6 +43,8 @@ const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
     await getERC20Balance(taskArgs.address, 'USDC', hre)
     await getERC20Balance(taskArgs.address, 'DAI', hre)
     await getERC20Balance(taskArgs.address, 'RUBY', hre)
+    await getERC20Balance(taskArgs.address, 'WBTC', hre)
+    await getERC20Balance(taskArgs.address, 'SKL', hre)
   }
 };
 
