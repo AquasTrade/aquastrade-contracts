@@ -1,54 +1,61 @@
 import fs from "fs";
 import { ethers, network } from "hardhat";
-import { utils } from "ethers";
 import { RubyMasterChef } from "../../typechain";
 
-const masterChefAddr = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
+import { debugChefPools } from "../utils";
 
-const addSingleRewardFarms = async (masterChef: RubyMasterChef, lpTokenAddr: string, allocPoints: number) => {
-  const zeroAddress = "0x0000000000000000000000000000000000000000";
-  const res = await masterChef.add(allocPoints, lpTokenAddr, zeroAddress);
+const addDoubleRewardFarm = async (masterChef: RubyMasterChef, lpTokenAddr: string, allocPoints: number, rewarderAddr: string) => {
+  const res = await masterChef.add(allocPoints, lpTokenAddr, rewarderAddr);
   const receipt = await res.wait(1);
 
+  console.log(`Adding farm for LP token ${lpTokenAddr} with secondary rewarder ${rewarderAddr}`)
+
   if (receipt.status) {
-    console.log(`Adding to RubyMasterChef successful, LP: ${lpTokenAddr}`);
+    console.log('Adding to RubyMasterChef successful');
   } else {
-    console.log(`Adding to RubyMasterChef failed, LP: ${lpTokenAddr}`);
+    console.log('Adding to RubyMasterChef failed');
   }
 };
 
-const debug = async (masterChef: RubyMasterChef) => {
-  const numPools = (await masterChef.poolLength()).toNumber();
-
-  console.log("Num pools: ", numPools);
-
-  for (let i = 0; i < numPools; i++) {
-    const pool = await masterChef.poolInfo(i);
-    console.log(`Pool info ${i}: `, pool);
-  }
-  const totalAllocPoint = (await masterChef.totalAllocPoint()).toNumber();
-  const rubyPerSec = utils.formatUnits(await masterChef.rubyPerSec());
-
-  console.log("Total alloc points ", totalAllocPoint);
-  console.log("Ruby per second ", rubyPerSec);
+const addSingleRewardFarm = async (masterChef: RubyMasterChef, lpTokenAddr: string, allocPoints: number) => {
+  const zeroAddress = "0x0000000000000000000000000000000000000000";
+  await addDoubleRewardFarm(masterChef, lpTokenAddr, allocPoints, zeroAddress);
 };
 
 const main = async () => {
+  const masterChefAddr = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
   const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", masterChefAddr)) as RubyMasterChef;
 
-  // Need to generate Mock LP addresses first (hardhat run createMockLPs.ts)
   const pools = JSON.parse(fs.readFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, {encoding: "utf-8"}));
-  const poolAddresses: string[] = Object.values(pools);
-  
-  console.log("pool addresses", poolAddresses)
+  console.log(pools);
 
-  // ATTN for some reason I had to run the script twice... maybe because of alloc points?
-  //      if so, just run it manually
-  for (let i = 0; i < poolAddresses.length; i++) {
-     await addSingleRewardFarms(masterChef, poolAddresses[i], 100);
+  // USDP-ETHC pool
+  if (false) {
+    await addSingleRewardFarm(masterChef, pools['usdpETHC'], 100);
+  }
+  
+  // USDP-Ruby pool
+  if (false) {
+    await addSingleRewardFarm(masterChef, pools['usdpRUBY'], 100);
   }
 
-  await debug(masterChef);
+  // USDP-SKL pool with SKL bonus token
+  if (false) {
+    const REWARDER_ADDR = require(`../../deployments/${network.name}/RewarderSKL_SKLUSDP.json`).address;
+    const REWARDER_ABI = require(`../../deployments/${network.name}/RewarderSKL_SKLUSDP.json`).abi;
+    const rewarder = new ethers.Contract(REWARDER_ADDR, REWARDER_ABI, ethers.provider);
+
+    // safety check
+    const lpAddr = pools['usdpSKL'];
+    const rlpAddr = await rewarder.lpToken()
+    if (lpAddr !== rlpAddr) {
+      throw new Error("rewarder does not agree with lptoken")
+    }
+
+    await addDoubleRewardFarm(masterChef, lpAddr, 100, REWARDER_ADDR);
+  }
+
+  await debugChefPools(masterChef);
 };
 
 main()
