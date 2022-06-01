@@ -46,6 +46,80 @@ const approveERC20 = async (token: any, spenderAddr: string, amount: BigNumber) 
 };
 
 
+const swapERC20ToUSDP = async (dryRun: boolean, erc20Addr: string, amountStr: string, signer: SignerWithAddress) => {
+    const account = signer;
+
+    let symbol;
+    let decimals;
+    let balance;
+
+    const tokenIn = new ethers.Contract(erc20Addr, ERC20_ABI, account);  // with signer for approval
+    const tokenOut = new ethers.Contract(USDP_ADDR, ERC20_ABI, ethers.provider);
+
+    symbol = await tokenIn.symbol();
+    decimals = await tokenIn.decimals();
+    balance = await tokenIn.balanceOf(account.address);
+
+    const tokenInAmount = ethers.utils.parseUnits(amountStr, decimals);
+
+    console.log(`Current ${amountStr}${symbol} -> USDP (Starting ${symbol} balance: ${ethers.utils.formatUnits(balance, decimals)})`);
+
+    const nftAdmin = new ethers.Contract(NFT_ADMIN_ADDR, NFT_ADMIN_ABI, ethers.provider);
+    const ammRouter = new ethers.Contract(UNI_ROUTER_ADDR, UNI_ROUTER_ABI, ethers.provider);
+
+    const rubyRouter = new ethers.Contract(RUBY_ROUTER_ADDR, RUBY_ROUTER_ABI, account);
+
+    const feeMultiplier = await nftAdmin.calculateAmmSwapFeeDeduction(account.address);
+    const amountsOut = await ammRouter.getAmountsOut(tokenInAmount, [tokenIn.address, tokenOut.address], feeMultiplier);
+    const tokenOutAmount = amountsOut[amountsOut.length - 1];
+
+    symbol = await tokenOut.symbol();
+    decimals = await tokenOut.decimals();
+    balance = await tokenOut.balanceOf(account.address);
+    console.log(`Should recieve ${ethers.utils.formatUnits(tokenOutAmount, decimals)}${symbol} (Current ${symbol} balance: ${ethers.utils.formatUnits(balance, decimals)})`)
+
+    const blockNumber = await ethers.provider.getBlockNumber();
+    const blockData = await ethers.provider.getBlock(blockNumber);
+    const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+
+    const swapDetails = {
+      ammSwaps: [
+        {
+          swapType: AMMSwapType.EXACT_TOKENS_FOR_TOKENS,
+          amountIn: tokenInAmount,
+          amountOut: tokenOutAmount,
+          path: [tokenIn.address, tokenOut.address],
+          to: rubyRouter.address,
+          deadline: deadline,
+        },
+      ],
+      stableSwaps: [],
+      order: [SwapType.AMM],
+    };
+
+    await approveERC20(tokenIn, rubyRouter.address, tokenInAmount);
+
+    if (dryRun) {
+        console.log("Not swapping (dry run)")
+    } else {
+        console.log("Swapping")
+        const tx = await rubyRouter.swap(swapDetails);
+        console.log("...swapped")
+    }
+
+    symbol = await tokenIn.symbol();
+    decimals = await tokenIn.decimals();
+    balance = await tokenIn.balanceOf(account.address);
+    console.log(`Final ${symbol} balance: ${ethers.utils.formatUnits(balance, decimals)})`);
+
+    symbol = await tokenOut.symbol();
+    decimals = await tokenOut.decimals();
+    balance = await tokenOut.balanceOf(account.address);
+    console.log(`Final ${symbol} balance: ${ethers.utils.formatUnits(balance, decimals)})`);
+
+}
+
+
 const swapERC20ToUSDT = async (dryRun: boolean, erc20Addr: string, amountStr: string, signer: SignerWithAddress) => {
     const account = signer;
 
@@ -153,9 +227,12 @@ const main = async () => {
     await swapERC20ToUSDT(true,  // true to simulate and not swap
         ETHC_ADDR, "0.001", signer);
 
-    // await swapERC20ToUSDT(true,  // true to simulate and not swap
-    //     RUBY_ADDR, "100", signer);
-  
+    await swapERC20ToUSDT(true,  // true to simulate and not swap
+        RUBY_ADDR, "100", signer);
+
+    await swapERC20ToUSDP(true,  // true to simulate and not swap
+        RUBY_ADDR, "100", signer);
+
 };
   
 main()
