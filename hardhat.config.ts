@@ -82,6 +82,7 @@ const config: HardhatUserConfig = {
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
       accounts: [ADMIN_PKEY_TESTNET],
+      gasPrice: 50000000000,  // wei
       //
       // accounts: {
       //   mnemonic: process.env.MNEMONIC,
