@@ -2,11 +2,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_factory",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "_ID",
         "type": "uint256"
@@ -70,9 +65,21 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256[]",
-        "name": "_winners",
-        "type": "uint256[]"
+        "internalType": "uint256",
+        "name": "lotteryID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nwinners",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "winnerAddresses",
+        "type": "address[]"
       }
     ],
     "name": "DrewWinningNumber",
@@ -642,6 +649,13 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stop",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
