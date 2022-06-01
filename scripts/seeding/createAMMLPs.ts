@@ -1,7 +1,7 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { UniswapV2Factory, UniswapV2Router02, MockERC20, UniswapV2Pair, RubyUSDP, RubyToken } from "../../typechain";
+import { UniswapV2Factory, UniswapV2Router02, MockERC20, RubyUSDP, RubyToken, RubyWBTC, RubySKL } from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import fs from "fs";
 
@@ -45,15 +45,6 @@ const addLiquidity = async (
 };
 
 
-const writeRubyPoolAddrs = async (factory: UniswapV2Factory, usdpAddr: string, rubyAddr: string, ethcAddr: string) => {
-  const rubyPoolAddrs: Record<string, string> = {};
-
-  rubyPoolAddrs.usdpRUBY = await factory.getPair(usdpAddr, rubyAddr);
-  rubyPoolAddrs.usdpETHC = await factory.getPair(usdpAddr, ethcAddr);
-
-  fs.writeFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, JSON.stringify(rubyPoolAddrs));
-};
-
 const approveTokens = async (tokens: any[], routerAddr: string, amount: BigNumber) => {
   for (const token of tokens) {
     const symbol = await token.symbol();
@@ -79,20 +70,34 @@ const main = async () => {
 
   const ruby = (await ethers.getContract("RubyToken")) as RubyToken;
   const usdp = (await ethers.getContract("RubyUSDP")) as RubyUSDP;
+  const wbtc = (await ethers.getContract("RubyWBTC")) as RubyWBTC;
+  const skl = (await ethers.getContract("RubySKL")) as RubySKL;
+
   const ethc = (await ethers.getContractAt("MockERC20", ETHC_ADDR)) as MockERC20;  // works for approve() ABI
 
-  // ATTN: PRICING be careful
+  const usdpDecimals = await usdp.decimals();
 
-  const amountRUBY = ethers.utils.parseUnits("1000", 18); // 1000
-  const amountUSDPRUBY = ethers.utils.parseUnits("1000", 18); // 1000
+  // $1 price
+  const amountRUBY = ethers.utils.parseUnits("1000", await ruby.decimals()); // 1000
+  const amountUSDPRUBY = ethers.utils.parseUnits("1000", usdpDecimals); // 1000
 
-  const amountETHC = ethers.utils.parseUnits("0.02", 18);
-  const amountUSDPETHC = ethers.utils.parseUnits("500", 18);
+  const amountETHC = ethers.utils.parseUnits("0.02", await ethc.decimals());
+  const amountUSDPETHC = ethers.utils.parseUnits("500", usdpDecimals);
+
+  // 30k btc price
+  const amountWBTC = ethers.utils.parseUnits("0.5", await wbtc.decimals());
+  const amountUSDPWBTC = ethers.utils.parseUnits("15000", usdpDecimals);
+
+  // 0.1 skl price
+  const amountSKL = ethers.utils.parseUnits("100000", await skl.decimals());
+  const amountUSDPSKL = ethers.utils.parseUnits("10000", usdpDecimals);
 
   // ATTN: approve tokens, only approve what is needed
-  await approveTokens([usdp], ROUTER_ADDR, amountUSDPRUBY.add(amountUSDPETHC));
+  await approveTokens([usdp], ROUTER_ADDR, amountUSDPRUBY.add(amountUSDPETHC).add(amountUSDPWBTC).add(amountUSDPSKL));
   await approveTokens([ruby], ROUTER_ADDR, amountRUBY);
   await approveTokens([ethc], ROUTER_ADDR, amountETHC);
+  await approveTokens([wbtc], ROUTER_ADDR, amountWBTC);
+  await approveTokens([skl], ROUTER_ADDR, amountSKL);
 
   let blockNumber;
   let blockData;
@@ -102,19 +107,38 @@ const main = async () => {
   blockNumber = await ethers.provider.getBlockNumber();
   blockData = await ethers.provider.getBlock(blockNumber);
   deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
-
   await addLiquidity(usdp.address, ruby.address, amountUSDPRUBY, amountRUBY, deployer.address, deadline);
 
-  // // USDP-ETH
+  // USDP-ETH
   blockNumber = await ethers.provider.getBlockNumber();
   blockData = await ethers.provider.getBlock(blockNumber);
   deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
-
   await addLiquidity(usdp.address, ethc.address, amountUSDPETHC, amountETHC, deployer.address, deadline);
 
-  await debugPairs(factory, deployer.address);
+  // USDP-WBTC
+  blockNumber = await ethers.provider.getBlockNumber();
+  blockData = await ethers.provider.getBlock(blockNumber);
+  deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+  await addLiquidity(usdp.address, wbtc.address, amountUSDPWBTC, amountWBTC, deployer.address, deadline);
 
-  await writeRubyPoolAddrs(factory, usdp.address, ruby.address, ethc.address);
+  // USDP-SKL
+  blockNumber = await ethers.provider.getBlockNumber();
+  blockData = await ethers.provider.getBlock(blockNumber);
+  deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+  await addLiquidity(usdp.address, skl.address, amountUSDPSKL, amountSKL, deployer.address, deadline);
+
+  if (true) {
+    const rubyPoolAddrs: Record<string, string> = {};
+
+    rubyPoolAddrs.usdpRUBY = await factory.getPair(usdp.address, ruby.address);
+    rubyPoolAddrs.usdpETHC = await factory.getPair(usdp.address, ethc.address);
+    rubyPoolAddrs.usdpWBTC = await factory.getPair(usdp.address, wbtc.address);
+    rubyPoolAddrs.usdpSKL = await factory.getPair(usdp.address, skl.address);
+
+    fs.writeFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, JSON.stringify(rubyPoolAddrs));
+  }
+
+  await debugPairs(factory, deployer.address);
 };
 
 main()
