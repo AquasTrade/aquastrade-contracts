@@ -1,31 +1,27 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers } from "hardhat";
-import { UniswapV2Factory, UniswapV2Pair } from "../typechain";
+import { UniswapV2Factory, UniswapV2Pair, RubyMasterChef } from "../typechain";
 
 import ERC20ABI from "../abi/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
 
-
-
-// const getERC20Balance = async (address: string, symbol: string, hre: HardhatRuntimeEnvironment) => {
-//   const ethers = hre.ethers;
-//   const network = hre.network;
-
-//   let erc20Addr;
-//   if (symbol == 'RUBY') {
-//     erc20Addr = require(`../../deployments/${network.name}/RubyToken.json`).address;
-//   } else if (symbol == 'ETHC' ) {
-//     erc20Addr = '0xD2Aaa00700000000000000000000000000000000';
-//   } else {
-//     erc20Addr = require(`../../deployments/${network.name}/Ruby${symbol}.json`).address;
-//   }
-
-//   const ERC20 = new ethers.Contract(erc20Addr, ERC20Abi, ethers.provider);
-//   const ERC20name = await ERC20.symbol();
-//   const ERC20decimals = await ERC20.decimals();
-//   const erc20Balance = await ERC20.balanceOf(address);
-
-
 export const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
+
+
+export const debugChefPools = async (masterChef: RubyMasterChef) => {
+    const numPools = (await masterChef.poolLength()).toNumber();
+  
+    console.log("Num pools: ", numPools);
+  
+    for (let i = 0; i < numPools; i++) {
+      const pool = await masterChef.poolInfo(i);
+      console.log(`Pool info ${i}: `, pool);
+    }
+    const totalAllocPoint = (await masterChef.totalAllocPoint()).toNumber();
+    const rubyPerSec = ethers.utils.formatUnits(await masterChef.rubyPerSec());
+  
+    console.log("Total alloc points ", totalAllocPoint);
+    console.log("Ruby per second ", rubyPerSec);
+};
 
 
 export const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string) => {
