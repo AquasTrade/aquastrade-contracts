@@ -22,9 +22,11 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
   }
 
   const ERC20 = new ethers.Contract(erc20Addr, ERC20Abi, ethers.provider);
-  const ERC20name = await ERC20.symbol();
-  const ERC20decimals = await ERC20.decimals();
-  const erc20Balance = await ERC20.balanceOf(address);
+
+  const [ERC20name, ERC20decimals, erc20Balance] = await Promise.all([
+    ERC20.symbol(),
+    ERC20.decimals(),
+    ERC20.balanceOf(address)]);
 
   console.log(ERC20name, "balance", ethers.utils.formatUnits(erc20Balance, ERC20decimals))
 }
