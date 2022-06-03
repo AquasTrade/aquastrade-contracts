@@ -46,7 +46,7 @@ contract Lottery is Ownable, Pausable {
 
     event NewTickets(address who, uint256 ticketSize);
     event DrewWinningNumber(uint256 lotteryID, uint256 nwinners, address[] winnerAddresses);
-    event RewardClaimed(address to);
+    event RewardClaimed(address to, uint256 amount, address collateral, address nft, uint256 nftid);
 
     constructor(
         uint256 _ID,
@@ -189,10 +189,14 @@ contract Lottery is Ownable, Pausable {
     /// @notice Claim rewards to caller if he/she bought winning ticket
     function claimReward() external closed drew {
         uint256 prize = 0;
+        address nftAddress = address(0);
+        uint256 nftid = 0;
         require(claimed[msg.sender] == false, "Lottery: Already Claimed");
         if (ticketsToPerson[winners[0]] == msg.sender) {
             if (nft != address(0)) {
                 IRubyNFT(nft).safeTransferFrom(address(this), msg.sender, bonusTokenId);
+                nftAddress = nft;
+                nftid = bonusTokenId;
             }
         }
         for (uint256 i = 0; i < winnersSize; i++) {
@@ -204,7 +208,7 @@ contract Lottery is Ownable, Pausable {
         }
         ruby.safeTransfer(address(msg.sender), prize);
         claimed[msg.sender] = true;
-        emit RewardClaimed(msg.sender);
+        emit RewardClaimed(msg.sender, prize, address(ruby), nftAddress, nftid);
     }
 
     //-------------------------------------------------------------------------
