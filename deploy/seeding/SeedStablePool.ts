@@ -37,26 +37,41 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let dai;
 
   if (network.name === "localhost") {
+    console.log('Using Mock Tokens');
     usdc = (await ethers.getContract("MockUSDC")) as MockUSDC;
     usdp = (await ethers.getContract("MockUSDP")) as MockUSDP;
     usdt = (await ethers.getContract("MockUSDT")) as MockUSDT;
     dai = (await ethers.getContract("MockDAI")) as MockDAI;
   } else if (network.name === "rubyNewChain") {
+    console.log('Using RubyX Tokens on L2');
     usdc = (await ethers.getContract("RubyUSDC")) as RubyUSDC;
     usdp = (await ethers.getContract("RubyUSDP")) as RubyUSDP;
     usdt = (await ethers.getContract("RubyUSDT")) as RubyUSDT;
     dai = (await ethers.getContract("RubyDAI")) as RubyDAI;
   }
 
-  // await approveTokens([usdc, usdp, usdt, dai], rubyUsdPool.address, ethers.constants.MaxUint256);
+  // note the order of the tokens from the definition of the pool: USDP,DAI,USDC,USDT
+  //
+  //    TOKEN_ADDRESSES = [
+  //      (await get("RubyUSDP")).address,
+  //      (await get("RubyDAI")).address,
+  //      (await get("RubyUSDC")).address,
+  //      (await get("RubyUSDT")).address,
+  //    ];
+  //    const TOKEN_DECIMALS = [18, 18, 6, 6];
 
-  // 1 Million of liquidity for each token
+  // 1 thousand of liquidity for each token
   const amounts = [
-    ethers.utils.parseUnits("1000000", 18),
-    ethers.utils.parseUnits("1000000", 18),
-    ethers.utils.parseUnits("1000000", 6),
-    ethers.utils.parseUnits("1000000", 6),
+    ethers.utils.parseUnits("1000", 18),
+    ethers.utils.parseUnits("1000", 18),
+    ethers.utils.parseUnits("1000", 6),
+    ethers.utils.parseUnits("1000", 6),
   ];
+
+  console.log('Approving pool for USDP,DAI (18-digit) to spend', ethers.utils.formatUnits(amounts[0], 18));
+  await approveTokens([usdp, dai], rubyUsdPool.address, amounts[0]);
+  console.log('Approving pool for USDC,USDT (6-digit) to spend', ethers.utils.formatUnits(amounts[3], 6));
+  await approveTokens([usdc, usdt], rubyUsdPool.address, amounts[3]);
 
   const blockNumber = await ethers.provider.getBlockNumber();
   const blockData = await ethers.provider.getBlock(blockNumber);
@@ -67,10 +82,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const deployerDaiBalance = await dai?.balanceOf(deployer);
   const deployerUsdtBalance = await usdt?.balanceOf(deployer);
 
-  console.log("deployerUsdcBalance", ethers.utils.formatUnits(deployerUsdcBalance as BigNumber))
-  console.log("deployerUsdpBalance", ethers.utils.formatUnits(deployerUsdpBalance as BigNumber))
-  console.log("deployerDaiBalance", ethers.utils.formatUnits(deployerDaiBalance as BigNumber))
-  console.log("deployerUsdtBalance", ethers.utils.formatUnits(deployerUsdtBalance as BigNumber))
+  console.log("deployerUsdcBalance", ethers.utils.formatUnits(deployerUsdcBalance as BigNumber, 6))
+  console.log("deployerUsdtBalance", ethers.utils.formatUnits(deployerUsdtBalance as BigNumber, 6))
+  console.log("deployerUsdpBalance", ethers.utils.formatUnits(deployerUsdpBalance as BigNumber, 18))
+  console.log("deployerDaiBalance", ethers.utils.formatUnits(deployerDaiBalance as BigNumber, 18))
 
   await addLiquidity(rubyUsdPool, amounts, BigNumber.from(0), deadline);
 

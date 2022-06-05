@@ -92,6 +92,11 @@
         "internalType": "uint256",
         "name": "reserveOut",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountIn",
@@ -121,6 +126,11 @@
         "internalType": "uint256",
         "name": "reserveOut",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountOut",
@@ -145,6 +155,11 @@
         "internalType": "address[]",
         "name": "path",
         "type": "address[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountsIn",
@@ -169,6 +184,11 @@
         "internalType": "address[]",
         "name": "path",
         "type": "address[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountsOut",

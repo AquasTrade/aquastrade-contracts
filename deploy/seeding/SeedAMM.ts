@@ -10,8 +10,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const UniswapV2Router02 = await ethers.getContract("UniswapV2Router02");
   const RubyMaker = await get("RubyMaker");
   
-
   let tx = await UniswapV2Factory.setPairCreator(deployer, true);
+  await tx.wait(1);
+
+  tx = await UniswapV2Factory.setPairCreator(UniswapV2Router02.address, true);
   await tx.wait(1);
 
   tx = await UniswapV2Factory.setFeeDeductionSwapper(UniswapV2Router02.address, true);

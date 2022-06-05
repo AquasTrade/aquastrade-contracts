@@ -16,6 +16,51 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "AdminSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "swapper",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "allowance",
+        "type": "bool"
+      }
+    ],
+    "name": "FeeDecutionSwapperSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newFeeTo",
+        "type": "address"
+      }
+    ],
+    "name": "FeeToRecipientSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "token0",
         "type": "address"
       },
@@ -39,6 +84,25 @@
       }
     ],
     "name": "PairCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "pairCreator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "allowance",
+        "type": "bool"
+      }
+    ],
+    "name": "PairCreatorSet",
     "type": "event"
   },
   {
@@ -111,6 +175,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "feeDeductionSwappers",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "feeTo",
     "outputs": [
@@ -137,19 +220,6 @@
       }
     ],
     "name": "getPair",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "migrator",
     "outputs": [
       {
         "internalType": "address",
@@ -196,7 +266,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_admin",
+        "name": "newAdmin",
         "type": "address"
       }
     ],
@@ -209,7 +279,25 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_feeTo",
+        "name": "feeDeductionSwapper",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "allowance",
+        "type": "bool"
+      }
+    ],
+    "name": "setFeeDeductionSwapper",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newFeeTo",
         "type": "address"
       }
     ],
@@ -222,21 +310,13 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_migrator",
+        "name": "pairCreator",
         "type": "address"
-      }
-    ],
-    "name": "setMigrator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
-        "internalType": "address",
-        "name": "_pairCreator",
-        "type": "address"
+        "internalType": "bool",
+        "name": "allowance",
+        "type": "bool"
       }
     ],
     "name": "setPairCreator",

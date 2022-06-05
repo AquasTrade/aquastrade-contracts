@@ -7,6 +7,8 @@ import {
   advanceTimeToTimestamp,
 } from "./utilities";
 
+import { deployRubyStaker } from "./utilities/deployment";
+
 describe("RubyStaker", function () {
   before(async function () {
     this.signers = await ethers.getSigners();
@@ -21,7 +23,6 @@ describe("RubyStaker", function () {
     this.lockDuration = this.rewardDuration * 13;
     this.maxNumRewards = 5;
 
-    this.rubyStaker = await ethers.getContractFactory("RubyStaker");
     this.RubyToken = await ethers.getContractFactory("RubyTokenMintable");
     this.USDPtoken = await ethers.getContractFactory("MockUSDP");
     this.DAItoken = await ethers.getContractFactory("MockDAI");
@@ -57,8 +58,7 @@ describe("RubyStaker", function () {
     await this.ruby.transfer(this.bob.address, transferAmount);
     await this.ruby.transfer(this.carol.address, transferAmount);
 
-    this.staker = await this.rubyStaker.deploy(this.ruby.address, this.maxNumRewards);
-    await this.staker.deployed();
+    this.staker = await deployRubyStaker(this.owner.address, this.ruby.address, 5);
 
     await this.ruby.approve(this.staker.address, ownerBalance);
     await this.ruby.connect(this.bob).approve(this.staker.address, transferAmount);

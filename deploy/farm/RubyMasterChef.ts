@@ -3,8 +3,10 @@ import type { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, network } = hre;
-  const { deploy, get } = deployments;
+  const { deploy, getOrNull, get, log } = deployments;
   const { deployer, treasury } = await getNamedAccounts();
+
+  const RubyMasterChef = await getOrNull("RubyMasterChef");
 
   let RUBY_TOKEN_ADDRESS = "";
 
@@ -16,24 +18,44 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const RUBY_STAKER_ADDRESS = (await get("RubyStaker")).address;
 
-  const RUBY_PER_SECOND = ethers.utils.parseUnits("2", 18);
+  const BLOCK_NOW = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+  const RUBY_PER_SECOND = ethers.utils.parseUnits("0.001", 18);
 
-  await deploy("RubyMasterChef", {
-    from: deployer,
-    args: [
-      RUBY_TOKEN_ADDRESS,
-      RUBY_STAKER_ADDRESS,
-      treasury,
-      RUBY_PER_SECOND, // 2 RUBY per sec
-      "1647036000", // Friday, 11 March 2022 22:00:00 GMT+0000
-      "100", // 10%
-    ],
-    log: true,
-    deterministicDeployment: false,
-  });
+  if (RubyMasterChef) {
+    log(`reusing "RubyMasterChef" at ${RubyMasterChef.address}`);
+  } else {
+    await deploy("RubyMasterChef", {
+      from: deployer,
+      log: true,
+      proxy: {
+        viaAdminContract: "RubyProxyAdmin",
+        proxyContract: "OpenZeppelinTransparentProxy",
+        execute: {
+          methodName: "initialize",
+          args: [
+            deployer,
+            RUBY_TOKEN_ADDRESS,
+            RUBY_STAKER_ADDRESS,
+            treasury,
+            RUBY_PER_SECOND, // RUBY per sec
+            BLOCK_NOW.timestamp,
+            "100", // 10%
+          ]
+        },
+      },
+      skipIfAlreadyDeployed: true,
+    });
+  }
+
+  const rubyMasterChef = await ethers.getContract("RubyMasterChef");
+  console.log("Chef creates",
+              ethers.utils.formatUnits(await rubyMasterChef.rubyPerSec(), 18),
+              "RUBY/s", "beginning ts=",
+              (await rubyMasterChef.startTimestamp()).toString());
+
 };
 
-func.dependencies = ["RubyStaker"];
+func.dependencies = ["RubyStaker", "RubyProxyAdmin"];
 func.tags = ["RubyMasterChef"];
 
 export default func;

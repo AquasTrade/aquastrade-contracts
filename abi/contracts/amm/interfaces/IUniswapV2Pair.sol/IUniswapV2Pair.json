@@ -528,6 +528,11 @@
         "type": "address"
       },
       {
+        "internalType": "uint256",
+        "name": "feeMultiplicator",
+        "type": "uint256"
+      },
+      {
         "internalType": "bytes",
         "name": "data",
         "type": "bytes"

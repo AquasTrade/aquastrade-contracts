@@ -49,8 +49,25 @@ yarn deploy --tags RubyNFTAdmin
 
 2. AMM:
 
-Before deploying AMM, ensure that the `initCodeHash` is correct for the correct network: `yarn initCodeHash --network $network`.
+#### initCodeHash
+
+Before deploying AMM, ensure that the `initCodeHash` is correct for the correct version of the code and for the correct network: `yarn initCodeHash --network $network`.
+
 This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at line 33, where the "// init code hash" comment is set. (NOTE: without the `0x` symbol)
+
+Note: do NOT commit the value you find to the codebase because for the tests to pass
+the value in the repository should be that generated using `--network hardhat`.
+
+Current values (at time of this commit, post audit)
+
+* hardhat  
+  `0xaced2ededb8bce81917b80e9c38ddb1d0c392ebbfc1db63136f1343141a4ceaf`
+* rubyNewChain (fancy-rasalhague)  
+  `0xba9f7d123cf1f1b0f57891be300d90939d1a591af80a90cfb7e904a821927963`
+
+
+#### Contracts
+
 
 ```
 yarn deploy --tags UniswapV2Factory
@@ -75,9 +92,19 @@ yarn deploy --tags SeedAMM
 
 5. Farm
 
-a) Deploy ruby token if not deployed `yarn deploy --tags RubyTokenMainnet` or `yarn deploy --tags RubyToken`
-b) Deploy RubyMasterChef `yarn deploy --tags RubyMasterChef`
-c) Seed RubyMasterChef with RUBY tokens `yarn transferRUBYtoMS`
+* Deploy ruby token if not deployed  
+  `yarn deploy --tags RubyTokenMainnet` or `yarn deploy --tags RubyToken`
+
+Set the ruby emissions, percentage, and start date (if not now)
+
+* Deploy RubyMasterChef  
+  `yarn deploy --tags RubyMasterChef`
+
+* Check ruby token balance (of deployer)  
+  `yarn balances --network $network --address $deployer`
+
+* Seed RubyMasterChef with RUBY tokens  
+  `yarn transferRUBYtoMS --network $network`
 
 6. Set staking rewards
 
@@ -101,9 +128,11 @@ or: `yarn deploy --tags StableSwap`
 
 8. Seed the stablePool:
 
-```
-yarn deploy --tags SeedStablePool
-```
+* check USDX balances  
+  `yarn balances --network $network --address $deployer`
+
+* seed  
+  `yarn deploy --tags SeedStablePool`
 
 9. Ruby Router:
 
@@ -137,12 +166,57 @@ yarn deploy --tags Faucet
 
 14. Seed faucet
 
+Note check amounts and network first!
+
 ```
 yarn seedFaucet
 ```
 
-15. Governance:
+15. Lottery:
+
+```
+yarn deploy --tags RandomNumberGenerator
+yarn deploy --tags LotteryFactory
+```
+
+or
+
+`yarn deploy --tags Lottery`
+
+16. Governance:
+
+(skipped in favour of MS governance I think)
+
 
 ```
 yarn deploy --tags Timelock
 ```
+
+17. Creating AMM Liquidty Pools and Farms
+
+Note: read the contents of both files correctly, and take heed of the ATTN parts
+
+* Liquidty pools (sets the price)  
+  `yarn createAMMLPs --network rubyNewChain`
+* Farms (per default, single reward token (RUBY))  
+  `yarn createFarms --network rubyNewChain`
+
+18. Post deploy tasks
+
+* sanity check that the code hash is the same as you deployed and recorded in this document  
+  `yarn initCodeHash --network $network`
+* check ABIs are up to date  
+  `yarn export-abis --network $network`
+* make a test ruby router swap (default is dry run)  
+  `npx hardhat run scripts/debugging/testrrswap.ts --network $network`
+
+# How to Re-deployment (SCs not using upgradeable)
+
+* in general, but especially if redeploying anything that calls into Uni,
+  ensure the code hash is the same as that was deployed and recorded in this doc.
+
+# Post-deployment tasks
+
+* update addresses in backend
+* update ABIs in backend
+* update code hash in backend

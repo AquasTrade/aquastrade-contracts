@@ -18,9 +18,9 @@ const main = async () => {
   const usdt: RubyUSDT = (await ethers.getContractAt("RubyUSDT", usdtAddr)) as RubyUSDT;
   const dai: RubyDAI = (await ethers.getContractAt("RubyDAI", daiAddr)) as RubyDAI;
 
-  const transferAmount18 = ethers.utils.parseUnits("1000000", 18);
-  const transferAmountEth = ethers.utils.parseUnits("100", 18);
-  const transferAmount6 = ethers.utils.parseUnits("1000000", 6);
+  const transferAmount18 = ethers.utils.parseUnits("1000", 18);
+  const transferAmountEth = ethers.utils.parseUnits("100", 18);  // Gas = Eth = sFUEL
+  const transferAmount6 = ethers.utils.parseUnits("1000", 6);
 
   let res = await ruby.transfer(faucetAddr, transferAmount18);
   await res.wait(1);
@@ -39,7 +39,7 @@ const main = async () => {
 
   await res.wait(1);
 
-  const skEthBalance = (await deployer.provider?.getBalance(faucetAddr)) as BigNumber;
+  const sFuelBalance = (await deployer.provider?.getBalance(faucetAddr)) as BigNumber;
   const rubyBalance = await ruby.balanceOf(faucetAddr);
   const usdpBalance = await usdp.balanceOf(faucetAddr);
   const usdtBalance = await usdt.balanceOf(faucetAddr);
@@ -47,7 +47,7 @@ const main = async () => {
   const daiBalance = await dai.balanceOf(faucetAddr);
 
   console.log("Faucet seeded successfully, balances:");
-  console.log("SKETH: ", ethers.utils.formatUnits(skEthBalance, 18));
+  console.log("sFUEL: ", ethers.utils.formatUnits(sFuelBalance, 18));
   console.log("RUBY: ", ethers.utils.formatUnits(rubyBalance, 18));
   console.log("USDP: ", ethers.utils.formatUnits(usdpBalance, 18));
   console.log("DAI: ", ethers.utils.formatUnits(daiBalance, 18));

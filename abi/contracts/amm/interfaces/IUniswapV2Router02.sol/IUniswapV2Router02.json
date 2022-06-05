@@ -1,5 +1,31 @@
 [
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newFactory",
+        "type": "address"
+      }
+    ],
+    "name": "FactorySet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newNftAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "NFTAdminSet",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -92,6 +118,11 @@
         "internalType": "uint256",
         "name": "reserveOut",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountIn",
@@ -121,6 +152,11 @@
         "internalType": "uint256",
         "name": "reserveOut",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountOut",
@@ -145,6 +181,11 @@
         "internalType": "address[]",
         "name": "path",
         "type": "address[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountsIn",
@@ -169,6 +210,11 @@
         "internalType": "address[]",
         "name": "path",
         "type": "address[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
       }
     ],
     "name": "getAmountsOut",
@@ -180,6 +226,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nftAdmin",
+    "outputs": [
+      {
+        "internalType": "contract IRubyNFTAdmin",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -336,6 +395,32 @@
         "type": "uint256"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newFactory",
+        "type": "address"
+      }
+    ],
+    "name": "setFactory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IRubyNFTAdmin",
+        "name": "newNftAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "setNftAdmin",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

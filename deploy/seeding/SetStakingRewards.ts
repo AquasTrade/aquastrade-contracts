@@ -17,13 +17,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     RubyToken = await get("RubyToken");
   }
 
+  console.log('RubyStaker.setRewardMinter(RubyMasterChef.address)')
   let tx = await RubyStaker.setRewardMinter(RubyMasterChef.address);
   await tx.wait(1);
 
+  console.log('RubyStaker.addReward(RubyToken.address, RubyMaker.address)')
   tx = await RubyStaker.addReward(RubyToken.address, RubyMaker.address);
   await tx.wait(1);
 };
 export default func;
 
-// func.dependencies = ["RubyMasterChef", "RubyStaker", "RubyMaker"];
+func.dependencies = ["RubyMasterChef", "RubyStaker", "RubyMaker"];
 func.tags = ["SetStakingRewards"];

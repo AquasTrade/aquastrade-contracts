@@ -1,7 +1,8 @@
-const { ethers, network } = require("hardhat");
+const { ethers, network, upgrades } = require("hardhat");
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ADDRESS_ZERO, advanceTimeByTimestamp, latest, assertStakerBalances } from "./utilities";
+import { deployRubyStaker } from "./utilities/deployment";
 
 describe("RubyMasterChef", function () {
   before(async function () {
@@ -14,7 +15,6 @@ describe("RubyMasterChef", function () {
     this.minter = this.signers[4];
 
     this.rubyMasterChef = await ethers.getContractFactory("RubyMasterChef");
-    this.rubyStaker = await ethers.getContractFactory("RubyStaker");
     this.SimpleRewarderPerSec = await ethers.getContractFactory("SimpleRewarderPerSec");
     this.RubyToken = await ethers.getContractFactory("RubyTokenMintable");
     this.MockERC20 = await ethers.getContractFactory("MockERC20", this.minter);
@@ -43,23 +43,41 @@ describe("RubyMasterChef", function () {
     this.ruby = await this.RubyToken.deploy(); // b=1
     await this.ruby.deployed();
 
-    this.staker = await this.rubyStaker.deploy(this.ruby.address, this.maxNumOfRewards);
+    this.staker = await deployRubyStaker(this.owner.address, this.ruby.address, this.maxNumOfRewards);
 
     this.partnerToken = await this.SushiToken.deploy(); // b=2
     await this.partnerToken.deployed();
   });
 
+  it("nominal case", async function () {
+    const startTime = (await latest()).add(60);
+
+    const chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
+        this.ruby.address,
+        this.staker.address,
+        this.treasury.address,
+        "10",
+        startTime,
+        "100",// treasury percent max is 1000
+        ]
+      );
+    await chef.deployed();
+  });
+
   it("should revert contract creation if treasury percent don't meet criteria", async function () {
     const startTime = (await latest()).add(60);
-    // Invalid treasury percent failure
+
     await expect(
-      this.rubyMasterChef.deploy(
+      upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         "10",
         startTime,
         "1100",// treasury percent max is 1000
+        ]
       ),
     ).to.be.revertedWith("RubyMasterChef: invalid treasury percent value.");
   });
@@ -67,13 +85,15 @@ describe("RubyMasterChef", function () {
   it("should set correct state variables", async function () {
     // We make start time 60 seconds past the last block
     const startTime = (await latest()).add(60);
-    this.chef = await this.rubyMasterChef.deploy(
+    this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+      this.owner.address,
       this.ruby.address,
       this.staker.address,
       this.treasury.address,
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
+      ]
     );
     await this.chef.deployed();
 
@@ -90,13 +110,15 @@ describe("RubyMasterChef", function () {
 
   it("should allow treasury to update themselves", async function () {
     const startTime = (await latest()).add(60);
-    this.chef = await this.rubyMasterChef.deploy(
+    this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+      this.owner.address,
       this.ruby.address,
       this.staker.address,
       this.treasury.address,
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
+      ]
     );
     await this.chef.deployed();
 
@@ -110,13 +132,15 @@ describe("RubyMasterChef", function () {
 
   it("should check treasury percent is set correctly", async function () {
     const startTime = (await latest()).add(60);
-    this.chef = await this.rubyMasterChef.deploy(
+    this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+      this.owner.address,
       this.ruby.address,
       this.staker.address,
       this.treasury.address,
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
+      ]
     );
     await this.chef.deployed();
 
@@ -128,13 +152,15 @@ describe("RubyMasterChef", function () {
 
   it("should enable owner to emergency withdraw ruby tokens", async function () {
     const startTime = (await latest()).add(60);
-    this.chef = await this.rubyMasterChef.deploy(
+    this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+      this.owner.address,
       this.ruby.address,
       this.staker.address,
       this.treasury.address,
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
+      ]
     );
     await this.chef.deployed();
     const ownerInitialBalance = await this.ruby.balanceOf(this.owner.address);
@@ -238,13 +264,15 @@ describe("RubyMasterChef", function () {
 
     it("should check rewarder added and set properly", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed();
 
@@ -277,13 +305,15 @@ describe("RubyMasterChef", function () {
 
     it("should allow a given pool's allocation weight and rewarder to be updated", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed();
 
@@ -323,13 +353,15 @@ describe("RubyMasterChef", function () {
 
     it("should reward partner token accurately after rewarder runs out of tokens and is topped up again", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
@@ -374,13 +406,15 @@ describe("RubyMasterChef", function () {
 
     it("should only allow RubyMasterChef to call onRubyReward", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
@@ -418,13 +452,15 @@ describe("RubyMasterChef", function () {
 
     it("should allow rewarder to be set and removed mid farming", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
@@ -527,13 +563,15 @@ describe("RubyMasterChef", function () {
 
     it("should give out RUBYs only after farming time", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
@@ -589,13 +627,15 @@ describe("RubyMasterChef", function () {
 
     it("should not distribute RUBYs if no one deposit", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
@@ -640,13 +680,15 @@ describe("RubyMasterChef", function () {
 
     it("should distribute RUBYs properly for each staker", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
@@ -866,13 +908,15 @@ describe("RubyMasterChef", function () {
 
     it("should give proper RUBYs allocation to each pool", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
@@ -982,13 +1026,15 @@ describe("RubyMasterChef", function () {
 
     it("should give proper RUBYs after updating emission rate", async function () {
       const startTime = (await latest()).add(60);
-      this.chef = await this.rubyMasterChef.deploy(
+      this.chef = await upgrades.deployProxy(this.rubyMasterChef, [
+        this.owner.address,
         this.ruby.address,
         this.staker.address,
         this.treasury.address,
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
+        ]
       );
       await this.chef.deployed(); // t-59
 
