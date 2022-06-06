@@ -144,10 +144,11 @@ yarn deploy --tags RubyRouter
 yarn deploy --tags SeedNFTAdmin
 ```
 
-11. Seed RubyProfileNFT:
+11. Seed RubyProfileNFT and NFT Appearance:
 
 ```
 yarn deploy --tags SeedRubyProfileNFT
+yarn deploy --tags SeedNFTAppearance
 ```
 
 12. Utils:
