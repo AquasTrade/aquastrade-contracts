@@ -1,6 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
+import { PROFILE_NFT_DETAILS, PROFILE_NFT_APPEARANCE } from "../constants";
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, ethers } = hre;
   const { deploy, getOrNull, log } = deployments;
@@ -10,17 +12,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const name = "Ruby Profile NFT";
   const symbol = "RPNFT";
 
-  const description = JSON.stringify({
-    "description": "Your unique 3D profile gem on Ruby Exchange",
-    "title": "Profile NFT",
-    "previewImage": "",
-  });
-
-  const visualAppearance = JSON.stringify({
-    "type": "profile",
-    "seed": "__tokenId",
-  });
-
+  const description = JSON.stringify(PROFILE_NFT_DETAILS);
+  const visualAppearance = JSON.stringify(PROFILE_NFT_APPEARANCE);
 
   if (RubyProfileNFT) {
     log(`reusing "RubyProfileNFT" at ${RubyProfileNFT.address}`);
@@ -39,15 +32,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       skipIfAlreadyDeployed: true,
     });
   }
-
-  const rubyProfileNft = await ethers.getContract("RubyProfileNFT");
-
-  const _description = await rubyProfileNft.description(); 
-  const _visualAppearance = await rubyProfileNft.visualAppearance(); 
-
-  console.log("description", _description);
-  console.log("visual appearance", _visualAppearance);
-
 };
 export default func;
 

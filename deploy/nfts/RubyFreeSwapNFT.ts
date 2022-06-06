@@ -1,6 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
+import { FREE_SWAP_NFT_DETAILS, FREE_SWAP_NFT_APPEARANCE } from "../constants";
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, ethers } = hre;
   const { deploy, getOrNull, log } = deployments;
@@ -10,21 +12,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const name = "Ruby Free Swap NFT";
   const symbol = "RFSNFT";
 
-  const description = JSON.stringify({
-    "description": "Holding this NFT will grant you free swaps on Ruby Exchange",
-    "title": "Zero Swap Fees",
-    "previewImage": "",
-  });
-
-  const visualAppearance = JSON.stringify({
-    "type": "nft",
-    "model_type": "heart",
-    "surface_wear": 0,
-    "edge_wear": 0,
-    "deformation": 0,
-    "color": "#ff00ff",
-  });
-
+  const description = JSON.stringify(FREE_SWAP_NFT_DETAILS);
+  const visualAppearance = JSON.stringify(FREE_SWAP_NFT_APPEARANCE);
 
   if (RubyFreeSwapNFT) {
     log(`reusing "RubyFreeSwapNFT" at ${RubyFreeSwapNFT.address}`);
@@ -43,14 +32,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       skipIfAlreadyDeployed: true,
     });
   }
-
-  const rubyFreeSwapNFT = await ethers.getContract("RubyFreeSwapNFT");
-
-  const _description = await rubyFreeSwapNFT.description(); 
-  const _visualAppearance = await rubyFreeSwapNFT.visualAppearance(); 
-
-  console.log("description", _description);
-  console.log("visual appearance", _visualAppearance);
 
 };
 export default func;
