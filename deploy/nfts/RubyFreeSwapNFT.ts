@@ -11,16 +11,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const symbol = "RFSNFT";
 
   const description = JSON.stringify({
-    "description": "swap fees",
-    "feeReduction": 1000, 
-    "lpFeeDeduction": 3,
-    "randomMetadata": {}
+    "description": "Holding this NFT will grant you free swaps on Ruby Exchange",
+    "title": "Zero Swap Fees",
+    "previewImage": "",
   });
 
   const visualAppearance = JSON.stringify({
-    "att1": 1,
-    "att2": 2, 
-    "att3": 3,
+    "type": "nft",
+    "model_type": "heart",
+    "surface_wear": 0,
+    "edge_wear": 0,
+    "deformation": 0,
+    "color": "#ff00ff",
   });
 
 
