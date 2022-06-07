@@ -27,7 +27,6 @@ const main = async () => {
   const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", masterChefAddr)) as RubyMasterChef;
 
   const pools = JSON.parse(fs.readFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, {encoding: "utf-8"}));
-  console.log(pools);
 
   // USDP-ETHC pool
   if (false) {
@@ -53,6 +52,12 @@ const main = async () => {
     }
 
     await addDoubleRewardFarm(masterChef, lpAddr, 100, REWARDER_ADDR);
+  }
+
+  // StableSwap
+  if (false) {
+    const lpAddr = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
+    await addSingleRewardFarm(masterChef, lpAddr, 20);
   }
 
   await debugChefPools(masterChef);
