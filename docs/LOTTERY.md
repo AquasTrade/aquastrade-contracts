@@ -4,20 +4,22 @@
 
 ```
 yarn createLottery --nftaddress $nftAddress --nftid $nftid --size $size --price $price --distribution $distribution --duration $duration --mint $mint
+yarn createLottery --collateral $collateral --nft $nft --nftid $nftid --size $size --price $price --distribution $distribution --duration $duration --mint $mint
 ```
 
-The arguments are (**ADDRESS EXAMPLES ON FANCY**)
+The arguments are
 
-* `$collateral`: Address of collateral token.
-  * `0x83B38f79cFFB47CF74f7eC8a5F8D7DD69349fBf7` RUBY
-  * `0x76A3Ef01506eB19D6B34C4bDcF3cDcdE14F6B11E` USDP
-* `$nftAddress`: Address of bonus NFT.
-  * `0x0000000000000000000000000000000000000000` for no NFT
-  * `0x1fAd768886a491f5BCa02C17fB4C177a427cecDd` e.g. FreeSwap NFT on fancy
+* `$collateral`: Name of collateral token symbol, e.g.
+  * `RUBY`
+  * `USDP`
+* `$nft`: Name of NFT
+  * `none` for no NFT
+  * `RubyFreeSwapNFT`
+  * `RubyProfileNFT`
 * `$nftid`: Token ID of bonus NFT.
   * This has no meaning if `mint=1`
 * `$size`: Digit count of ticket.
-* `$price`: Cost per ticket in $collateral.
+* `$price`: Cost per ticket in $collateral. Human number (it is parsed correctly according to collateral decimals)
 * `$distribution`: An array string defining the distribution of the prize pool.(e.g. "[40, 25, 10, 5, 20]"). The elements of the array are
   * `[0:-2]`: winner 1, winner 2, ...
   * `[-2]`: burn percentage
@@ -27,7 +29,7 @@ The arguments are (**ADDRESS EXAMPLES ON FANCY**)
 
 e.g 
 ```
-yarn createLottery --network rubyNewChain --collateral 0x83B38f79cFFB47CF74f7eC8a5F8D7DD69349fBf7 --nftaddress 0x1fAd768886a491f5BCa02C17fB4C177a427cecDd --nftid 0 --size 4 --price 10000000000000000000 --distribution "[40, 25, 10, 5, 15, 5]" --duration 1200 --mint 1
+yarn createLottery --collateral USDP --nft RubyFreeSwapNFT --nftid 0 --size 3 --price 7 --distribution "[50, 15, 10, 5, 15, 5]" --duration 300 --mint 1
 
 ```
 1. Draw Lottery

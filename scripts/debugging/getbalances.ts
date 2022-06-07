@@ -1,3 +1,4 @@
+import fs from "fs";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -32,6 +33,11 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
     }
   } else if (symbol == 'ETHC' ) {
     erc20Addr = '0xD2Aaa00700000000000000000000000000000000';
+  } else if (symbol == 'rubyUSD') {
+    erc20Addr = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
+  } else if (symbol.startsWith('usdp')) {
+    const pools = JSON.parse(fs.readFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, {encoding: "utf-8"}));
+    erc20Addr = pools[symbol];
   } else {
     if (network.name == 'mainnet') {
       erc20Addr = ERC20Details[symbol].address;
@@ -60,6 +66,9 @@ const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
   if (network.name === 'rubyNewChain' || network.name == 'europa') {
     console.log('sFUEL balance', ethers.utils.formatEther(await ethers.provider.getBalance(taskArgs.address)));
     await getERC20Balance(taskArgs.address, 'ETHC', hre)
+
+    // await getERC20Balance(taskArgs.address, 'rubyUSD', hre)
+    // await getERC20Balance(taskArgs.address, 'usdpRUBY', hre)
   }
 
   await getERC20Balance(taskArgs.address, 'RUBY', hre)
