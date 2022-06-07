@@ -6,7 +6,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy, get } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  if (network.name === "hardhat") {
+  if (network.name === "europa") {
     await deploy("FaucetRubyEuropa", {
       from: deployer,
       log: true,
