@@ -6,7 +6,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, getOrNull, get, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const LotteryBurner = await getOrNull("LotteryBurner");
+  let LotteryBurner;
+
+  LotteryBurner = await getOrNull("LotteryBurner");
   const RubyToken = await get("RubyToken");
 
   if (LotteryBurner) {
@@ -27,7 +29,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     });
   }
 
-  // todo - need to grant ruby token burner role to deployed contract
+  LotteryBurner = await get("LotteryBurner");
+  const tokenContract = await ethers.getContract("RubyToken");
+
+  const burnerRole = await tokenContract.BURNER_ROLE();
+  if ((await tokenContract.hasRole(burnerRole, LotteryBurner.address)) === false) {
+    const res = await tokenContract.grantRole(burnerRole, LotteryBurner.address);
+    await res.wait(1);
+  }
+
+  console.log("LotteryBurner has RUBY BURNER_ROLE:", await tokenContract.hasRole(burnerRole, LotteryBurner.address));
 
 };
 export default func;

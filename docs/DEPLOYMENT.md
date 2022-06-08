@@ -178,6 +178,7 @@ yarn seedFaucet
 
 ```
 yarn deploy --tags RandomNumberGenerator
+yarn deploy --tags LotteryBurner
 yarn deploy --tags LotteryFactory
 ```
 
