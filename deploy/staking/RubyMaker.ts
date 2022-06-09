@@ -7,26 +7,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy, getOrNull, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
+  let RUBY_MAKER_ADDRESS;
   const RubyMaker = await getOrNull("RubyMaker");
 
   const FACTORY_ADDRESS = (await ethers.getContract("UniswapV2Factory")).address;
   const RUBY_STAKER_ADDRESS = (await ethers.getContract("RubyStaker")).address;
   const USDP_TOKEN_ADDRESS = (await ethers.getContract("RubyUSDP")).address;
 
-  let RUBY_TOKEN_ADDRESS = "";
-
+  let rubyToken;
   if (network.name === "localhost") {
-    RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyTokenMainnet")).address;
+    rubyToken = await ethers.getContract("RubyTokenMainnet");
   } else {
-    RUBY_TOKEN_ADDRESS = (await ethers.getContract("RubyToken")).address;
+    rubyToken = await ethers.getContract("RubyToken");
   }
 
+  const RUBY_TOKEN_ADDRESS = rubyToken.address;
   const burnPercent = BigNumber.from("20"); // 20 percent
 
   if (RubyMaker) {
     log(`reusing "RubyMaker" at ${RubyMaker.address}`);
+    RUBY_MAKER_ADDRESS = RubyMaker.address;
   } else {
-    await deploy("RubyMaker", {
+    const contract = await deploy("RubyMaker", {
       from: deployer,
       log: true,
       proxy: {
@@ -39,6 +41,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       },
       skipIfAlreadyDeployed: true,
     });
+    RUBY_MAKER_ADDRESS = contract.address;
+  }
+
+  const RubyMakerDeployed = await getOrNull("RubyMaker");
+  const burnerRole = await rubyToken.BURNER_ROLE();
+  if ((await rubyToken.hasRole(burnerRole, RUBY_MAKER_ADDRESS)) === false) {
+    let res = await rubyToken.grantRole(burnerRole, RUBY_MAKER_ADDRESS);
+    await res.wait(1);
+    log(`granted RubyToken.BURNER_ROLE to RubyMaker@${RUBY_MAKER_ADDRESS}`);
   }
 
 };
