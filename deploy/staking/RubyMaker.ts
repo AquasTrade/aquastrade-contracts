@@ -44,7 +44,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     RUBY_MAKER_ADDRESS = contract.address;
   }
 
-  const RubyMakerDeployed = await getOrNull("RubyMaker");
   const burnerRole = await rubyToken.BURNER_ROLE();
   if ((await rubyToken.hasRole(burnerRole, RUBY_MAKER_ADDRESS)) === false) {
     let res = await rubyToken.grantRole(burnerRole, RUBY_MAKER_ADDRESS);
