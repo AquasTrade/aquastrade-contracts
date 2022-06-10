@@ -36,12 +36,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if ((await tokenContract.hasRole(burnerRole, LotteryBurner.address)) === false) {
     const res = await tokenContract.grantRole(burnerRole, LotteryBurner.address);
     await res.wait(1);
+    log(`granted RubyToken.BURNER_ROLE to LotteryBurner@${LotteryBurner.address}`);
   }
 
-  console.log("LotteryBurner has RUBY BURNER_ROLE:", await tokenContract.hasRole(burnerRole, LotteryBurner.address));
-
 };
-export default func;
 
 func.dependencies = ["RubyToken"];
 func.tags = ["LotteryBurner", "Lottery"];
+
+export default func;
