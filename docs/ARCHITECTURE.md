@@ -146,6 +146,9 @@ The following contracts are deployed to be upgradeable:
 - `RubyRouter.sol`
 - `RubyFreeSwapNFT.sol`
 - `RubyProfileNFT.sol`
+- `RubyStaker.sol`
+- `RubyMaker.sol`
+- `RubyMasterChef.sol`
 
 ## Forked codebases:
 
