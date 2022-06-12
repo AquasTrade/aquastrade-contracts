@@ -97,11 +97,11 @@ const swapERC20ToUSDP = async (dryRun: boolean, erc20Addr: string, amountStr: st
       order: [SwapType.AMM],
     };
 
-    await approveERC20(tokenIn, rubyRouter.address, tokenInAmount);
-
     if (dryRun) {
         console.log("Not swapping (dry run)")
     } else {
+        await approveERC20(tokenIn, rubyRouter.address, tokenInAmount);
+
         console.log("Swapping")
         const tx = await rubyRouter.swap(swapDetails);
         console.log("...swapped")
@@ -192,11 +192,11 @@ const swapERC20ToUSDT = async (dryRun: boolean, erc20Addr: string, amountStr: st
       order: [SwapType.AMM, SwapType.STABLE_POOL],
     };
 
-    await approveERC20(tokenIn, rubyRouter.address, tokenInAmount);
-
     if (dryRun) {
         console.log("Not swapping (dry run)")
     } else {
+        await approveERC20(tokenIn, rubyRouter.address, tokenInAmount);
+
         console.log("Swapping")
         const tx = await rubyRouter.swap(swapDetails);
         console.log("...swapped")
@@ -228,10 +228,10 @@ const main = async () => {
         ETHC_ADDR, "0.001", signer);
 
     await swapERC20ToUSDT(true,  // true to simulate and not swap
-        RUBY_ADDR, "100", signer);
+        RUBY_ADDR, "1", signer);
 
     await swapERC20ToUSDP(true,  // true to simulate and not swap
-        RUBY_ADDR, "100", signer);
+        RUBY_ADDR, "1", signer);
 
 };
   
