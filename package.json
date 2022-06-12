@@ -62,7 +62,7 @@
     "chain": "hardhat node --network hardhat --no-deploy",
     "test": "hardhat test --network hardhat",
     "deploy": "hardhat deploy",
-    "accounts": "hardhat accounts",
+    "addresses": "hardhat addresses",
     "balances": "hardhat balances",
     "export-abis": "yarn run hardhat export-abi",
     "etherscan-verify": "hardhat etherscan-verify --api-key ZG3GNW27H3216I9X5JGRXIJWX25CZDABFZ",
