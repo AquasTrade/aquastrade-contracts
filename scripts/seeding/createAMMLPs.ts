@@ -61,7 +61,7 @@ const approveTokens = async (tokens: any[], routerAddr: string, amount: BigNumbe
 const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  if (network.name !== "rubyNewChain") {
+  if (network.name !== "europa") {
     throw new Error("Not Supported (anyway this is dangerous, you chould check the numbers here")
   }
 
@@ -77,20 +77,21 @@ const main = async () => {
 
   const usdpDecimals = await usdp.decimals();
 
-  // $1 price
-  const amountRUBY = ethers.utils.parseUnits("1000", await ruby.decimals()); // 1000
-  const amountUSDPRUBY = ethers.utils.parseUnits("1000", usdpDecimals); // 1000
+  // $0.35
+  const amountRUBY = ethers.utils.parseUnits("285.714285714286", await ruby.decimals());
+  const amountUSDPRUBY = ethers.utils.parseUnits("100", usdpDecimals);
 
-  const amountETHC = ethers.utils.parseUnits("0.02", await ethc.decimals());
-  const amountUSDPETHC = ethers.utils.parseUnits("500", usdpDecimals);
+  // $1418
+  const amountETHC = ethers.utils.parseUnits("0.067475927963", await ethc.decimals());
+  const amountUSDPETHC = ethers.utils.parseUnits("100", usdpDecimals);
 
-  // 30k btc price
-  const amountWBTC = ethers.utils.parseUnits("0.5", await wbtc.decimals());
-  const amountUSDPWBTC = ethers.utils.parseUnits("15000", usdpDecimals);
+  // $27418
+  const amountWBTC = ethers.utils.parseUnits("0.00364718", await wbtc.decimals());
+  const amountUSDPWBTC = ethers.utils.parseUnits("100", usdpDecimals);
 
-  // 0.1 skl price
-  const amountSKL = ethers.utils.parseUnits("100000", await skl.decimals());
-  const amountUSDPSKL = ethers.utils.parseUnits("10000", usdpDecimals);
+  // $0.0555
+  const amountSKL = ethers.utils.parseUnits("1801.801801801802", await skl.decimals());
+  const amountUSDPSKL = ethers.utils.parseUnits("100", usdpDecimals);
 
   // ATTN: approve tokens, only approve what is needed
   await approveTokens([usdp], ROUTER_ADDR, amountUSDPRUBY.add(amountUSDPETHC).add(amountUSDPWBTC).add(amountUSDPSKL));
