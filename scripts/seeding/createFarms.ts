@@ -45,7 +45,7 @@ const main = async () => {
       throw new Error("rewarder does not agree with lptoken")
     }
 
-    await addDoubleRewardFarm(masterChef, lpAddr, 18, REWARDER_ADDR);
+    await addDoubleRewardFarm(masterChef, lpAddr, 180, REWARDER_ADDR);
   }
 
   // USDP-WBTC pool with USDP bonus token
@@ -61,7 +61,7 @@ const main = async () => {
       throw new Error("rewarder does not agree with lptoken")
     }
 
-    await addDoubleRewardFarm(masterChef, lpAddr, 18, REWARDER_ADDR);
+    await addDoubleRewardFarm(masterChef, lpAddr, 180, REWARDER_ADDR);
   }
 
   // USDP-ETHC pool with USDP bonus token
@@ -77,7 +77,7 @@ const main = async () => {
       throw new Error("rewarder does not agree with lptoken")
     }
 
-    await addDoubleRewardFarm(masterChef, lpAddr, 20, REWARDER_ADDR);
+    await addDoubleRewardFarm(masterChef, lpAddr, 200, REWARDER_ADDR);
   }
 
   // USDP-RUBY pool with SKL bonus token
@@ -93,14 +93,14 @@ const main = async () => {
       throw new Error("rewarder does not agree with lptoken")
     }
 
-    await addDoubleRewardFarm(masterChef, lpAddr, 24, REWARDER_ADDR);
+    await addDoubleRewardFarm(masterChef, lpAddr, 240, REWARDER_ADDR);
   }
 
 
   // StableSwap
   if (false) {
     const lpAddr = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
-    await addSingleRewardFarm(masterChef, lpAddr, 20);
+    await addSingleRewardFarm(masterChef, lpAddr, 200);
   }
 
   await debugChefPools(masterChef);
