@@ -9,7 +9,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const CHEF_ADDRESS = (await get("RubyMasterChef")).address;
   const SKL_TOKEN_ADDRESS = (await get("RubySKL")).address;
-  const TOKEN_PER_SECOND = ethers.utils.parseUnits("1", 18);
+  const TOKEN_PER_SECOND = 0;
   const RUBYUSDP_POOL = require(`../../../deployment_addresses/new_pools_addr.${network.name}.json`).usdpRUBY;
 
   await deploy("RewarderSKL_RUBYUSDP", {

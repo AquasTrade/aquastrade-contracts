@@ -9,7 +9,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const CHEF_ADDRESS = (await get("RubyMasterChef")).address;
   const USDP_TOKEN_ADDRESS = (await get("RubyUSDP")).address;
-  const TOKEN_PER_SECOND = ethers.utils.parseUnits("1", 18);
+  const TOKEN_PER_SECOND = 0;
   const ETHCUSDP_POOL = require(`../../../deployment_addresses/new_pools_addr.${network.name}.json`).usdpETHC;
 
   await deploy("RewarderUSDP_ETHCUSDP", {
