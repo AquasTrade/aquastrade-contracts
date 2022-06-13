@@ -200,11 +200,11 @@ yarn deploy --tags Timelock
 Note: read the contents of both files correctly, and take heed of the ATTN parts
 
 * Liquidty pools (sets the price)  
-  `yarn createAMMLPs --network rubyNewChain`
+  `yarn createAMMLPs`
 * Farm Rewarders  
   `yarn deploy --tags DualRewardRewarders`
 * Farms  
-  `yarn createFarms --network rubyNewChain`
+  `yarn createFarms`
 
 18. Post deploy tasks
 
