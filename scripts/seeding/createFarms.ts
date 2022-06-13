@@ -23,20 +23,14 @@ const addSingleRewardFarm = async (masterChef: RubyMasterChef, lpTokenAddr: stri
 };
 
 const main = async () => {
+  if (network.name !== "europa") {
+    throw new Error("Not Supported (anyway this is dangerous, you chould check the numbers here")
+  }
+
   const masterChefAddr = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
   const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", masterChefAddr)) as RubyMasterChef;
 
   const pools = JSON.parse(fs.readFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, {encoding: "utf-8"}));
-
-  // USDP-ETHC pool
-  if (false) {
-    await addSingleRewardFarm(masterChef, pools['usdpETHC'], 100);
-  }
-  
-  // USDP-Ruby pool
-  if (false) {
-    await addSingleRewardFarm(masterChef, pools['usdpRUBY'], 100);
-  }
 
   // USDP-SKL pool with SKL bonus token
   if (false) {
@@ -51,8 +45,57 @@ const main = async () => {
       throw new Error("rewarder does not agree with lptoken")
     }
 
-    await addDoubleRewardFarm(masterChef, lpAddr, 100, REWARDER_ADDR);
+    await addDoubleRewardFarm(masterChef, lpAddr, 18, REWARDER_ADDR);
   }
+
+  // USDP-WBTC pool with USDP bonus token
+  if (false) {
+    const REWARDER_ADDR = require(`../../deployments/${network.name}/RewarderUSDP_WBTCUSDP.json`).address;
+    const REWARDER_ABI = require(`../../deployments/${network.name}/RewarderUSDP_WBTCUSDP.json`).abi;
+    const rewarder = new ethers.Contract(REWARDER_ADDR, REWARDER_ABI, ethers.provider);
+
+    // safety check
+    const lpAddr = pools['usdpWBTC'];
+    const rlpAddr = await rewarder.lpToken()
+    if (lpAddr !== rlpAddr) {
+      throw new Error("rewarder does not agree with lptoken")
+    }
+
+    await addDoubleRewardFarm(masterChef, lpAddr, 18, REWARDER_ADDR);
+  }
+
+  // USDP-ETHC pool with USDP bonus token
+  if (false) {
+    const REWARDER_ADDR = require(`../../deployments/${network.name}/RewarderUSDP_ETHCUSDP.json`).address;
+    const REWARDER_ABI = require(`../../deployments/${network.name}/RewarderUSDP_ETHCUSDP.json`).abi;
+    const rewarder = new ethers.Contract(REWARDER_ADDR, REWARDER_ABI, ethers.provider);
+
+    // safety check
+    const lpAddr = pools['usdpETHC'];
+    const rlpAddr = await rewarder.lpToken()
+    if (lpAddr !== rlpAddr) {
+      throw new Error("rewarder does not agree with lptoken")
+    }
+
+    await addDoubleRewardFarm(masterChef, lpAddr, 20, REWARDER_ADDR);
+  }
+
+  // USDP-RUBY pool with SKL bonus token
+  if (false) {
+    const REWARDER_ADDR = require(`../../deployments/${network.name}/RewarderSKL_RUBYUSDP.json`).address;
+    const REWARDER_ABI = require(`../../deployments/${network.name}/RewarderSKL_RUBYUSDP.json`).abi;
+    const rewarder = new ethers.Contract(REWARDER_ADDR, REWARDER_ABI, ethers.provider);
+
+    // safety check
+    const lpAddr = pools['usdpRUBY'];
+    const rlpAddr = await rewarder.lpToken()
+    if (lpAddr !== rlpAddr) {
+      throw new Error("rewarder does not agree with lptoken")
+    }
+
+    await addDoubleRewardFarm(masterChef, lpAddr, 24, REWARDER_ADDR);
+  }
+
 
   // StableSwap
   if (false) {
