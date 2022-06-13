@@ -26,7 +26,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 
 };
-func.tags = ["RewarderUSDP_ETHCUSDP"];
+func.tags = ["RewarderUSDP_ETHCUSDP", "DualRewardRewarders"];
 func.dependencies = ["RubyMasterChef", "RubyUSDP"];
 
 export default func;

@@ -26,7 +26,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 
 };
-func.tags = ["RewarderSKL_SKLUSDP"];
+func.tags = ["RewarderSKL_SKLUSDP", "DualRewardRewarders"];
 func.dependencies = ["RubyMasterChef", "RubySKL"];
 
 export default func;

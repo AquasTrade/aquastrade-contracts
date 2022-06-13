@@ -201,7 +201,9 @@ Note: read the contents of both files correctly, and take heed of the ATTN parts
 
 * Liquidty pools (sets the price)  
   `yarn createAMMLPs --network rubyNewChain`
-* Farms (per default, single reward token (RUBY))  
+* Farm Rewarders  
+  `yarn deploy --tags DualRewardRewarders`
+* Farms  
   `yarn createFarms --network rubyNewChain`
 
 18. Post deploy tasks
