@@ -18,13 +18,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const tx2 = await RubyProfileNFT.setMinter(deployer, true);
   await tx2.wait(1);
 
-  const isMinter2 = await RubyProfileNFT.minters(RubyNFTAdminAddress);
+  const isMinter2 = await RubyProfileNFT.minters(deployer);
   console.log(`deployer ${deployer} set as minter: ${isMinter}`)
 
+  let mtx;
   console.log(`Minting 100 NFTs to treasury ${treasury}`);
   for (let i = 0; i < 100; i++) {
-    await RubyProfileNFT.mint(treasury);
-    console.log('minted #', i);
+    mtx = await RubyProfileNFT.mint(treasury);
+    await mtx.wait(1);
+    console.log('minted #', (await RubyProfileNFT.nftIds()).toNumber() - 1)
   }
 
 };
