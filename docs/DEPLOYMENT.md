@@ -105,7 +105,7 @@ Set the ruby emissions, percentage, and start date (if not now)
   `yarn balances --network $network --address $deployer`
 
 * Seed RubyMasterChef with RUBY tokens  
-  `yarn transferRUBYtoMS --network $network`
+  `npx hardhat run scripts/transferRUBYtoMS.ts --network $network`
 
 6. Set staking rewards
 
@@ -171,7 +171,7 @@ yarn deploy --tags Faucet
 Note check amounts and network first!
 
 ```
-yarn seedFaucet
+npx hardhat run scripts/seeding/seedFaucet.ts
 ```
 
 15. Lottery:
@@ -200,11 +200,11 @@ yarn deploy --tags Timelock
 Note: read the contents of both files correctly, and take heed of the ATTN parts
 
 * Liquidty pools (sets the price)  
-  `yarn createAMMLPs`
+  `hardhat run scripts/seeding/createAMMLPs.ts`
 * Farm Rewarders  
   `yarn deploy --tags DualRewardRewarders`
 * Farms  
-  `yarn createFarms`
+  `hardhat run scripts/seeding/createFarms.ts`
 
 18. Post deploy tasks
 
