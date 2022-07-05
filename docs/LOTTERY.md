@@ -3,7 +3,6 @@
 1. Create a New Lottery
 
 ```
-yarn createLottery --nftaddress $nftAddress --nftid $nftid --size $size --price $price --distribution $distribution --duration $duration --mint $mint
 yarn createLottery --collateral $collateral --nft $nft --nftid $nftid --size $size --price $price --distribution $distribution --duration $duration --mint $mint
 ```
 
