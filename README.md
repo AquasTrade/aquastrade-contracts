@@ -17,3 +17,10 @@ Ruby Management (L2)
 RUBY Token
 * L1: `0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23`
 * L2: `0x2B4e4899b53E8b7958c4591a6d02f9C0b5c50F8f`
+
+## Quickstart
+
+* testing  
+  `$ npx hardhat test --network hardhat test/lottery/LotteryBurner.test.ts`
+* interactive console  
+  `$ npx hardhat console --network rubyNewChain`
