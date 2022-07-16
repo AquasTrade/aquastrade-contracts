@@ -18,6 +18,8 @@ import "./scripts/lottery/drawLottery.ts"
 import "./scripts/debugging/getbalances.ts"
 import "./scripts/debugging/getaddresses.ts"
 
+import "./scripts/transferOwnership.ts"
+
 import { resolve } from "path";
 import { config as dotenvConfig } from "dotenv";
 

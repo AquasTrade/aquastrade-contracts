@@ -81,7 +81,8 @@
     "initCodeHash": "hardhat run scripts/initCodeHash.ts",
     "rubyStatus": "hardhat run scripts/debugging/rubystatus.ts",
     "createLottery": "hardhat createLottery",
-    "drawLottery": "hardhat drawLottery"
+    "drawLottery": "hardhat drawLottery",
+    "transferOwnership": "hardhat transferOwnership"
   },
   "files": [
     "/contracts"
