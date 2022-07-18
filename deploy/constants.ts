@@ -2,7 +2,7 @@
 export const FREE_SWAP_NFT_DETAILS = {
     "description": "Holding this NFT will grant you free swaps on Ruby Exchange",
     "title": "Zero Swap Fees",
-    "previewImage": "",
+    "previewImage": "https://static.ruby.exchange/freeswap.png",
 };
 
 export const FREE_SWAP_NFT_APPEARANCE = {
@@ -17,7 +17,7 @@ export const FREE_SWAP_NFT_APPEARANCE = {
 export const PROFILE_NFT_DETAILS = {
     "description": "Your unique 3D profile gem on Ruby Exchange",
     "title": "Profile NFT",
-    "previewImage": "",
+    "previewImage": "https://nftrenderer.additivefidev.com/gemstone.png?type=profile&seed=__tokenId",
 };
 
 export const PROFILE_NFT_APPEARANCE = {
