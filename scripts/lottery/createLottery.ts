@@ -20,8 +20,8 @@ const main = async (taskArgs: CreateLotteryArguments, hre: HardhatRuntimeEnviron
   if (taskArgs.duration <= 60) {
     throw new Error("Lottery: min duration 1 minute")
   }
-  if (taskArgs.duration >= (60*60*24*30)) {
-    throw new Error("Lottery: max duration 1 month");
+  if (taskArgs.duration >= (60*60*24*7)) {
+    throw new Error("Lottery: max duration 1 week");
   }
   if (taskArgs.size > 5) {
     throw new Error("Lottery: max 100k tickets");
