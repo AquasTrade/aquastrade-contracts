@@ -28,6 +28,8 @@ const main = async (taskArgs: DrawLotteryArguments, hre: HardhatRuntimeEnvironme
     const isOpened = await lottery.isOpened();
     const isDrawn = await lottery.isDrawn();
 
+    console.log('Lottery isClosed:', isClosed, 'isOpen:', isOpened, 'isDrawn:', isDrawn);
+
     if (!isOpened && !isClosed)
       throw "'lottery not open'"
     if (!isClosed)
