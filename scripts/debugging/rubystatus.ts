@@ -10,12 +10,13 @@ const main = async () => {
   const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", CHEF_ADDR)) as RubyMasterChef;
   const FACTORY_ADDR = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", FACTORY_ADDR)) as UniswapV2Factory;
+  const SS4P_LPADDR = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
 
   console.log(`=PAIRS==================================`);
   const pairAddrs = await debugPairs(factory);
 
   console.log(`=FARMS==================================`);
-  await debugChefPools(masterChef);
+  await debugChefPools(masterChef, factory, SS4P_LPADDR);
 };
 
 main()

@@ -55,42 +55,6 @@ export const getRewarderInfo = async (address: string): Promise<RewarderInfoType
 }
 
 
-export const debugChefPools = async (masterChef: RubyMasterChef) => {
-  const [numPools, totalAllocPoint, rubyPerSec] = await Promise.all([
-    masterChef.poolLength(),
-    masterChef.totalAllocPoint(),
-    masterChef.rubyPerSec()]
-  )
-
-  console.log(`========================================`);
-  console.log("Chef info:");
-  console.log("Num pools: ", numPools.toNumber());
-  console.log("Total alloc points: ", totalAllocPoint.toNumber());
-  console.log("Ruby per second: ", ethers.utils.formatUnits(rubyPerSec, 18));
-  console.log(`========================================`);
-  
-  for (let i = 0; i < numPools.toNumber(); i++) {
-    const pool = await masterChef.poolInfo(i);
-    console.log(`========================================`);
-    console.log("Pool info:");
-    console.log(`LpToken addr: ${pool.lpToken}`);
-    console.log(`allocPoint: ${pool.allocPoint.toNumber()}`);
-    //console.log(`lastRewardTimestamp: ${pool.lastRewardTimestamp.toNumber()}`);
-    //console.log(`accRubyPerShare: ${pool.accRubyPerShare.toNumber()}`);
-    if (pool.rewarder !== ZERO_ADDR) {
-      const rewarderInfo = await getRewarderInfo(pool.rewarder)
-      const rewarderTokenInfo = await getERC20Info(rewarderInfo.rewardToken, pool.rewarder)
-      console.log("extraRewards:")
-      console.log(`  lpToken: ${rewarderInfo.lpToken}`)
-      console.log(`  tokenPerSec: ${rewarderInfo.tokenPerSec}`)
-      console.log(`  rewardToken: ${rewarderTokenInfo.symbol}`)
-      console.log(`  rewardTokenBalance: ${ethers.utils.formatUnits(rewarderTokenInfo.balance, rewarderTokenInfo.decimals)}`)
-    }
-    console.log(`========================================`);
-  }
-};
-
-
 type LiquidityPoolInfoType = {
   address: string,
   isSS: boolean,
@@ -129,10 +93,8 @@ export const getUniPairInfo = async (pairAddress: string): Promise<LiquidityPool
 
   if (token0Info.symbol === 'USDP') {
     price = FixedNumber.from(reserves0.mul(10000).div(reserves1)).divUnsafe(FixedNumber.from(10000)).toUnsafeFloat()
-    console.log('AAA', token0Info.decimals, token1Info.decimals)
   } else if (token1Info.symbol === 'USDP') {
     price = (reserves1.mul(10000).div(reserves0)).toNumber() / 10000.0
-    console.log('BBB', token1Info.decimals, token0Info.decimals)
   }
 
   return {
@@ -151,6 +113,53 @@ export const getUniPairInfo = async (pairAddress: string): Promise<LiquidityPool
   }
 
 }
+
+
+export const debugChefPools = async (masterChef: RubyMasterChef, factory?: UniswapV2Factory, ssAddr?: string) => {
+  const [numPools, totalAllocPoint, rubyPerSec] = await Promise.all([
+    masterChef.poolLength(),
+    masterChef.totalAllocPoint(),
+    masterChef.rubyPerSec()]
+  )
+
+  console.log(`========================================`);
+  console.log("Chef info:");
+  console.log("  numPools: ", numPools.toNumber());
+  console.log("  totalAllocPoint: ", totalAllocPoint.toNumber());
+  console.log("  rubyPerSecond: ", ethers.utils.formatUnits(rubyPerSec, 18));
+  console.log(`========================================`);
+
+  for (let i = 0; i < numPools.toNumber(); i++) {
+    const pool = await masterChef.poolInfo(i);
+    console.log(`========================================`);
+    console.log(`Pool info (ID:${i}):`);
+
+    console.log(`LpToken addr: ${pool.lpToken}`);
+    if (factory) {
+      if (ssAddr !== pool.lpToken) {
+        const pairInfo = await getUniPairInfo(pool.lpToken);
+        console.log(`  token0: ${pairInfo.token0.symbol}`)
+        console.log(`  token1: ${pairInfo.token1.symbol}`)
+        console.log(`  price ${pairInfo.price}`)
+      }
+    }
+
+    console.log(`allocPoint: ${pool.allocPoint.toNumber()}`);
+    //console.log(`lastRewardTimestamp: ${pool.lastRewardTimestamp.toNumber()}`);
+    //console.log(`accRubyPerShare: ${pool.accRubyPerShare.toNumber()}`);
+
+    if (pool.rewarder !== ZERO_ADDR) {
+      const rewarderInfo = await getRewarderInfo(pool.rewarder)
+      const rewarderTokenInfo = await getERC20Info(rewarderInfo.rewardToken, pool.rewarder)
+      console.log("extraRewards:")
+      console.log(`  lpToken: ${rewarderInfo.lpToken}`)
+      console.log(`  tokenPerSec: ${rewarderInfo.tokenPerSec}`)
+      console.log(`  rewardToken: ${rewarderTokenInfo.symbol}`)
+      console.log(`  rewardTokenBalance: ${ethers.utils.formatUnits(rewarderTokenInfo.balance, rewarderTokenInfo.decimals)}`)
+    }
+    console.log(`========================================`);
+  }
+};
 
 
 export const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string = ''): Promise<string[]> => {
