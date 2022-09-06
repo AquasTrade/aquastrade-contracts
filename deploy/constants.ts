@@ -20,6 +20,12 @@ export const PROFILE_NFT_DETAILS = {
     "previewImage": "https://nftrenderer.additivefidev.com/gemstone.png?type=profile&seed=__tokenId",
 };
 
+export const PROFILE_NFT_DETAILS_MAINNET = {
+    "description": "Your unique 3D profile gem on Ruby Exchange",
+    "title": "Profile NFT",
+    "previewImage": "https://nqg3pr6buoevl35z3kjftzuhza0vborz.lambda-url.us-east-1.on.aws/gemstone.png?type=profile&seed=__tokenId",
+};
+
 export const PROFILE_NFT_APPEARANCE = {
     "type": "profile",
     "seed": "__tokenId",
