@@ -67,8 +67,8 @@ const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
     console.log('sFUEL balance', ethers.utils.formatEther(await ethers.provider.getBalance(taskArgs.address)));
     await getERC20Balance(taskArgs.address, 'ETHC', hre)
 
-    // await getERC20Balance(taskArgs.address, 'rubyUSD', hre)
-    // await getERC20Balance(taskArgs.address, 'usdpRUBY', hre)
+    await getERC20Balance(taskArgs.address, 'rubyUSD', hre)
+    await getERC20Balance(taskArgs.address, 'usdpRUBY', hre)
   }
 
   await getERC20Balance(taskArgs.address, 'RUBY', hre)
