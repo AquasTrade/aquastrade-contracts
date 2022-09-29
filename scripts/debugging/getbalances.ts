@@ -24,6 +24,7 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
   const ethers = hre.ethers;
   const network = hre.network;
 
+  let customName;
   let erc20Addr;
   if (symbol == 'RUBY') {
     if (network.name === 'mainnet') {
@@ -35,9 +36,11 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
     erc20Addr = '0xD2Aaa00700000000000000000000000000000000';
   } else if (symbol == 'rubyUSD') {
     erc20Addr = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
+    customName = '4Pool-rubyUSD-LP'
   } else if (symbol.startsWith('usdp')) {
     const pools = JSON.parse(fs.readFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, {encoding: "utf-8"}));
     erc20Addr = pools[symbol];
+    customName = `AMM-${symbol}-RLP`
   } else {
     if (network.name == 'mainnet') {
       erc20Addr = ERC20Details[symbol].address;
@@ -53,7 +56,7 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
     ERC20.decimals(),
     ERC20.balanceOf(address)]);
 
-  console.log(ERC20name, "balance", ethers.utils.formatUnits(erc20Balance, ERC20decimals))
+  console.log(customName || ERC20name, "balance", ethers.utils.formatUnits(erc20Balance, ERC20decimals))
 }
 
 
