@@ -36,7 +36,9 @@ RubyToken:
 1. `yarn deploy --tags RubyTokenMainnet` # L1 (i.e Mainnet, Rinkeby, Localhost)
 2. `yarn deploy --tags RubyToken` # L2 (i.e Skale, Skale testchain)
 
+Wrapping native ETH aka skale ETHC to WETH:
 
+1. `yarn deploy --tags WrapETHC`
 
 1. NFT related:
 
