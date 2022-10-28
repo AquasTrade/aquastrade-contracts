@@ -16,12 +16,12 @@ const erc20_abi = require(`../../deployments/${network.name}/RubyUSDP.json`).abi
 const TESTING = true;
 
 // ADJUST Token name
-const tokenName = "SKILL";
+const tokenName = "BRAWL";
 const partnerAddr = require(`../../deployments/${network.name}/Europa${tokenName}.json`).address;
 
 // one Partner Token required
 // input USDP amount 
-const USDP_AMOUNT = "0.05";// Pool Price is 2x of USDP_AMOUNT
+const USDP_AMOUNT = "1";// Pool Price == USDP_AMOUNT
 
 const addLiquidity = async (
   tokenA: string,
@@ -88,7 +88,7 @@ const main = async () => {
 
     const partnerSymbol = await partner.symbol();
 
-    if (typeof usdpDecimals === 'undefined' || typeof partnerDecimals === 'undefined') {
+    if (typeof usdpDecimals === 'undefined' || typeof partnerDecimals === 'undefined' || typeof partnerSymbol === 'undefined' ) {
       console.log("Token Data missing");
       return;
     }
