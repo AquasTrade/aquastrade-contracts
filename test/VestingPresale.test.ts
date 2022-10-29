@@ -5,7 +5,7 @@ import {
   advanceTimeByTimestamp,
 } from "./utilities";
 
-describe("FaucetRubyEuropa", function () {
+describe("VestingPresale", function () {
 
   before(async function () {
     this.signers = await ethers.getSigners();
