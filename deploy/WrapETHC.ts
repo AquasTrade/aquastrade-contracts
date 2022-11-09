@@ -28,6 +28,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   
 };
 
-func.tags = ["WrapETHC"];
+func.tags = ["WrapETHC", "WrapTokens"];
 
 export default func;
