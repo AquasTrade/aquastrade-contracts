@@ -47,7 +47,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
 };
 
-func.dependencies = ["RubyDAI", "RubyUSDC", "RubyUSDP", "RubyUSDT", "RubySKL", "RubyWBTC", "RubyToken"]
 func.tags = ["WrapTokens"];
 
 export default func;
