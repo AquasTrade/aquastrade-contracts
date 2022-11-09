@@ -21,14 +21,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   for (let i = 0; i < length; i++) {
 
     const token = await get(contract_names[i]);
-
     const address = token.address;
-
     const tokenContract = await ethers.getContract(contract_names[i]);
-
     const symbol = await tokenContract.symbol();
 
-    console.log("Testing contracts: ", symbol, address)
+    console.log("Deploying wrapper contract: ", symbol, address)
 
     await deploy(`Wrap${symbol}`, {
       contract: "SkaleS2SERC20Wrapper",
@@ -41,15 +38,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     if (network.name === "rubyNewChain" || network.name === 'europa') {
       const decimals = await contract.decimals();
-      console.log("Wrapped Token decimals: ", decimals);
+      console.log("Wrapped token decimals: ", decimals);
       const name = await contract.name();
-      console.log("Wrapped Token Name:", name);
+      console.log("Wrapped token name:", name);
     }
 
   }
 
 };
 
+func.dependencies = ["RubyDAI", "RubyUSDC", "RubyUSDP", "RubyUSDT", "RubySKL", "RubyWBTC", "RubyToken"]
 func.tags = ["WrapTokens"];
 
 export default func;
