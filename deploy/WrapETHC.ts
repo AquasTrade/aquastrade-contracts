@@ -15,7 +15,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const tokenContract = await ethers.getContract("WrapETHC");
 
-  // decimals() falls back to underlying which 
+  // decimals() falls back to underlying which is not valid on a test/hardhat networks
+  // where 0xD2Aa... is not a valid address
   if (network.name === "rubyNewChain" || network.name === 'europa') {
     const decimals = await tokenContract.decimals();
     console.log("WETH decimals: ", decimals);
