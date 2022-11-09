@@ -5,4 +5,4 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SkaleMappedERC20Token.sol";
 
-contract EuropaBRAWL is SkaleMappedERC20Token("Block Brawlers BRAWL", "BRAWL", 18) {}
+contract EuropaSKILL is SkaleMappedERC20Token("CryptoBlades SKILL", "SKILL", 18) {}
