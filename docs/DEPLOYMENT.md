@@ -44,6 +44,10 @@ or for `ETHC` only
 
 1. `yarn deploy --tags WrapETHC`
 
+Partner tokens:
+
+1. `yarn deploy --tags PartnerTokens`
+
 1. NFT related:
 
 ```

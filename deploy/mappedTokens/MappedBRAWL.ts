@@ -38,6 +38,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   console.log("Deployer has DEFAULT_ADMIN_ROLE: ", await tokenContract.hasRole(adminRole, deployer));
 };
 
-func.tags = ["EuropaBRAWL", "MappedTokens"];
+func.tags = ["EuropaBRAWL", "MappedTokens", "PartnerTokens"];
 
 export default func;
