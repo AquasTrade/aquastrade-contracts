@@ -9,7 +9,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   await deploy("WrapETHC", {
     contract: "SkaleS2SERC20Wrapper",
     from: deployer,
-    args: ["ETHWrap", "WETH", "0xD2Aaa00700000000000000000000000000000000"],
+    args: ["Europa Wrapped ETHC", "wETHC", "0xD2Aaa00700000000000000000000000000000000"],
     log: true,
   });
 
