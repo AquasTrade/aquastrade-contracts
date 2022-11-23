@@ -53,9 +53,6 @@ const config: HardhatUserConfig = {
       europa: "0x60592CB8ceD45A2dc432CB1Fe49c2Fa1a6bfa423"
     },
   },
-  etherscan: {
-    apiKey: "ZG3GNW27H3216I9X5JGRXIJWX25CZDABFZ",
-  },
   paths: {
     tests: "test",
   },
@@ -101,10 +98,42 @@ const config: HardhatUserConfig = {
             runs: 200,
           },
         },
+      },
+      {
+        version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
+  etherscan: {
+    apiKey: {
+      europa: "acb",
+      rubyNewChain: "acb"
+    },
+    customChains: [
+      {
+        network: "europa",
+        chainId: 2046399126,
+        urls: {
+          apiURL: "https://elated-tan-skat.explorer.mainnet.skalenodes.com/api",
+          browserURL: "https://elated-tan-skat.explorer.mainnet.skalenodes.com"
+        }
+      },
+      {
+        network: "rubyNewChain",
+        chainId: 2255010950618556,
+        urls: {
+          apiURL: "https://fancy-rasalhague.explorer.staging-v2.skalenodes.com/api",
+          browserURL: "https://fancy-rasalhague.explorer.staging-v2.skalenodes.com"
+        }
       }
     ],
   },
-
   spdxLicenseIdentifier: {
     overwrite: false,
     runOnCompile: true,

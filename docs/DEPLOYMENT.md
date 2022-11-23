@@ -224,6 +224,8 @@ Note: read the contents of both files correctly, and take heed of the ATTN parts
   `yarn export-abis --network $network`
 * make a test ruby router swap (default is dry run)  
   `npx hardhat run scripts/debugging/testrrswap.ts --network $network`
+* verify contracts on the blockexplorer 
+  `npx hardhat run scripts/verify/verifyRubyContracts.ts --network $network`
 
 # How to Re-deployment (SCs not using upgradeable)
 
