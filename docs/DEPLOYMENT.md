@@ -6,7 +6,10 @@ If deploying for the first time, please follow the steps in order.
 
 If deploying on mainnet, you should set an expensive manual gasPrice in hardhat.config.ts - e.g. 2x gastracker 'high'.
 
-0. Tokens (Optional, if tokens are pre-deployed you don't need to deploy them again, however the codebase depends on them):
+## Prereq
+`yarn install && yarn compile`
+
+0. Tokens (Optional, if tokens are pre-deployed you don't need to deploy them again, however the codebase depends on them): `required for testnet deployments`
 
 Mock tokens:
 
