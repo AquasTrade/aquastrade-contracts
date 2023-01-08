@@ -218,7 +218,7 @@ const swapERC20ToUSDT = async (dryRun: boolean, erc20Addr: string, amountStr: st
 const main = async () => {
     const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
-    if (network.name == 'localhost' || network.name == 'hardhat' || network.name == 'rinkeby' || network.name == 'mainnet') {
+    if (network.name == 'localhost' || network.name == 'hardhat' || network.name == 'rinkeby' || network.name == 'mainnet' || network.name == 'goerli') {
         throw new Error("Only supported on sChains (with ETHC)")
     }
 

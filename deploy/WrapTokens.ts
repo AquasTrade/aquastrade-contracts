@@ -36,7 +36,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     const contract = await ethers.getContract(`Wrap${symbol}`);
 
-    if (network.name === "rubyNewChain" || network.name === 'europa') {
+    if (network.name === "rubyNewChain" || network.name === 'europa' || network.name ==='stagingv3' ) {
       const decimals = await contract.decimals();
       console.log("Wrapped token decimals: ", decimals);
       const name = await contract.name();

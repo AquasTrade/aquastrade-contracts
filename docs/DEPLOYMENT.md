@@ -7,9 +7,11 @@ If deploying for the first time, please follow the steps in order.
 If deploying on mainnet, you should set an expensive manual gasPrice in hardhat.config.ts - e.g. 2x gastracker 'high'.
 
 ## Prereq
+
 `yarn install && yarn compile`
 
-0. Tokens (Optional, if tokens are pre-deployed you don't need to deploy them again, however the codebase depends on them): `required for testnet deployments`
+0. Tokens (Optional, if tokens are pre-deployed you don't need to deploy them again, however the codebase depends on
+   them and they are required for testnet deployments.
 
 Mock tokens:
 
@@ -36,7 +38,7 @@ or
 
 RubyToken:
 
-1. `yarn deploy --tags RubyTokenMainnet` # L1 (i.e Mainnet, Rinkeby, Localhost)
+1. `yarn deploy --tags RubyTokenMainnet` # L1 (i.e Mainnet, Rinkeby, Localhost, Goerli)
 2. `yarn deploy --tags RubyToken` # L2 (i.e Skale, Skale testchain)
 
 Wrapping native tokens:

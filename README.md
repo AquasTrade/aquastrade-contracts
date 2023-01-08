@@ -24,3 +24,11 @@ RUBY Token
   `$ npx hardhat test --network hardhat test/lottery/LotteryBurner.test.ts`
 * interactive console  
   `$ npx hardhat console --network rubyNewChain`
+
+## Useful Debugging and Maintenance Commands
+
+* `npx hardhat addresses --network stagingv3`  
+  prints the addresses of important contracts and multisigs/EOAs
+* `npx hardhat balances --network stagingv3 --address 0x123`  
+  prints the balances of native and a number of tokens of the supplied address
+

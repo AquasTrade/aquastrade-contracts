@@ -63,10 +63,10 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
 const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
   const ethers = hre.ethers;
   const network = hre.network;
-  if (network.name === 'mainnet' || network.name === 'rinkeby' || network.name === 'localhost') {
+  if (network.name === 'mainnet' || network.name === 'rinkeby' || network.name === 'localhost' || network.name === 'goerli') {
     console.log('ETH balance', ethers.utils.formatEther(await ethers.provider.getBalance(taskArgs.address)));
   }
-  if (network.name === 'rubyNewChain' || network.name == 'europa') {
+  if (network.name === 'rubyNewChain' || network.name === 'europa' || network.name === 'stagingv3') {
     console.log('sFUEL balance', ethers.utils.formatEther(await ethers.provider.getBalance(taskArgs.address)));
     await getERC20Balance(taskArgs.address, 'ETHC', hre)
 

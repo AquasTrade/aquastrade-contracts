@@ -42,7 +42,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     usdp = (await ethers.getContract("MockUSDP")) as MockUSDP;
     usdt = (await ethers.getContract("MockUSDT")) as MockUSDT;
     dai = (await ethers.getContract("MockDAI")) as MockDAI;
-  } else if (network.name === "rubyNewChain" || network.name === 'europa') {
+  } else if (network.name === "rubyNewChain" || network.name === 'europa' || network.name === 'stagingv3') {
     console.log('Using RubyX Tokens on L2');
     usdc = (await ethers.getContract("RubyUSDC")) as RubyUSDC;
     usdp = (await ethers.getContract("RubyUSDP")) as RubyUSDP;
