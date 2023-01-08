@@ -65,13 +65,9 @@ const config: HardhatUserConfig = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
-    rubyNewChain: {
-      url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",
+    rubyStagingV3: {
+      url: "https://staging-v3.skalenodes.com/v1/staging-purple-arctic-talitha",
       accounts: [ADMIN_PKEY_TESTNET],
-    },
-    testSchainv2: {
-      url: "https://testnet-proxy.skalenodes.com/v1/whispering-turais",
-      accounts: [ADMIN_PKEY_TESTNET_SCHAIN2],
     },
     europa: {
       url: "https://mainnet.skalenodes.com/v1/elated-tan-skat",
@@ -82,8 +78,8 @@ const config: HardhatUserConfig = {
       accounts: [ADMIN_PKEY],
       // gasPrice: 50000000000,  // wei
     },
-    rinkeby: {
-      url: "https://rinkeby.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
+    goerli: {
+      url: "https://eth-goerli.gateway.pokt.network/v1/lb/f0c06ca797ece1fe09dcdf75",
       accounts: [ADMIN_PKEY_TESTNET],
       gasPrice: 50000000000,  // wei
     },
