@@ -32,7 +32,6 @@ dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 const ADMIN_PKEY = process.env.ADMIN_PKEY || "";
 const ADMIN_PKEY_TESTNET = process.env.ADMIN_PKEY_TESTNET || "";
-const ADMIN_PKEY_TESTNET_SCHAIN2 = process.env.ADMIN_PKEY_NEW_SCHAIN || "";
 
 const config: HardhatUserConfig = {
   defaultNetwork,
@@ -65,8 +64,12 @@ const config: HardhatUserConfig = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
-    rubyStagingV3: {
+    stagingv3: {
       url: "https://staging-v3.skalenodes.com/v1/staging-purple-arctic-talitha",
+      accounts: [ADMIN_PKEY_TESTNET],
+    },
+    rubyNewChain: {
+      url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",
       accounts: [ADMIN_PKEY_TESTNET],
     },
     europa: {
@@ -80,6 +83,11 @@ const config: HardhatUserConfig = {
     },
     goerli: {
       url: "https://eth-goerli.gateway.pokt.network/v1/lb/f0c06ca797ece1fe09dcdf75",
+      accounts: [ADMIN_PKEY_TESTNET],
+      gasPrice: 50000000000,  // wei
+    },
+    rinkeby: {
+      url: "https://rinkeby.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
       accounts: [ADMIN_PKEY_TESTNET],
       gasPrice: 50000000000,  // wei
     },
