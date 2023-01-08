@@ -45,11 +45,13 @@ const config: HardhatUserConfig = {
     },
     treasury: {
       default: 0,
-      europa: "0xfE3fd4C4bb91800347Cb4eE367332f417E70eb4a"
+      europa: "0xfE3fd4C4bb91800347Cb4eE367332f417E70eb4a",
+      stagingv3: "0xD244519000000000000000000000000000000000"
     },
     management: {
       default: 0,
-      europa: "0x60592CB8ceD45A2dc432CB1Fe49c2Fa1a6bfa423"
+      europa: "0x60592CB8ceD45A2dc432CB1Fe49c2Fa1a6bfa423",
+      stagingv3: "0xD244519000000000000000000000000000000000"
     },
   },
   paths: {
