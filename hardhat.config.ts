@@ -71,7 +71,7 @@ const config: HardhatUserConfig = {
       accounts: [ADMIN_PKEY_TESTNET],
     },
     rubyNewChain: {
-      url: "https://testnet-proxy.skalenodes.com/v1/fancy-rasalhague",
+      url: "http://staging-node0.skalenodes.com:10003",
       accounts: [ADMIN_PKEY_TESTNET],
     },
     europa: {
