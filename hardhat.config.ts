@@ -67,7 +67,7 @@ const config: HardhatUserConfig = {
       */
     },
     stagingv3: {
-      url: "https://staging-v3.skalenodes.com/v1/staging-purple-arctic-talitha",
+      url: "https://staging-v3.skalenodes.com/v1/staging-legal-crazy-castor",
       accounts: [ADMIN_PKEY_TESTNET],
     },
     rubyNewChain: {
