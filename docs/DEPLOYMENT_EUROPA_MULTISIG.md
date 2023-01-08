@@ -76,13 +76,14 @@ These addresses are used in configuration commands below
    $ npx msig encodeData elated-tan-skat Etherbase partiallyRetrieve 0xD244519000000000000000000000000000000000 100000000
    ```
 
-2. Granting the MSW permission to change deployer configuration  
+2. L1: Granting the MSW permission to change deployer configuration  
   * `DEPLOYER_ADMIN_ROLE = keccak256("DEPLOYER_ADMIN_ROLE")`
   * `0xD244519000000000000000000000000000000000`  MultiSigWallet on L2
   * use multisigwallet-cli to create the payload for gnosis safe  
     ```
     $ npx msig encodeData elated-tan-skat ConfigController grantRole 0x9544cf69999ca161b850d3ca69235f410d88604f143ae3be6650b68b133a5dae 0xD244519000000000000000000000000000000000
     ```
+  * send the payload to the `message_proxy_mainnet_address` on L1
 
 Now the MSW wallet on L2 has `DEPLOYER_ADMIN_ROLE` so can call `ConfigController.addToWhitelist()`
 
@@ -92,7 +93,7 @@ Now the MSW wallet on L2 has `DEPLOYER_ADMIN_ROLE` so can call `ConfigController
      * the ABI from https://github.com/skalenetwork/config-controller/releases
      * the Address of ConfigController `0xD2002000000000000000000000000000000000D2`
      * call `addToWhitelist(0xc7dfdc89093e6b6c9f8d81329f09ec5c73c6a855)`
-   * Note: in hindsight I should have done this from the L1 side because MSW is
+   * Note: in hindsight I could have done this from the L1 side because MSW is
      a pain.
 
 4. Create additional multisig wallets and wallets used for management and controlling ruby
