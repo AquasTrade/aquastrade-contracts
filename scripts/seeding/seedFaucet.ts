@@ -7,6 +7,9 @@ const usdpAddr = require(`../../deployments/${network.name}/RubyUSDP.json`).addr
 const daiAddr = require(`../../deployments/${network.name}/RubyDAI.json`).address;
 const usdcAddr = require(`../../deployments/${network.name}/RubyUSDC.json`).address;
 const usdtAddr = require(`../../deployments/${network.name}/RubyUSDT.json`).address;
+
+// for testing or giving test tokens to people, just write and address here and change
+// the amounts
 const faucetAddr = require(`../../deployments/${network.name}/Faucet.json`).address;
 
 const main = async () => {
