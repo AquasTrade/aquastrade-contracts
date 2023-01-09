@@ -124,7 +124,7 @@ using the `multisig-cli` tool, but rather by calling SCs on L1 directly.
 * Ruby Token
   * L1: **Use notes above, and Gnosis Safe UI to call DepositBoxERC20.addERC20TokenByOwner like this**  
   `addERC20TokenByOwner("elated-tan-skat", "0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23")`
-  * L2:  **Send encoded TX to IMA bridge**  
+  * L1:  **Send encoded TX to IMA bridge**  
     ```
     $ npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23 0x2B4e4899b53E8b7958c4591a6d02f9C0b5c50F8f
     ```
