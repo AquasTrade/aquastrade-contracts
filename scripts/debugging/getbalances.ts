@@ -4,7 +4,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import ERC20Abi from "../../abi/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
 
-import L1_ERC20_DB from "../../deployment_addresses/l1_erc20s.json";
 interface IERC20Props {
   address: string;
   decimals: number
@@ -12,8 +11,6 @@ interface IERC20Props {
 interface IERC20Database {
   [key: string]: IERC20Props;
 };
-const ERC20Details: IERC20Database = <IERC20Database>L1_ERC20_DB;
-
 
 interface Arguments {
   address: string,
@@ -27,7 +24,7 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
   let customName;
   let erc20Addr;
   if (symbol == 'RUBY') {
-    if (network.name === 'mainnet') {
+    if (network.name === 'mainnet' || network.name === 'goerli') {
       erc20Addr = require(`../../deployments/${network.name}/RubyTokenMainnet.json`).address;    
     } else {
       erc20Addr = require(`../../deployments/${network.name}/RubyToken.json`).address;
@@ -42,7 +39,12 @@ const getERC20Balance = async (address: string, symbol: string, hre: HardhatRunt
     erc20Addr = pools[symbol];
     customName = `AMM-${symbol}-RLP`
   } else {
+    let l1DB;
     if (network.name == 'mainnet') {
+      const ERC20Details: IERC20Database = <IERC20Database>require('../../deployment_addresses/l1_erc20s.json');
+      erc20Addr = ERC20Details[symbol].address;
+    } else if (network.name == 'goerli') {
+      const ERC20Details: IERC20Database = <IERC20Database>require('../../deployment_addresses/l1_goerli_erc20s.json');
       erc20Addr = ERC20Details[symbol].address;
     } else {
       erc20Addr = require(`../../deployments/${network.name}/Ruby${symbol}.json`).address;
@@ -70,8 +72,16 @@ const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
     console.log('sFUEL balance', ethers.utils.formatEther(await ethers.provider.getBalance(taskArgs.address)));
     await getERC20Balance(taskArgs.address, 'ETHC', hre)
 
-    await getERC20Balance(taskArgs.address, 'rubyUSD', hre)
-    await getERC20Balance(taskArgs.address, 'usdpRUBY', hre)
+    try {
+      await getERC20Balance(taskArgs.address, 'rubyUSD', hre)
+    } catch (err) {
+      console.log('error: no 4Pool-rubyUSD-LP found')
+    }
+    try {
+      await getERC20Balance(taskArgs.address, 'usdpRUBY', hre)
+    } catch (err) {
+      console.log('error: no AMM-usdpRUBY-RLP found')
+    }
   }
 
   await getERC20Balance(taskArgs.address, 'RUBY', hre)
