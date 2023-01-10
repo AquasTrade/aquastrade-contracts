@@ -81,6 +81,8 @@ Current values (at time of this commit, post audit)
   `0xba9f7d123cf1f1b0f57891be300d90939d1a591af80a90cfb7e904a821927963`
 * europa  
   `0xba9f7d123cf1f1b0f57891be300d90939d1a591af80a90cfb7e904a821927963`
+* stagingv3  
+  `0xba9f7d123cf1f1b0f57891be300d90939d1a591af80a90cfb7e904a821927963`
 
 #### Contracts
 
