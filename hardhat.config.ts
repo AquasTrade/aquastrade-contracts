@@ -119,7 +119,8 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       europa: "acb",
-      rubyNewChain: "acb"
+      rubyNewChain: "acb",
+      stagingv3: "abc"
     },
     customChains: [
       {
@@ -136,6 +137,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://fancy-rasalhague.explorer.staging-v2.skalenodes.com/api",
           browserURL: "https://fancy-rasalhague.explorer.staging-v2.skalenodes.com"
+        }
+      },
+      {
+        network: "stagingv3",
+        chainId: 476158412,
+        urls: {
+          apiURL: "https://staging-legal-crazy-castor.explorer.staging-v3.skalenodes.com/api",
+          browserURL: "https://staging-legal-crazy-castor.explorer.staging-v3.skalenodes.com"
         }
       }
     ],

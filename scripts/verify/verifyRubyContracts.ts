@@ -6,7 +6,8 @@ const network = hre.network;
 const contracts: any = {
   // contracts not deployed on mainnet yet or for some reason the file names are different
   //  europaBrawl: require(`../../deployments/${network.name}/EuropaBRAWL.json`),
-  //faucet: require(`../../deployments/${network.name}/Faucet.json`),
+  //  europaSKILL: require(`../../deployments/${network.name}/EuropaSKILL.json`),
+  //  faucet: require(`../../deployments/${network.name}/Faucet.json`),
 
 
   allowList: require(`../../deployments/${network.name}/AllowList.json`),
@@ -32,6 +33,14 @@ const contracts: any = {
   rubyUSDT: require(`../../deployments/${network.name}/RubyUSDT.json`),
   rubyWBTC: require(`../../deployments/${network.name}/RubyWBTC.json`),
   rubyToken: require(`../../deployments/${network.name}/RubyToken.json`),
+
+  wrapDai: require(`../../deployments/${network.name}/WrapDai.json`),
+  wrapSKL: require(`../../deployments/${network.name}/WrapSKL.json`),
+  wrapUSDC: require(`../../deployments/${network.name}/WrapUSDC.json`),
+  wrapUSDP: require(`../../deployments/${network.name}/WrapUSDP.json`),
+  wrapUSDT: require(`../../deployments/${network.name}/WrapUSDT.json`),
+  wrapWBTC: require(`../../deployments/${network.name}/WrapWBTC.json`),
+  wrapRuby: require(`../../deployments/${network.name}/WrapRuby.json`),
 
   rubyFreeSwapNFT_Im: require(`../../deployments/${network.name}/RubyDai.json`),
 
@@ -72,33 +81,38 @@ const contracts: any = {
   swapDeployer: require(`../../deployments/${network.name}/SwapDeployer.json`),
   swapUtils: require(`../../deployments/${network.name}/SwapUtils.json`),
 
-
   uniswapFactory: require(`../../deployments/${network.name}/UniswapV2Factory.json`),
 
   uniswapV2Router02_Implementation: require(`../../deployments/${network.name}/UniswapV2Router02_Implementation.json`),
   uniswapV2Router02_Proxy: require(`../../deployments/${network.name}/UniswapV2Router02_Proxy.json`),
   uniswapV2Router02: require(`../../deployments/${network.name}/UniswapV2Router02.json`),
 
-
 }
 
 async function main() {
 
   console.log('verify contracts');
-  
+
   for (const i in contracts) {
     const contract = contracts[i];
+    const args = contract.args;
+    const file_location = contract.storageLayout.storage[0].contract;
+    console.log("Verifiy: ", i);
+    console.log("  args: -", args + '-');
+    console.log("  dest: ", file_location);
     await hre.run("verify:verify", {
+      constructorArguments: args,
       address: contract.address,
-      constructorArguments: contract.args,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }).then((res: any)=> {
+      contract: file_location
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }).then((res: any) => {
       console.log(" res", res)
       return res;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }).catch((err: any) => {
-      console.log(" error with contract: ", contract.address,err)
+      console.log(" error with contract: ", contract.address, err, '-------')
     })
+
   }
 
 };
