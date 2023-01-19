@@ -9,6 +9,7 @@ From [preparation steps](./DEPLOYMENT_EUROPA_MULTISIG.md#preparation):
  1. not required
  2. done (using goerli `message_proxy_mainnet_address`)  
     `0x08913E0DC2BA60A1626655581f701bCa84f42324`
+    staging chain `staging-legal-crazy-castor`
  3. done (to dev deployer `0xF63Bb14E7E9bD2882957129c3E3197E6D18933B4`)
  4. not required, predeployed MSW will handle all extra roles
 
