@@ -1,3 +1,5 @@
+// npx hardhat run scripts/ownership/ammPairCreator.ts  --network
+
 import { ethers, network } from "hardhat";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
