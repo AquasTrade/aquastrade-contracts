@@ -14,6 +14,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     'RubySKL',
     'RubyWBTC',
     'RubyToken',
+    'RubyHMT',
   ];
 
   const length = contract_names.length;
