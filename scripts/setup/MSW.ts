@@ -1,34 +1,28 @@
-// Give PAIR_CREATORS_ROLE to UNISWAP FACTORY
 import { ethers, network } from "hardhat";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
-// IMPORT CONTRACTS
 const factoryAddress = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
-// ADDRESS 
-const MSW_ADDRESS = '0xD244519000000000000000000000000000000000';
 
 const main = async () => {
-
-  const [deployer] = await ethers.getSigners();
-
-  const address = deployer.address;
+  const hre = require("hardhat");
+  const deployer: SignerWithAddress = (await hre.ethers.getSigners())[0];
+  const { management } = await hre.getNamedAccounts();
 
   const factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddress));
+  const admin_address = await factory.admin();
 
-  const isCreator = await factory.pairCreators(address);
-  console.log("is Creator::", isCreator, address)
+  if (admin_address === deployer.address) {
+    console.log(`Granting PairCreator permission of UniswapV2Factory:${factoryAddress} -> Address:${management}`);
 
-  const isAdmin = await factory.admin();
-  console.log("is Admin::", isAdmin)
+    const tx = await factory.setPairCreator(management, true);
+    await tx.wait(1);
 
-  const isAddress = await factory.pairCreators(MSW_ADDRESS);
-  console.log("is Address added::", isAddress, MSW_ADDRESS)
-
-  if (isAddress === false) {
-    const tx = await factory.setPairCreator(MSW_ADDRESS, true);
-    const output = await tx.wait(1);
-    console.log("Address Added Result :", output)
+    const is_pair_creator = await factory.pairCreators(management);
+    console.log(`Address:${management} is pairCreator:${is_pair_creator}`);
+  } else {
+    console.error(`Deployer is not admin. admin=${deployer.address}`);
   }
-
 };
 
 main()
