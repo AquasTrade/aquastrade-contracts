@@ -43,7 +43,7 @@ const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
 
 };
 
-task("transferOwnership", "Transfers ownership of contract to management address")
+task("transferOwnershipOfOwnable", "Transfers ownership of Ownable ABI contract to management address")
   .addParam("address", "Contract address")
   .setAction(async (taskArgs, hre) => {
     await main(taskArgs, hre);
