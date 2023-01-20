@@ -82,8 +82,7 @@
     "rubyStatus": "hardhat run scripts/debugging/rubystatus.ts",
     "createLottery": "hardhat createLottery",
     "drawLottery": "hardhat drawLottery",
-    "burnLotteryRuby": "npx hardhat run scripts/lottery/burnBurnt.ts",
-    "transferOwnership": "hardhat transferOwnership"
+    "burnLotteryRuby": "npx hardhat run scripts/lottery/burnBurnt.ts"
   },
   "files": [
     "/contracts"
