@@ -97,3 +97,17 @@ addERC20TokenByOwner("staging-legal-crazy-castor", "0xd80BC0126A38c9F7b915e1B2B9
 npx msig encodeData staging-legal-crazy-castor TokenManagerERC20 addERC20TokenByOwner Mainnet 0xd80BC0126A38c9F7b915e1B2B9f78280639cadb3 0xf5E880E1066DDc90471B9BAE6f183D5344fd289F
 ```
 
+* HMT (mock)
+dummy test: redeploy RubyHMT and wrapper to test with the MockHMT (this will allow HMT team to use their own goerli token with the first RubyHMT deployment)
+- yarn deploy --network goerli --tags MockHMT `0xe0E2cb3A5d6f94a5bc2D00FAa3e64460A9D241E1`
+- yarn deploy --network stagingv3 --tags RubyHMT `0x07303E8EDff6627bb9B18c867DfBFFf512aB7975`
+- yarn deploy --network stagingv3 --tags WrapTokens `0x4c1a11F7Ce4172Bd70910e5E0F71110182F24224`
+- `L1 GnosisSafe`: register the deployed L1 token to the L1 Skale DepositBox 
+  - - interact with contract: use the Goerli DepostBoxERC20  `0x2F4B31e661955d41bd6ab5530b117758C26C8159` , add abi, and select the function. `addERC20TokenByOwner` 
+  - - `addERC20TokenByOwner("staging-legal-crazy-castor", "0xe0E2cb3A5d6f94a5bc2D00FAa3e64460A9D241E1")`
+  - - DepositBox will not register transaction on front-page(transactions tab: must look in internal transactions)
+- L2 GnosisSafe` : 
+  - - interact with contract: TokenManager: `0xD2aAA00500000000000000000000000000000000` , add abi, and select the function. `addERC20TokenByOwner` 
+  - - `addERC20TokenByOwner("Mainnet", "0xe0E2cb3A5d6f94a5bc2D00FAa3e64460A9D241E1","0x07303E8EDff6627bb9B18c867DfBFFf512aB7975" )`
+  - - check logs within MSW tx to confirm function calls
+ 
