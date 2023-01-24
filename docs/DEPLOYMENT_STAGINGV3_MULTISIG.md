@@ -97,17 +97,31 @@ addERC20TokenByOwner("staging-legal-crazy-castor", "0xd80BC0126A38c9F7b915e1B2B9
 npx msig encodeData staging-legal-crazy-castor TokenManagerERC20 addERC20TokenByOwner Mainnet 0xd80BC0126A38c9F7b915e1B2B9f78280639cadb3 0xf5E880E1066DDc90471B9BAE6f183D5344fd289F
 ```
 
-* HMT (mock)
+  * HMT (mock) # 2
+  delete deployed contracts
 dummy test: redeploy RubyHMT and wrapper to test with the MockHMT (this will allow HMT team to use their own goerli token with the first RubyHMT deployment)
-- yarn deploy --network goerli --tags MockHMT `0xe0E2cb3A5d6f94a5bc2D00FAa3e64460A9D241E1`
-- yarn deploy --network stagingv3 --tags RubyHMT `0x07303E8EDff6627bb9B18c867DfBFFf512aB7975`
-- yarn deploy --network stagingv3 --tags WrapTokens `0x4c1a11F7Ce4172Bd70910e5E0F71110182F24224`
+- yarn deploy --network goerli --tags MockHMT `0x4058d058ff62ED347dB8a69c43Ae9C67268B50b0`
+- yarn deploy --network stagingv3 --tags RubyHMT `0x99bF0243815ffa1F4c6C8367C88D09aDaF6f42ee`
+- yarn deploy --network stagingv3 --tags WrapTokens `0x4F71f255033040C04a9e91c24779634e50ea96F5`
 - `L1 GnosisSafe`: register the deployed L1 token to the L1 Skale DepositBox 
+  - - connect to safe with signer: `0xa17538295A564E97662324a8735a6EBa3b850c57` 
   - - interact with contract: use the Goerli DepostBoxERC20  `0x2F4B31e661955d41bd6ab5530b117758C26C8159` , add abi, and select the function. `addERC20TokenByOwner` 
-  - - `addERC20TokenByOwner("staging-legal-crazy-castor", "0xe0E2cb3A5d6f94a5bc2D00FAa3e64460A9D241E1")`
+  - - 1. `addERC20TokenByOwner("staging-legal-crazy-castor", "0x4058d058ff62ED347dB8a69c43Ae9C67268B50b0")`
   - - DepositBox will not register transaction on front-page(transactions tab: must look in internal transactions)
-- L2 GnosisSafe` : 
+  - - interact with contract: use the Skale IMA MessageProxy  `0x08913E0DC2BA60A1626655581f701bCa84f42324` and generate the payload using the MSW-cli with command:
+  - - 2. `npx msig encodeData staging-legal-crazy-castor TokenManagerERC20 addERC20TokenByOwner Mainnet 0x4058d058ff62ED347dB8a69c43Ae9C67268B50b0 0x99bF0243815ffa1F4c6C8367C88D09aDaF6f42ee`
+  - - paste the output into the data encode (GS-UI), Sumbit transaction (batch transaction)
+
+- token.`approve( )` on Goerli DepostBoxERC20  `0x2F4B31e661955d41bd6ab5530b117758C26C8159` (use script) and `depositERC20` with input `staging-legal-crazy-castor` and amount from blockExplorer or script
+
+
+`altervative: register with L2`
+- `L2 GnosisSafe` : 
   - - interact with contract: TokenManager: `0xD2aAA00500000000000000000000000000000000` , add abi, and select the function. `addERC20TokenByOwner` 
-  - - `addERC20TokenByOwner("Mainnet", "0xe0E2cb3A5d6f94a5bc2D00FAa3e64460A9D241E1","0x07303E8EDff6627bb9B18c867DfBFFf512aB7975" )`
+  - - `addERC20TokenByOwner("Mainnet", "0x4058d058ff62ED347dB8a69c43Ae9C67268B50b0","0x99bF0243815ffa1F4c6C8367C88D09aDaF6f42ee" )`
   - - check logs within MSW tx to confirm function calls
+
+  Transactions: 
+  - 1. https://goerli.etherscan.io/tx/0xfc1aebca1d146a7e375059efb088b4f238364c36e92c9559d5f49b54e077223e 
+  - 2. https://goerli.etherscan.io/tx/0x6ecb7ebbc51982485ff611a6743cfffe2f9a9515c26e3442ab7eae0484205439
  
