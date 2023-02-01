@@ -57,7 +57,7 @@ manage chain configuration.
   * Signers  
   `0xc7DFdc89093E6b6C9f8D81329F09Ec5C73C6A855`  
   `0xC216...5156`   
-  `0x`
+  `0x774a5eF36b1F818788D2555742DBb3151266d1bD`
 * IMA Bridge  
   `0x8629703a9903515818C2FeB45a6f6fA5df8Da404`
 
