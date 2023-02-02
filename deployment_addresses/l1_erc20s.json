@@ -11,5 +11,7 @@
  "USDP":{"address": "0x8e870d67f660d95d5be530380d0ec0bd388289e1",
         "decimals": 18},
  "SKL":{"address": "0x00c83aecc790e8a4453e5dd3b0b4b3680501a7a7",
+        "decimals": 18},
+ "HMT":{"address": "0xd1ba9BAC957322D6e8c07a160a3A8dA11A0d2867",
         "decimals": 18}
 }

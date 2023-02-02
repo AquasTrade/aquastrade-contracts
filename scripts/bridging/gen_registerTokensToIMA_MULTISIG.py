@@ -1,3 +1,4 @@
+import sys
 import subprocess
 import json
 import os.path
@@ -20,7 +21,15 @@ def get_l2_addr(symbol):
         return dat['address']
 
 if __name__ == "__main__":
-    TOKENS = "RUBY", "DAI", "SKL", "USDP", "USDT", "USDC", "WBTC"
+    # python gen_registerTokensToIMA_MULTISIG.py
+    # python gen_registerTokensToIMA_MULTISIG.py USDT USDC
+    # python gen_registerTokensToIMA_MULTISIG.py HMT
+
+
+    TOKENS = sys.argv[1:]
+    if not TOKENS:
+        TOKENS = "RUBY", "DAI", "SKL", "USDP", "USDT", "USDC", "WBTC"
+
     for t in TOKENS:
         l1 = get_l1_addr(t)
         l2 = get_l2_addr(t)
