@@ -175,6 +175,13 @@ addERC20TokenByOwner("elated-tan-skat", "0x2260fac5e5542a773aa44fbcfedf7c193bc2c
 npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0x2260fac5e5542a773aa44fbcfedf7c193bc2c599 0xcb011E86DF014a46F4e3AC3F3cbB114A4EB80870
 ```
 
+* HMT  
+```
+addERC20TokenByOwner("elated-tan-skat", "0xd1ba9BAC957322D6e8c07a160a3A8dA11A0d2867")
+
+npx msig encodeData elated-tan-skat TokenManagerERC20 addERC20TokenByOwner Mainnet 0xd1ba9BAC957322D6e8c07a160a3A8dA11A0d2867 0xBE3530a3eDf9472693065041B8c9155C7FeCB8e5
+```
+
 Note: all these commands above were generated using
 [this script](../scripts/bridging/gen_registerTokensToIMA_MULTISIG.py).
 
