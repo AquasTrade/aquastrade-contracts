@@ -152,6 +152,7 @@ export const debugChefPools = async (masterChef: RubyMasterChef, factory?: Unisw
       const rewarderInfo = await getRewarderInfo(pool.rewarder)
       const rewarderTokenInfo = await getERC20Info(rewarderInfo.rewardToken, pool.rewarder)
       console.log("extraRewards:")
+      console.log(`  rewardContract: ${pool.rewarder}`)
       console.log(`  lpToken: ${rewarderInfo.lpToken}`)
       console.log(`  tokenPerSec: ${rewarderInfo.tokenPerSec}`)
       console.log(`  rewardToken: ${rewarderTokenInfo.symbol}`)
