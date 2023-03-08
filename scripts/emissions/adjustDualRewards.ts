@@ -1,62 +1,13 @@
-import fs from "fs";
-import { ethers, network } from "hardhat";
+import { ethers } from "hardhat";
 import { SimpleRewarderPerSec } from "../../typechain";
-const masterChefAddr = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
 
+import { getDependents } from "./utils";
+import { getFarmInfoByLpToken, debugChefPool } from "../utils";
+
+
+// WARNING: Assumes decimals=18, e.g. will not work for USDT, BTC, USDC (if we were to have dual rewards with this assets)
 const HUMAN_AMOUNT = "1";
 const INPUT_PAIR_NAME = 'usdpSKL';// usdpWBTC, usdpETHC, usdpRUBY, usdpSKL
-
-const getMasterChef = async () => {
-  const res = await ethers.getContractAt("RubyMasterChef", masterChefAddr);
-  return res;
-
-}
-
-const getDualRewarderAddress = async () => {
-
-  const pools = JSON.parse(fs.readFileSync(`./deployment_addresses/new_pools_addr.${network.name}.json`, {encoding: "utf-8"}));
-
-  const LP_ADDRESS = pools[INPUT_PAIR_NAME];
-  
-  if (typeof LP_ADDRESS === 'undefined') {
-    console.log("LP address missing")
-    return;
-  }
-
-  const masterChef = await getMasterChef();
-  const farm_pool_length = await masterChef.poolLength();
-
-  if (typeof farm_pool_length === 'undefined') {
-    console.log("getMasterChef bug")
-    return;
-  }
-
-  let address ;
-  for (let i = 0; i < farm_pool_length; i++) {
-    const farm_pool = await masterChef.poolInfo(i);
-
-    if (typeof farm_pool === 'undefined') {
-      console.log("farm_pool bug")
-      break;
-    }
-
-    const reward_contract = farm_pool.rewarder;
-    const lpToken = farm_pool.lpToken;
-
-    if (lpToken === LP_ADDRESS) {
-      console.log("matched LP Token")
-
-      if (reward_contract != '0x0000000000000000000000000000000000000000') {
-        console.log("Dual Rewarder on Farm Pool: ", i);
-        address = reward_contract;
-      }
-
-    }
-
-  }
-
-  return address;
-}
 
 const getDualRewarder = async (address: string) => {
   const rewarder: SimpleRewarderPerSec = (await ethers.getContractAt("SimpleRewarderPerSec", address)) as SimpleRewarderPerSec;
@@ -64,25 +15,42 @@ const getDualRewarder = async (address: string) => {
 }
 
 const main = async () => {
-  // WARNING: 
-  // Decimals 18 will not work for USDT, BTC, USDC (if we were to have dual rewards with this assets)
-  // Decimals 18 only supports RUBY, SKL, and USDP Dual Rewaders
-  const amount = ethers.utils.parseUnits(HUMAN_AMOUNT, 18);
-  console.log("TOKEN PER SECOND wei Value: ", amount.toString())
+  const { masterChef, factory, ssAddr, pools } = await getDependents();
 
-  const rewarder_address = await getDualRewarderAddress();
-
-  if (typeof rewarder_address === 'undefined') {
-    console.log("rewarder_address: missing ")
+  const lpTokenAddr = pools[INPUT_PAIR_NAME];
+  if (typeof lpTokenAddr === 'undefined') {
+    console.error(`error: could not find lpTokenAddr for ${INPUT_PAIR_NAME}`)
     return;
   }
 
-  const rewarder = await getDualRewarder(rewarder_address);
-  const res = await rewarder.setRewardRate(amount);
+  console.log(`Updating farming configuration for AMM pool ${INPUT_PAIR_NAME}`)
 
-  await res.wait(1);
+  const farmInfo = await getFarmInfoByLpToken(lpTokenAddr, masterChef, factory, ssAddr)
+  if (farmInfo === null) {
+    console.error(`error: could not find farm pool for AMM pair ${INPUT_PAIR_NAME}`)
+    return;
+  }
 
-  console.log("Farm Pool allocation points updated: ", res.hash)
+  if (farmInfo.rewarderInfo === null) {
+    console.error(`error: could not find farm pool dual rewarder for AMM pair ${INPUT_PAIR_NAME}`)
+    return;
+  }
+
+  const amount = ethers.utils.parseUnits(HUMAN_AMOUNT, 18);
+
+  console.log(`Updating dual reward reward token ${farmInfo.rewarderTokenInfo?.symbol} to ${HUMAN_AMOUNT}/s (${amount.toString()} wei)`)
+  
+  const rewarder = await getDualRewarder(farmInfo.rewarder);
+
+  if (false) {
+    const res = await rewarder.setRewardRate(amount);
+    await res.wait(1);
+    console.log("Dual rewarder reward rate updated: ", res.hash)
+  } else {
+    console.log("DRY RUN")
+  }
+
+  await debugChefPool(farmInfo, factory, ssAddr);
 
 }
 

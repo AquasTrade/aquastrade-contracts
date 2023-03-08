@@ -8,6 +8,9 @@ import ERC20ABI from "../abi/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20
 export const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
 export const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 
+
+export type PoolAddressesJSONDict = { [key: string]: string };
+
 type ERC20InfoType = {
   address: string,
   symbol: string,
@@ -52,6 +55,18 @@ export const getRewarderInfo = async (address: string): Promise<RewarderInfoType
     lpToken: lpToken,
     tokenPerSec: tokenPerSec
   }
+}
+
+
+export type FarmInfoType = {
+  id: number;
+  lpToken: string;
+  allocPoint: BigNumber;
+  lastRewardTimestamp: BigNumber;
+  accRubyPerShare: BigNumber;
+  rewarder: string,
+  rewarderInfo: RewarderInfoType | null;
+  rewarderTokenInfo: ERC20InfoType | null
 }
 
 
@@ -115,6 +130,72 @@ export const getUniPairInfo = async (pairAddress: string): Promise<LiquidityPool
 }
 
 
+export const getFarmInfoByID = async (id: number, masterChef: RubyMasterChef, factory?: UniswapV2Factory, ssAddr?: string): Promise<FarmInfoType> => {
+  const pool = await masterChef.poolInfo(id);
+
+  const info: FarmInfoType = {
+    id,
+    lpToken: pool.lpToken,
+    allocPoint: pool.allocPoint,
+    lastRewardTimestamp: pool.lastRewardTimestamp,
+    accRubyPerShare: pool.accRubyPerShare,
+    rewarder: pool.rewarder,
+    rewarderInfo: null,
+    rewarderTokenInfo: null
+  };
+
+  
+  if (pool.rewarder !== ZERO_ADDR) {
+    info.rewarderInfo = await getRewarderInfo(pool.rewarder);
+    info.rewarderTokenInfo = await getERC20Info(info.rewarderInfo.rewardToken, pool.rewarder)
+  }
+
+  return info
+}
+
+
+export const getFarmInfoByLpToken = async (addr: string, masterChef: RubyMasterChef, factory?: UniswapV2Factory, ssAddr?: string): Promise<FarmInfoType | null> => {
+  const numPools = await masterChef.poolLength();
+  for (let i = 0; i < numPools.toNumber(); i++) {
+    const pool = await masterChef.poolInfo(i);
+    if (pool.lpToken === addr) {
+      return getFarmInfoByID(i, masterChef, factory, ssAddr);
+    }
+  }
+  return null;
+}
+
+
+export const debugChefPool = async (farminfo: FarmInfoType, factory?: UniswapV2Factory, ssAddr?: string) => {
+  console.log(`========================================`);
+  console.log(`Pool info (ID:${farminfo.id}):`);
+
+  console.log(`LpToken addr: ${farminfo.lpToken}`);
+  if (factory) {
+    if (ssAddr !== farminfo.lpToken) {
+      const pairInfo = await getUniPairInfo(farminfo.lpToken);
+      console.log(`  token0: ${pairInfo.token0.symbol}`)
+      console.log(`  token1: ${pairInfo.token1.symbol}`)
+      console.log(`  price ${pairInfo.price}`)
+    }
+  }
+
+  console.log(`allocPoint: ${farminfo.allocPoint.toNumber()}`);
+  //console.log(`lastRewardTimestamp: ${farminfo.lastRewardTimestamp.toNumber()}`);
+  //console.log(`accRubyPerShare: ${farminfo.accRubyPerShare.toNumber()}`);
+
+  if (farminfo.rewarderInfo && farminfo.rewarderTokenInfo) {
+    console.log("extraRewards:")
+    console.log(`  rewardContract: ${farminfo.rewarder}`)
+    console.log(`  lpToken: ${farminfo.rewarderInfo.lpToken}`)
+    console.log(`  tokenPerSec: ${farminfo.rewarderInfo.tokenPerSec}`)
+    console.log(`  rewardToken: ${farminfo.rewarderTokenInfo.symbol}`)
+    console.log(`  rewardTokenBalance: ${ethers.utils.formatUnits(farminfo.rewarderTokenInfo.balance, farminfo.rewarderTokenInfo.decimals)}`)
+  }
+  console.log(`========================================`);
+}
+
+
 export const debugChefPools = async (masterChef: RubyMasterChef, factory?: UniswapV2Factory, ssAddr?: string) => {
   const [numPools, totalAllocPoint, rubyPerSec] = await Promise.all([
     masterChef.poolLength(),
@@ -130,35 +211,8 @@ export const debugChefPools = async (masterChef: RubyMasterChef, factory?: Unisw
   console.log(`========================================`);
 
   for (let i = 0; i < numPools.toNumber(); i++) {
-    const pool = await masterChef.poolInfo(i);
-    console.log(`========================================`);
-    console.log(`Pool info (ID:${i}):`);
-
-    console.log(`LpToken addr: ${pool.lpToken}`);
-    if (factory) {
-      if (ssAddr !== pool.lpToken) {
-        const pairInfo = await getUniPairInfo(pool.lpToken);
-        console.log(`  token0: ${pairInfo.token0.symbol}`)
-        console.log(`  token1: ${pairInfo.token1.symbol}`)
-        console.log(`  price ${pairInfo.price}`)
-      }
-    }
-
-    console.log(`allocPoint: ${pool.allocPoint.toNumber()}`);
-    //console.log(`lastRewardTimestamp: ${pool.lastRewardTimestamp.toNumber()}`);
-    //console.log(`accRubyPerShare: ${pool.accRubyPerShare.toNumber()}`);
-
-    if (pool.rewarder !== ZERO_ADDR) {
-      const rewarderInfo = await getRewarderInfo(pool.rewarder)
-      const rewarderTokenInfo = await getERC20Info(rewarderInfo.rewardToken, pool.rewarder)
-      console.log("extraRewards:")
-      console.log(`  rewardContract: ${pool.rewarder}`)
-      console.log(`  lpToken: ${rewarderInfo.lpToken}`)
-      console.log(`  tokenPerSec: ${rewarderInfo.tokenPerSec}`)
-      console.log(`  rewardToken: ${rewarderTokenInfo.symbol}`)
-      console.log(`  rewardTokenBalance: ${ethers.utils.formatUnits(rewarderTokenInfo.balance, rewarderTokenInfo.decimals)}`)
-    }
-    console.log(`========================================`);
+    const farminfo = await getFarmInfoByID(i, masterChef, factory, ssAddr)
+    await debugChefPool(farminfo, factory, ssAddr);
   }
 };
 
