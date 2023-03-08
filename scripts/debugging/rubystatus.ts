@@ -12,7 +12,7 @@ const main = async () => {
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", FACTORY_ADDR)) as UniswapV2Factory;
   const SS4P_LPADDR = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
 
-  console.log(`=PAIRS==================================`);
+  console.log(`=AMM POOLS / PAIRS==================================`);
   const pairAddrs = await debugPairs(factory);
 
   console.log(`=FARMS==================================`);

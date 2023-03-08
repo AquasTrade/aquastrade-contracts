@@ -185,8 +185,9 @@ export const debugPairs = async (factory: UniswapV2Factory, deployerAddr: string
     // const token1 = new ethers.Contract(token1Address, ERC20ABI, ethers.provider);
 
     console.log(`========================================`);
-    console.log("Pair debug info:");
-    console.log(`Pair addr: ${pairAddr}`);
+    console.log("AMM Pool debug info:");
+    console.log(`Pair addr (LP Token): ${pairAddr}`);
+    console.log(`Pool ID: ${i}`);
     // console.log(`Factory: ${pairFactory}`);
     console.log(`Token 0: ${pairInfo.token0.symbol}@${pairInfo.token0.address}`);
     console.log(`Token 1: ${pairInfo.token1.symbol}@${pairInfo.token1.address}`);
