@@ -27,6 +27,8 @@ RUBY Token
 
 ## Useful Debugging and Maintenance Commands
 
+* `yarn rubyStatus --network europa`  
+  prints pools and farms etc
 * `npx hardhat addresses --network stagingv3`  
   prints the addresses of important contracts and multisigs/EOAs
 * `npx hardhat balances --network stagingv3 --address 0x123`  
