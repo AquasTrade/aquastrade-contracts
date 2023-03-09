@@ -1,7 +1,8 @@
 /* eslint no-use-before-define: "warn" */
 
 import { getDependents } from "./utils";
-import { adjustPoolEmissionRate } from "./adjustPoolEmissionRate" 
+import { setPoolEmissionRate } from "./utils" 
+import { debugChefPool } from "../utils";
 
 const DRY_RUN = true;
 const POOL_IDS = {
@@ -10,15 +11,16 @@ const POOL_IDS = {
     2: 180, // ETHC
     3: 320, // RUBY
     4: 200, // 4Pool
-  //  5: 20,  // SKILL
+    5: 20,  // SKILL
 }
 
 const main = async () => {
   const { masterChef, factory, ssAddr } = await getDependents();
 
-  Object.entries(POOL_IDS).forEach(([pool_id, alloc_points]) => {
-    adjustPoolEmissionRate(DRY_RUN, Number(pool_id), alloc_points, masterChef)
-  });
+  for (const [pool_id, alloc_points] of Object.entries(POOL_IDS)) {
+    const poolInfo = await setPoolEmissionRate(DRY_RUN, Number(pool_id), alloc_points, masterChef);
+    await debugChefPool(poolInfo, factory, ssAddr);
+  }
 
 };
 
