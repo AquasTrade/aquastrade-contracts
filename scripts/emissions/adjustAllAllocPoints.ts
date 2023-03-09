@@ -5,11 +5,12 @@ import { adjustPoolEmissionRate } from "./adjustPoolEmissionRate"
 
 const DRY_RUN = true;
 const POOL_IDS = {
-    0: 100,
-    1: 100,
-    2: 100,
-    3: 100,
-    4: 100
+    0: 180, // SKL
+    1: 100, // WBTC
+    2: 180, // ETHC
+    3: 320, // RUBY
+    4: 200, // 4Pool
+  //  5: 20,  // SKILL
 }
 
 const main = async () => {
