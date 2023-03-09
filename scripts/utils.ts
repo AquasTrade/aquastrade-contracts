@@ -203,11 +203,17 @@ export const debugChefPools = async (masterChef: RubyMasterChef, factory?: Unisw
     masterChef.rubyPerSec()]
   )
 
+  // check reward token (ruby) masterchef balance
+  const rubyTokenAddr = await masterChef.RUBY();
+  const rubyToken = await getERC20Info(rubyTokenAddr,
+                                       masterChef.address)  // check balance of this address
+
   console.log(`========================================`);
   console.log("Chef info:");
   console.log("  numPools: ", numPools.toNumber());
   console.log("  totalAllocPoint: ", totalAllocPoint.toNumber());
   console.log("  rubyPerSecond: ", ethers.utils.formatUnits(rubyPerSec, 18));
+  console.log("  rubyBalance:", ethers.utils.formatUnits(rubyToken.balance, rubyToken.decimals))
   console.log(`========================================`);
 
   for (let i = 0; i < numPools.toNumber(); i++) {
