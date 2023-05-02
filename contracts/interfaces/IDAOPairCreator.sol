@@ -4,30 +4,17 @@ pragma solidity >=0.5.0;
 
 interface IDAOPairCreator {
 
-    event PairCreated(address indexed token0, address indexed token1, address pair, uint256);
-    event AdminSet(address indexed newAdmin);
-    event FeeToRecipientSet(address indexed newFeeTo);
-    event FeeDecutionSwapperSet(address indexed swapper, bool allowance);
-
-    function feeTo() external view returns (address);
-
-    function admin() external view returns (address);
-
-    function feeDeductionSwappers(address) external view returns (bool);
-
-    function getPair(address tokenA, address tokenB) external view returns (address pair);
-
-    function allPairs(uint256) external view returns (address pair);
-
-    function allPairsLength() external view returns (uint256);
-
-    function createPair(address tokenB) external returns (address pair);
-
-    function setFeeTo(address newFeeTo) external;
-
-    function setFeeDeductionSwapper(address feeDeductionSwapper, bool allowance) external;
+    function createPair(address tokenA, address tokenB) external returns (address pair);
 
     function setAdmin(address newAdmin) external;
 
+    function setFactory(address newAdmin) external;
+
+    function setRubyStaker(address newAdmin) external;
+
     function setUSDP(address usdp) external;
+
+    function setMinimumBalanceRequired(uint256 x) external;
+
+    function authorized(address user) external view returns (bool);
 }
