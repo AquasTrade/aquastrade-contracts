@@ -28,28 +28,10 @@ contract DAOPairCreator is IDAOPairCreator {
         pair = factory.createPair(tokenA, tokenB);
     }
 
-    function setFactory(address _factory) external override {
-        require(msg.sender == admin, "DAOPairCreator: FORBIDDEN");
-        require(_factory != address(0), "DAOPairCreator: INVALID_INIT_ARG");
-        factory = IUniswapV2Factory(_factory);
-    }
-
     function setAdmin(address newAdmin) external override {
         require(msg.sender == admin, "DAOPairCreator: FORBIDDEN");
         require(newAdmin != address(0), "DAOPairCreator: INVALID_INIT_ARG");
         admin = newAdmin;
-    }
-
-    function setRubyStaker(address _rubyStaker) external override {
-        require(msg.sender == admin, "DAOPairCreator: FORBIDDEN");
-        require(_rubyStaker != address(0), "DAOPairCreator: INVALID_INIT_ARG");
-        rubyStaker = _rubyStaker;
-    }
-
-    function setUSDP(address _usdp) external override {
-        require(msg.sender == admin, "DAOPairCreator: FORBIDDEN");
-        require(_usdp != address(0), "DAOPairCreator: INVALID_INIT_ARG");
-        USDP = _usdp;
     }
 
     function setMinimumBalanceRequired(uint256 x) external override {

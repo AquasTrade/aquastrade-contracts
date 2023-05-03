@@ -8,12 +8,6 @@ interface IDAOPairCreator {
 
     function setAdmin(address newAdmin) external;
 
-    function setFactory(address newAdmin) external;
-
-    function setRubyStaker(address newAdmin) external;
-
-    function setUSDP(address usdp) external;
-
     function setMinimumBalanceRequired(uint256 x) external;
 
     function authorized(address user) external view returns (bool);
