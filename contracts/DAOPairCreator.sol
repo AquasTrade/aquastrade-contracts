@@ -77,6 +77,8 @@ contract DAOPairCreator is IDAOPairCreator {
             TransferHelper.safeTransferFrom(tokenA, address(this), msg.sender, amountADesired - amountA);
         if (amountBDesired > amountB)
             TransferHelper.safeTransferFrom(tokenB, address(this), msg.sender, amountBDesired - amountB);
+        TransferHelper.safeApprove(tokenA, address(router), 0);
+        TransferHelper.safeApprove(tokenB, address(router), 0);
     }
 
     function setAdmin(address newAdmin) external override {
