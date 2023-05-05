@@ -27,7 +27,7 @@ contract DAOPairCreator is IDAOPairCreator {
         require(_router != address(0), "DAOPairCreator: INVALID_INIT_ARG");
         require(_usdp != address(0), "DAOPairCreator: INVALID_INIT_ARG");
         admin = _admin;
-        factory = IUniswapV2Factory(factory);
+        factory = IUniswapV2Factory(_factory);
         router = IUniswapV2Router02(_router);
         USDP = _usdp;
         rubyStaker = _rubyStaker;
