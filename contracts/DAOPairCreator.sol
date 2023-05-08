@@ -13,7 +13,8 @@ contract DAOPairCreator is IDAOPairCreator {
     address public admin;
     address public USDP;
     address public rubyStaker;
-    uint256 public minimumBalanceRequired = 100000 ether;
+    uint256 public minimumUnlockedBalance = 0;
+    uint256 public minimumLockedBalance = 100000 ether;
 
     constructor(
         address _admin,
@@ -34,7 +35,7 @@ contract DAOPairCreator is IDAOPairCreator {
     }
 
     function createPair(address tokenA, address tokenB) external override returns (address pair) {
-        require(authorized(msg.sender), "DAOPairCreator: FORBIDDEN");
+        authorized(msg.sender);
         require(tokenA == USDP || tokenB == USDP, "DAOPairCreator: INVALID_TOKEN");
         pair = factory.createPair(tokenA, tokenB);
     }
@@ -57,7 +58,7 @@ contract DAOPairCreator is IDAOPairCreator {
             uint256 liquidity
         )
     {
-        require(authorized(msg.sender), "DAOPairCreator: FORBIDDEN");
+        authorized(msg.sender);
         require(tokenA == USDP || tokenB == USDP, "DAOPairCreator: INVALID_TOKEN");
         TransferHelper.safeTransferFrom(tokenA, msg.sender, address(this), amountADesired);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, address(this), amountBDesired);
@@ -87,9 +88,10 @@ contract DAOPairCreator is IDAOPairCreator {
         admin = newAdmin;
     }
 
-    function setMinimumBalanceRequired(uint256 x) external override {
+    function setMinimumBalanceRequired(uint256 unlocked, uint256 locked) external override {
         require(msg.sender == admin, "DAOPairCreator: FORBIDDEN");
-        minimumBalanceRequired = x;
+        minimumUnlockedBalance = unlocked;
+        minimumLockedBalance = locked;
     }
 
     function authorized(address user) public view override returns (bool) {
@@ -103,6 +105,8 @@ contract DAOPairCreator is IDAOPairCreator {
         );
         require(success1, "DAOPairCreator: INVALID_CALL");
         uint256 locked = abi.decode(lockedData, (uint256));
-        return unlocked > minimumBalanceRequired || locked > minimumBalanceRequired;
+        require(unlocked >= minimumUnlockedBalance, "DAOPairCreator: INSUFFICIENT UNLOCKED RUBY");
+        require(locked >= minimumLockedBalance, "DAOPairCreator: INSUFFICIENT LOCKED RUBY");
+        return true;
     }
 }

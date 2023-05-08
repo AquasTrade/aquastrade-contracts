@@ -4,6 +4,8 @@ import { deployAMM, deployNftsAndNftAdmin, deployRubyStaker } from "./utilities/
 
 describe("DAOPairCreator", function () {
   const transferAmount = ethers.utils.parseUnits("1000000", 18);
+  const minLockedRequired = ethers.utils.parseUnits("10000", 18);
+  const minUnlockedRequired = ethers.utils.parseUnits("100", 18);
   beforeEach(async function () {
     this.signers = await ethers.getSigners();
     this.owner = this.signers[0];
@@ -32,11 +34,8 @@ describe("DAOPairCreator", function () {
     const ownerBalance = await this.ruby.balanceOf(this.owner.address);
 
     await this.ruby.transfer(this.alice.address, transferAmount);
-    await this.ruby.transfer(this.bob.address, transferAmount);
     await this.usdp.transfer(this.alice.address, transferAmount);
-    await this.usdp.transfer(this.bob.address, transferAmount);
     await this.erc20.transfer(this.alice.address, transferAmount);
-    await this.erc20.transfer(this.bob.address, transferAmount);
 
     this.staker = await deployRubyStaker(this.owner.address, this.ruby.address, 5);
 
@@ -50,67 +49,66 @@ describe("DAOPairCreator", function () {
     );
     await this.dao.deployed();
 
-    await this.factory.setPairCreator(this.dao.address, true);
+    await this.dao.setMinimumBalanceRequired(minUnlockedRequired, minLockedRequired);
     await this.factory.setPairCreator(this.router.address, true);
 
     await this.ruby.approve(this.staker.address, ownerBalance);
     await this.ruby.connect(this.alice).approve(this.staker.address, transferAmount);
-    await this.ruby.connect(this.bob).approve(this.staker.address, transferAmount);
     await this.usdp.connect(this.alice).approve(this.dao.address, transferAmount);
-    await this.usdp.connect(this.bob).approve(this.dao.address, transferAmount);
     await this.erc20.connect(this.alice).approve(this.dao.address, transferAmount);
-    await this.erc20.connect(this.bob).approve(this.dao.address, transferAmount);
-
-    expect(await this.staker.connect(this.bob).stake(transferAmount, true))
-      .to.emit(this.staker, "Staked")
-      .withArgs(this.bob.address, transferAmount);
   });
 
   describe("createPair", function () {
-    it("should revert when not authorized", async function () {
-      await expect(this.dao.connect(this.alice).createPair(this.usdp.address, this.erc20.address)).to.be.revertedWith(
-        "DAOPairCreator: FORBIDDEN",
-      );
-    });
-
-    it("should revert if invalid token is passed", async function () {
-      await expect(this.dao.connect(this.bob).createPair(this.ruby.address, this.erc20.address)).to.be.revertedWith(
-        "DAOPairCreator: INVALID_TOKEN",
-      );
-    });
-
     it("should revert when user has insufficient locked ruby", async function () {
-      const transferAmount = ethers.utils.parseUnits("10000", 18);
-      expect(await this.staker.connect(this.alice).stake(transferAmount, true))
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
         .to.emit(this.staker, "Staked")
-        .withArgs(this.alice.address, transferAmount);
+        .withArgs(this.alice.address, minUnlockedRequired);
       await expect(this.dao.connect(this.alice).createPair(this.usdp.address, this.erc20.address)).to.be.revertedWith(
-        "DAOPairCreator: FORBIDDEN",
+        "DAOPairCreator: INSUFFICIENT LOCKED RUBY",
       );
     });
 
     it("should revert when user has insufficient unlocked ruby", async function () {
-      const transferAmount = ethers.utils.parseUnits("10000", 18);
-      expect(await this.staker.connect(this.alice).stake(transferAmount, false))
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
         .to.emit(this.staker, "Staked")
-        .withArgs(this.alice.address, transferAmount);
+        .withArgs(this.alice.address, minLockedRequired);
       await expect(this.dao.connect(this.alice).createPair(this.usdp.address, this.erc20.address)).to.be.revertedWith(
-        "DAOPairCreator: FORBIDDEN",
+        "DAOPairCreator: INSUFFICIENT UNLOCKED RUBY",
       );
     });
 
-    it("should create a new pair successfully (user who has locked ruby)", async function () {
-      await expect(this.dao.connect(this.bob).createPair(this.usdp.address, this.erc20.address)).to.emit(
-        this.factory,
-        "PairCreated",
-      );
-    });
-
-    it("should create a new pair successfully (user who has unlocked ruby", async function () {
-      const transferAmount = ethers.utils.parseUnits("1000000", 18);
-      expect(await this.staker.connect(this.alice).stake(transferAmount, false))
+    it("should revert if invalid token is passed", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
         .to.emit(this.staker, "Staked")
-        .withArgs(this.alice.address, transferAmount);
+        .withArgs(this.alice.address, minUnlockedRequired);
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minLockedRequired);
+      await expect(this.dao.connect(this.alice).createPair(this.ruby.address, this.erc20.address)).to.be.revertedWith(
+        "DAOPairCreator: INVALID_TOKEN",
+      );
+    });
+
+    it("should revert if DAOPairCreator is not set as pair creator of factory", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minUnlockedRequired);
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minLockedRequired);
+      await expect(this.dao.connect(this.alice).createPair(this.usdp.address, this.erc20.address)).to.be.revertedWith(
+        "UniswapV2: FORBIDDEN",
+      );
+    });
+
+    it("should create a new pair successfully", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minUnlockedRequired);
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minLockedRequired);
+      await this.factory.setPairCreator(this.dao.address, true);
       await expect(this.dao.connect(this.alice).createPair(this.usdp.address, this.erc20.address)).to.emit(
         this.factory,
         "PairCreated",
@@ -119,7 +117,10 @@ describe("DAOPairCreator", function () {
   });
 
   describe("addLiquidity", function () {
-    it("should revert when not authorized", async function () {
+    it("should revert when user has insufficient locked ruby", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minUnlockedRequired);
       const blockNumber = await ethers.provider.getBlockNumber();
       const blockData = await ethers.provider.getBlock(blockNumber);
       const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
@@ -134,86 +135,21 @@ describe("DAOPairCreator", function () {
             transferAmount,
             transferAmount,
             this.alice.address,
-            deadline
+            deadline,
           ),
-      ).to.be.revertedWith("DAOPairCreator: FORBIDDEN");
-    });
-
-    it("should revert if invalid token is passed", async function () {
-      const blockNumber = await ethers.provider.getBlockNumber();
-      const blockData = await ethers.provider.getBlock(blockNumber);
-      const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
-      await expect(
-        this.dao
-          .connect(this.bob)
-          .addLiquidity(
-            this.ruby.address,
-            this.erc20.address,
-            transferAmount,
-            transferAmount,
-            transferAmount,
-            transferAmount,
-            this.bob.address,
-            deadline
-          ),
-      ).to.be.revertedWith("DAOPairCreator: INVALID_TOKEN");
-    });
-
-    it("should revert when user has insufficient locked ruby", async function () {
-      const transferAmount = ethers.utils.parseUnits("10000", 18);
-      expect(await this.staker.connect(this.alice).stake(transferAmount, true))
-        .to.emit(this.staker, "Staked")
-        .withArgs(this.alice.address, transferAmount);
-        const blockNumber = await ethers.provider.getBlockNumber();
-        const blockData = await ethers.provider.getBlock(blockNumber);
-        const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
-        await expect(
-          this.dao
-            .connect(this.alice)
-            .addLiquidity(
-              this.usdp.address,
-              this.erc20.address,
-              transferAmount,
-              transferAmount,
-              transferAmount,
-              transferAmount,
-              this.alice.address,
-              deadline
-            ),
-        ).to.be.revertedWith("DAOPairCreator: FORBIDDEN");
+      ).to.be.revertedWith("DAOPairCreator: INSUFFICIENT LOCKED RUBY");
     });
 
     it("should revert when user has insufficient unlocked ruby", async function () {
-      const transferAmount = ethers.utils.parseUnits("10000", 18);
-      expect(await this.staker.connect(this.alice).stake(transferAmount, false))
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
         .to.emit(this.staker, "Staked")
-        .withArgs(this.alice.address, transferAmount);
-        const blockNumber = await ethers.provider.getBlockNumber();
-        const blockData = await ethers.provider.getBlock(blockNumber);
-        const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
-        await expect(
-          this.dao
-            .connect(this.alice)
-            .addLiquidity(
-              this.usdp.address,
-              this.erc20.address,
-              transferAmount,
-              transferAmount,
-              transferAmount,
-              transferAmount,
-              this.alice.address,
-              deadline
-            ),
-        ).to.be.revertedWith("DAOPairCreator: FORBIDDEN");
-    });
-
-    it("should create a new pair successfully (user who has locked ruby)", async function () {
+        .withArgs(this.alice.address, minLockedRequired);
       const blockNumber = await ethers.provider.getBlockNumber();
       const blockData = await ethers.provider.getBlock(blockNumber);
       const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
       await expect(
         this.dao
-          .connect(this.bob)
+          .connect(this.alice)
           .addLiquidity(
             this.usdp.address,
             this.erc20.address,
@@ -221,34 +157,89 @@ describe("DAOPairCreator", function () {
             transferAmount,
             transferAmount,
             transferAmount,
-            this.bob.address,
-            deadline
+            this.alice.address,
+            deadline,
           ),
-      ).to.emit(this.factory, "PairCreated");
+      ).to.be.revertedWith("DAOPairCreator: INSUFFICIENT UNLOCKED RUBY");
     });
 
-    it("should create a new pair successfully (user who has unlocked ruby", async function () {
-      const transferAmount = ethers.utils.parseUnits("1000000", 18);
-      expect(await this.staker.connect(this.alice).stake(transferAmount, false))
+    it("should revert if invalid token is passed", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
         .to.emit(this.staker, "Staked")
-        .withArgs(this.alice.address, transferAmount);
-        const blockNumber = await ethers.provider.getBlockNumber();
-        const blockData = await ethers.provider.getBlock(blockNumber);
-        const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
-        await expect(
-          this.dao
-            .connect(this.alice)
-            .addLiquidity(
-              this.usdp.address,
-              this.erc20.address,
-              transferAmount,
-              transferAmount,
-              transferAmount,
-              transferAmount,
-              this.alice.address,
-              deadline
-            ),
-        ).to.emit(this.factory, "PairCreated");
+        .withArgs(this.alice.address, minUnlockedRequired);
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minLockedRequired);
+      const blockNumber = await ethers.provider.getBlockNumber();
+      const blockData = await ethers.provider.getBlock(blockNumber);
+      const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+      await expect(
+        this.dao
+          .connect(this.alice)
+          .addLiquidity(
+            this.ruby.address,
+            this.erc20.address,
+            transferAmount,
+            transferAmount,
+            transferAmount,
+            transferAmount,
+            this.alice.address,
+            deadline,
+          ),
+      ).to.be.revertedWith("DAOPairCreator: INVALID_TOKEN");
+    });
+
+    it("should revert if DAOPairCreator is not set as pair creator of factory", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minUnlockedRequired);
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minLockedRequired);
+      const blockNumber = await ethers.provider.getBlockNumber();
+      const blockData = await ethers.provider.getBlock(blockNumber);
+      const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+      await expect(
+        this.dao
+          .connect(this.alice)
+          .addLiquidity(
+            this.usdp.address,
+            this.erc20.address,
+            transferAmount,
+            transferAmount,
+            transferAmount,
+            transferAmount,
+            this.alice.address,
+            deadline,
+          ),
+      ).to.be.revertedWith("UniswapV2Router: PAIR_NOT_CREATED");
+    });
+
+    it("should addLiquidity successfully", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minUnlockedRequired);
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minLockedRequired);
+      await this.factory.setPairCreator(this.dao.address, true);
+      const blockNumber = await ethers.provider.getBlockNumber();
+      const blockData = await ethers.provider.getBlock(blockNumber);
+      const deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+      await expect(
+        this.dao
+          .connect(this.alice)
+          .addLiquidity(
+            this.usdp.address,
+            this.erc20.address,
+            transferAmount,
+            transferAmount,
+            transferAmount,
+            transferAmount,
+            this.alice.address,
+            deadline,
+          ),
+      ).to.emit(this.factory, "PairCreated");
     });
   });
 });

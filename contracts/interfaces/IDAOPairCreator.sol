@@ -7,7 +7,7 @@ interface IDAOPairCreator {
 
     function setAdmin(address newAdmin) external;
 
-    function setMinimumBalanceRequired(uint256 x) external;
+    function setMinimumBalanceRequired(uint256 unlocked, uint256 locked) external;
 
     function authorized(address user) external view returns (bool);
 
