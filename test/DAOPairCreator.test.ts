@@ -215,7 +215,7 @@ describe("DAOPairCreator", function () {
       ).to.be.revertedWith("UniswapV2Router: PAIR_NOT_CREATED");
     });
 
-    it("should addLiquidity successfully", async function () {
+    it("should addLiquidity successfully - 1", async function () {
       expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
         .to.emit(this.staker, "Staked")
         .withArgs(this.alice.address, minUnlockedRequired);
@@ -234,12 +234,79 @@ describe("DAOPairCreator", function () {
             this.erc20.address,
             transferAmount,
             transferAmount,
-            transferAmount,
-            transferAmount,
+            0,
+            0,
             this.alice.address,
             deadline,
           ),
       ).to.emit(this.factory, "PairCreated");
+      const pairAddress = this.factory.getPair(this.usdp.address, this.erc20.address);
+      const aliceUsdpBalance = await this.usdp.balanceOf(this.alice.address);
+      const pairUsdpBalance = await this.usdp.balanceOf(pairAddress);
+      expect(aliceUsdpBalance.add(pairUsdpBalance)).to.be.equal(transferAmount);
+
+      const aliceErc20Balance = await this.erc20.balanceOf(this.alice.address);
+      const pairErc20Balance = await this.erc20.balanceOf(pairAddress);
+      expect(aliceErc20Balance.add(pairErc20Balance)).to.be.equal(transferAmount);
+    });
+
+    it("should addLiquidity successfully - 2", async function () {
+      expect(await this.staker.connect(this.alice).stake(minUnlockedRequired, false))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minUnlockedRequired);
+      expect(await this.staker.connect(this.alice).stake(minLockedRequired, true))
+        .to.emit(this.staker, "Staked")
+        .withArgs(this.alice.address, minLockedRequired);
+      await this.factory.setPairCreator(this.dao.address, true);
+      const liquidityAmount = ethers.utils.parseUnits("10000", 18);
+      let blockNumber = await ethers.provider.getBlockNumber();
+      let blockData = await ethers.provider.getBlock(blockNumber);
+      let deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+      await expect(
+        this.dao
+          .connect(this.alice)
+          .addLiquidity(
+            this.usdp.address,
+            this.erc20.address,
+            liquidityAmount,
+            liquidityAmount.mul(2),
+            0,
+            0,
+            this.alice.address,
+            deadline,
+          ),
+      ).to.emit(this.factory, "PairCreated");
+      let pairAddress = this.factory.getPair(this.usdp.address, this.erc20.address);
+      let aliceUsdpBalance = await this.usdp.balanceOf(this.alice.address);
+      let pairUsdpBalance = await this.usdp.balanceOf(pairAddress);
+      expect(aliceUsdpBalance.add(pairUsdpBalance)).to.be.equal(transferAmount);
+
+      let aliceErc20Balance = await this.erc20.balanceOf(this.alice.address);
+      let pairErc20Balance = await this.erc20.balanceOf(pairAddress);
+      expect(aliceErc20Balance.add(pairErc20Balance)).to.be.equal(transferAmount);
+
+      blockNumber = await ethers.provider.getBlockNumber();
+      blockData = await ethers.provider.getBlock(blockNumber);
+      deadline = ethers.BigNumber.from(blockData.timestamp + 23600);
+      await this.dao
+        .connect(this.alice)
+        .addLiquidity(
+          this.usdp.address,
+          this.erc20.address,
+          liquidityAmount,
+          liquidityAmount,
+          0,
+          0,
+          this.alice.address,
+          deadline,
+        );
+      aliceUsdpBalance = await this.usdp.balanceOf(this.alice.address);
+      pairUsdpBalance = await this.usdp.balanceOf(pairAddress);
+      expect(aliceUsdpBalance.add(pairUsdpBalance)).to.be.equal(transferAmount);
+
+      aliceErc20Balance = await this.erc20.balanceOf(this.alice.address);
+      pairErc20Balance = await this.erc20.balanceOf(pairAddress);
+      expect(aliceErc20Balance.add(pairErc20Balance)).to.be.equal(transferAmount);
     });
   });
 });

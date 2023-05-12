@@ -75,9 +75,9 @@ contract DAOPairCreator is IDAOPairCreator {
             deadline
         );
         if (amountADesired > amountA)
-            TransferHelper.safeTransferFrom(tokenA, address(this), msg.sender, amountADesired - amountA);
+            TransferHelper.safeTransfer(tokenA, msg.sender, amountADesired - amountA);
         if (amountBDesired > amountB)
-            TransferHelper.safeTransferFrom(tokenB, address(this), msg.sender, amountBDesired - amountB);
+            TransferHelper.safeTransfer(tokenB, msg.sender, amountBDesired - amountB);
         TransferHelper.safeApprove(tokenA, address(router), 0);
         TransferHelper.safeApprove(tokenB, address(router), 0);
     }
