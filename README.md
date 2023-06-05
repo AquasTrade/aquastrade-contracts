@@ -23,7 +23,7 @@ RUBY Token
 * testing  
   `$ npx hardhat test --network hardhat test/lottery/LotteryBurner.test.ts`
 * interactive console  
-  `$ npx hardhat console --network rubyNewChain`
+  `$ npx hardhat console --network stagingv3`
 
 ## Useful Debugging and Maintenance Commands
 
