@@ -5,4 +5,4 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SkaleMappedERC20Token.sol";
 
-contract EuropaWBOND is SkaleMappedERC20Token("War Bond", "WBOND", 18) {}
+contract EuropaWBOND is SkaleMappedERC20Token("Nebula War Bond Token", "WBOND", 18) {}
