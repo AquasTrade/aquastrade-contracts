@@ -98,10 +98,18 @@ def parse_artifact(path):
 
 
 if __name__ == "__main__":
+    import pprint
+
+    types = {'Ownable': [],
+             'BoringOwnable': [],
+             'GrantRole': [],
+             '_Implementation.json': [],
+             None: []
+    }
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--network', help='network containing all deployments', default='europa')
     parser.add_argument('--file', help='json deployment artifact')
-    parser.add_argument('--all', action='store_true', help='also print non-ownable scs')
     args = parser.parse_args()
 
     if args.file:
@@ -110,9 +118,13 @@ if __name__ == "__main__":
         print('NETWORK:', args.network)
         d = os.path.join(os.path.dirname(__file__), '..', '..', 'deployments', args.network)
         for p in glob.glob(os.path.join(d, '*.json')):
+            if p.endswith('_Implementation.json'):
+                types['_Implementation.json'].append(os.path.basename(p))
+                continue
+
             res = parse_artifact(p)
-            if res[0] or ((res[0] is None) and args.all):
-                print(res)
+            types[res[0]].append(res[1:])
     else:
         raise parser.error('specify one of --network or --file')
 
+    pprint.pprint(types, width=120)
