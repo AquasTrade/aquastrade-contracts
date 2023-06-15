@@ -127,6 +127,7 @@ if __name__ == "__main__":
              'GrantRole': [],
              'setAdmin': [],
              '_Implementation.json': [],
+             '_Proxy.json': [],
              None: []
     }
 
@@ -140,9 +141,12 @@ if __name__ == "__main__":
     elif args.network:
         print('NETWORK:', args.network)
         d = os.path.join(os.path.dirname(__file__), '..', '..', 'deployments', args.network)
-        for p in glob.glob(os.path.join(d, '*.json')):
+        for p in sorted(glob.glob(os.path.join(d, '*.json'))):
             if p.endswith('_Implementation.json'):
                 types['_Implementation.json'].append(os.path.basename(p))
+                continue
+            if p.endswith('_Proxy.json'):
+                types['_Proxy.json'].append(os.path.basename(p))
                 continue
 
             res = parse_artifact(p)
@@ -151,3 +155,4 @@ if __name__ == "__main__":
         raise parser.error('specify one of --network or --file')
 
     pprint.pprint(types, width=120)
+    
