@@ -48,8 +48,26 @@ GRANT_ROLE_ABI_INPUTS = [
       ]
 
 
+SET_ADDRESS_ABI_INPUTS = [
+    {
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+    }
+]
+
+
 def _is_function(entry, name):
     return entry.get('type') == 'function' and entry.get('name') == name
+
+
+def is_set_admin(abi):
+    for entry in abi:
+        if _is_function(entry, 'setAdmin'):
+            if entry['inputs'] == SET_ADDRESS_ABI_INPUTS:
+                return "setAdmin"
+    return None
+
 
 def is_ownable(abi):
     for entry in abi:
@@ -89,10 +107,14 @@ def parse_artifact(path):
         if io and iac:
             raise Exception('%s is both Ownable and AccessControl' % name)
 
+        isa = is_set_admin(abi)
+
         if io:
             return io, name, addy
         elif iac:
             return iac, name, addy
+        elif isa:
+            return isa, name, addy
         else:
             return None, name, addy
 
@@ -103,6 +125,7 @@ if __name__ == "__main__":
     types = {'Ownable': [],
              'BoringOwnable': [],
              'GrantRole': [],
+             'setAdmin': [],
              '_Implementation.json': [],
              None: []
     }
