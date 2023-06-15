@@ -1,13 +1,14 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-import { PROFILE_NFT_DETAILS, PROFILE_NFT_APPEARANCE, FREE_SWAP_NFT_APPEARANCE, FREE_SWAP_NFT_DETAILS, PROFILE_NFT_DETAILS_MAINNET } from "../constants";
+import { PROFILE_NFT_DETAILS, PROFILE_NFT_APPEARANCE, FREE_SWAP_NFT_APPEARANCE, FREE_SWAP_NFT_DETAILS, PROFILE_NFT_DETAILS_MAINNET, FREE_DCA_NFT_DETAILS, FREE_DCA_NFT_APPEARANCE } from "../constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { ethers, network } = hre;
 
   const rubyFreeSwapNFT = await ethers.getContract("RubyFreeSwapNFT");
   const rubyProfileNft = await ethers.getContract("RubyProfileNFT");
+  const rubyFreeDCANFT = await ethers.getContract("RubyFreeDCANFT");
 
   let tx, description, appearance;
 
@@ -18,6 +19,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   tx = await rubyFreeSwapNFT.setVisualAppearance(appearance)
   await tx.wait(1);
   console.log("Set RubyFreeSwapNFT description and appearance");
+
+  description = JSON.stringify(FREE_DCA_NFT_DETAILS);
+  appearance = JSON.stringify(FREE_DCA_NFT_APPEARANCE);
+  tx = await rubyFreeDCANFT.setDescription(description)
+  await tx.wait(1);
+  tx = await rubyFreeDCANFT.setVisualAppearance(appearance)
+  await tx.wait(1);
+  console.log("Set RubyFreeDCANFT description and appearance");
 
   if (network.name === "europa") {
     description = JSON.stringify(PROFILE_NFT_DETAILS_MAINNET);

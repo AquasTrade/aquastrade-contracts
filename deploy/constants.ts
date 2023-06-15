@@ -14,6 +14,21 @@ export const FREE_SWAP_NFT_APPEARANCE = {
     "color": "#ff00ff",
 };
 
+export const FREE_DCA_NFT_DETAILS = {
+    "description": "Holding this NFT will grant the ability to use the DCA feature for free on Ruby Exchange",
+    "title": "Zero DCA Fees",
+    "previewImage": "https://static.ruby.exchange/freedca.png",
+};
+
+export const FREE_DCA_NFT_APPEARANCE = {
+    "type": "nft",
+    "model_type": "emerald",
+    "surface_wear": 0,
+    "edge_wear": 0,
+    "deformation": 0,
+    "color": "#d8d813",
+};
+
 export const PROFILE_NFT_DETAILS = {
     "description": "Your unique 3D profile gem on Ruby Exchange",
     "title": "Profile NFT",
