@@ -188,7 +188,7 @@ export const debugChefPool = async (farminfo: FarmInfoType, factory?: UniswapV2F
     console.log("extraRewards:")
     console.log(`  rewardContract: ${farminfo.rewarder}`)
     console.log(`  lpToken: ${farminfo.rewarderInfo.lpToken}`)
-    console.log(`  tokenPerSec: ${farminfo.rewarderInfo.tokenPerSec}`)
+    console.log(`  tokenPerSec (wei): ${farminfo.rewarderInfo.tokenPerSec}`)
     console.log(`  rewardToken: ${farminfo.rewarderTokenInfo.symbol}`)
     console.log(`  rewardTokenBalance: ${ethers.utils.formatUnits(farminfo.rewarderTokenInfo.balance, farminfo.rewarderTokenInfo.decimals)}`)
   }

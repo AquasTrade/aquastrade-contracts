@@ -6,8 +6,8 @@ import { getFarmInfoByLpToken, debugChefPool } from "../utils";
 
 const DRY_RUN = true;
 // WARNING: Assumes decimals=18, e.g. will not work for USDT, BTC, USDC (if we were to have dual rewards with this assets)
-const HUMAN_AMOUNT = "1";
-const INPUT_PAIR_NAME = 'usdpSKL';// usdpWBTC, usdpETHC, usdpRUBY, usdpSKL
+const HUMAN_AMOUNT = "0";
+const INPUT_PAIR_NAME = 'usdpETHC';// usdpWBTC, usdpETHC, usdpRUBY, usdpSKL
 
 const getDualRewarder = async (address: string) => {
   const rewarder: SimpleRewarderPerSec = (await ethers.getContractAt("SimpleRewarderPerSec", address)) as SimpleRewarderPerSec;
