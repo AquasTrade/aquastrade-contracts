@@ -6,7 +6,6 @@ Please check out the `docs` directory for more info.
 
 Deployer
 * L1,L2: `0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5`
-* L2(testnet): `0xF63Bb14E7E9bD2882957129c3E3197E6D18933B4`
 
 ## Quickstart
 
@@ -49,4 +48,17 @@ This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at li
 ## Europa Mainnet 
 - ```yarn deploy --network europa --tags UniswapV2Factory```
 - ```yarn deploy --network europa --tags UniswapV2Router02```
+- ```yarn deploy --network europa --tags SeedAMM```
+- ```yarn deploy --network europa --tags SeedNFTAdmin```
+- ```yarn deploy --network europa --tags SeedProfileNFT```
+
+- ```yarn aqua-dex --network europa```
+
+# setting up AMM pools 
+- only 18 decimal - no WBTC , no USDC, or USDT 
+- AQUA - USDP 
+- AQUA - DAI 
+- AQUA = 0.01 USD , 100 AQUA = $1.00 
+
+# forgot to change the pairs.sol contract name. Ruby LP ==> its fine, just shows that its a fork =) 
 

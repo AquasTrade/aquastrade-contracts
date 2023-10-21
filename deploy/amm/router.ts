@@ -11,21 +11,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log(`reusing "UniswapV2Router" at ${UniswapV2Router.address}`);
   } else {
     const factoryAddress = (await ethers.getContract("UniswapV2Factory")).address;
+   // const factoryAddress = (await get("UniswapV2Factory")).address;
     const nftAdminAddress = (await get("NFTAdmin")).address;
 
-    await deploy("UniswapV2Router02", {
-      from: deployer,
-      log: true,
-      proxy: {
-        viaAdminContract: "RubyProxyAdmin",
-        proxyContract: "OpenZeppelinTransparentProxy",
-        execute: {
-          methodName: "initialize",
-          args: [deployer, factoryAddress, nftAdminAddress],
+    if(nftAdminAddress && factoryAddress){
+      await deploy("UniswapV2Router02", {
+        from: deployer,
+        log: true,
+        proxy: {
+          viaAdminContract: "RubyProxyAdmin",
+          proxyContract: "OpenZeppelinTransparentProxy",
+          execute: {
+            methodName: "initialize",
+            args: [deployer, factoryAddress, nftAdminAddress],
+          },
         },
-      },
-      skipIfAlreadyDeployed: true,
-    });
+        skipIfAlreadyDeployed: true,
+      });
+    }else{
+      console.log("network error or contracts not deployed yet");
+    }
+
+    
   }
 };
 

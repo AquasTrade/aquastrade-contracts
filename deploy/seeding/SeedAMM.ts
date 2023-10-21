@@ -8,25 +8,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const UniswapV2Factory = await ethers.getContract("UniswapV2Factory");
   const UniswapV2Router02 = await ethers.getContract("UniswapV2Router02");
-  const RubyMaker = await get("RubyMaker");
-  
-  let tx = await UniswapV2Factory.setPairCreator(deployer, true);
+
+  let tx = await UniswapV2Factory.setFeeDeductionSwapper(UniswapV2Router02.address, true);
   await tx.wait(1);
 
-  tx = await UniswapV2Factory.setPairCreator(UniswapV2Router02.address, true);
-  await tx.wait(1);
-
-  tx = await UniswapV2Factory.setFeeDeductionSwapper(UniswapV2Router02.address, true);
-  await tx.wait(1);
-
-  tx = await UniswapV2Factory.setFeeTo(RubyMaker.address);
+  tx = await UniswapV2Factory.setFeeTo(deployer);
   await tx.wait(1);
 
   const feeTo = await UniswapV2Factory.feeTo();
   console.log("fee to", feeTo);
-
 };
 export default func;
 
-func.dependencies = ["UniswapV2Router02", "RubyMaker"];
+func.dependencies = ["UniswapV2Router02"];
 func.tags = ["SeedAMM"];
