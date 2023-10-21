@@ -3,4 +3,4 @@ pragma solidity 0.6.12;
 
 import "./NFT.sol";
 
-contract RubyFreeSwapNFT is NFT {}
+contract GoldSwapNFT is NFT {}
