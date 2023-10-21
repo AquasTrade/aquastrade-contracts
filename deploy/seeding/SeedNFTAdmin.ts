@@ -5,7 +5,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers } = hre;
   const { get } = deployments;
 
-  const RubyNFTAdmin = await ethers.getContract("RubyNFTAdmin");
+  const RubyNFTAdmin = await ethers.getContract("NFTAdmin");
   const RubyRouter = await get("RubyRouter");
 
   const tx = await RubyNFTAdmin.setMinter(RubyRouter.address, true);
@@ -18,5 +18,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["RubyProxyAdmin", "RubyNFTAdmin", "RubyRouter"];
+func.dependencies = ["RubyProxyAdmin", "NFTAdmin", "RubyRouter"];
 func.tags = ["SeedNFTAdmin"];

@@ -46,3 +46,7 @@ This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at li
 - sends to Aqua Deployer
 ```yarn deploy --network stagingv3 --tags SeedRubyProfileNFT```
 
+## Europa Mainnet 
+- ```yarn deploy --network europa --tags UniswapV2Factory```
+- ```yarn deploy --network europa --tags UniswapV2Router02```
+

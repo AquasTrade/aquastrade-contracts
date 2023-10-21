@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log(`reusing "UniswapV2Router" at ${UniswapV2Router.address}`);
   } else {
     const factoryAddress = (await ethers.getContract("UniswapV2Factory")).address;
-    const nftAdminAddress = (await get("RubyNFTAdmin")).address;
+    const nftAdminAddress = (await get("NFTAdmin")).address;
 
     await deploy("UniswapV2Router02", {
       from: deployer,
@@ -29,7 +29,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 };
 
-func.dependencies = ["UniswapV2Factory", "RubyNFTAdmin"];
+func.dependencies = ["UniswapV2Factory", "NFTAdmin"];
 func.tags = ["UniswapV2Router02", "AMM"];
 
 export default func;
