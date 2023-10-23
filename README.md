@@ -17,9 +17,8 @@ Deployer
 ## Useful Debugging and Maintenance Commands
 
 * `yarn rubyStatus --network europa`  
-  prints pools and farms etc
-* `npx hardhat addresses --network stagingv3`  
-  prints the addresses of important contracts and multisigs/EOAs
+  prints pools 
+
 * `npx hardhat balances --network stagingv3 --address 0x123`  
   prints the balances of native and a number of tokens of the supplied address
 
@@ -51,8 +50,20 @@ This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at li
 - ```yarn deploy --network europa --tags SeedAMM```
 - ```yarn deploy --network europa --tags SeedNFTAdmin```
 - ```yarn deploy --network europa --tags SeedProfileNFT```
+- ```yarn deploy --network europa --tags GoldSwapNFT```
+- ```yarn deploy --network europa --tags SilverSwapNFT```
+- ```yarn deploy --network europa --tags BronzeSwapNFT```
+
+- ```yarn deploy --network europa --tags SeedGoldNFT```
+- ```yarn deploy --network europa --tags SeedSilverNFT```
+- ```yarn deploy --network europa --tags SeedBronzeNFT```
+
+## Setup the NFT's in NFTAdmin
+GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze and Silver NFT Addresses 
+- ```yarn deploy --network europa --tags SetNFTs```
 
 - ```yarn aqua-dex --network europa```
+
 
 # setting up AMM pools 
 - only 18 decimal - no WBTC , no USDC, or USDT 

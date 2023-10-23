@@ -6,17 +6,21 @@ import { debugChefPools, debugPairs } from "../utils";
 
 
 const main = async () => {
-  const CHEF_ADDR = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
-  const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", CHEF_ADDR)) as RubyMasterChef;
+
+ // const CHEF_ADDR = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
+ // const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", CHEF_ADDR)) as RubyMasterChef;
+
+
   const FACTORY_ADDR = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", FACTORY_ADDR)) as UniswapV2Factory;
-  const SS4P_LPADDR = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
+  //
+// const SS4P_LPADDR = require(`../../deployments/${network.name}/RubyUSD4PoolLPToken.json`).address;
 
   console.log(`=AMM POOLS / PAIRS==================================`);
   const pairAddrs = await debugPairs(factory);
 
-  console.log(`=FARMS==================================`);
-  await debugChefPools(masterChef, factory, SS4P_LPADDR);
+//  console.log(`=FARMS==================================`);
+//  await debugChefPools(masterChef, factory, SS4P_LPADDR);
 };
 
 main()
