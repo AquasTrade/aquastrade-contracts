@@ -8,14 +8,14 @@ import "./libraries/TransferHelper.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IERC20.sol";
-import "../interfaces/IRubyNFT.sol";
+import "../interfaces/INFT.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
     using SafeMathUniswap for uint256;
 
     address public override factory;
-    IRubyNFTAdmin public override nftAdmin;
+    INFTAdmin public override nftAdmin;
 
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
@@ -25,7 +25,7 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
     function initialize(
         address owner,
         address _factory,
-        IRubyNFTAdmin _nftAdmin
+        INFTAdmin _nftAdmin
     ) public initializer {
         require(owner != address(0), "UniswapV2: INVALID_INIT_ARG");
         require(_factory != address(0), "UniswapV2: INVALID_INIT_ARG");
@@ -48,10 +48,8 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
         uint256 amountBMin
     ) internal virtual returns (uint256 amountA, uint256 amountB) {
         // create the pair if it doesn't exist yet
-        // user can only add liquidity to created pairs
+       
         if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
-            bool isPairCreator = IUniswapV2Factory(factory).pairCreators(msg.sender);
-            require(isPairCreator, "UniswapV2Router: PAIR_NOT_CREATED");
             IUniswapV2Factory(factory).createPair(tokenA, tokenB);
         }
         (uint256 reserveA, uint256 reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
@@ -306,7 +304,7 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
         emit FactorySet(newFactory);
     }
 
-    function setNftAdmin(IRubyNFTAdmin newNftAdmin) external override onlyOwner {
+    function setNftAdmin(INFTAdmin newNftAdmin) external override onlyOwner {
         require(address(newNftAdmin) != address(0), "UniswapV2: INVALID_INIT_ARG");
         nftAdmin = newNftAdmin;
         emit NFTAdminSet(address(newNftAdmin));

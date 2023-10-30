@@ -5,32 +5,85 @@ Please check out the `docs` directory for more info.
 ## Addresses
 
 Deployer
-* L1,L2: `0x0fe812c977646525e824d5dcc3f37a0cf153b13b`
-* L2(testnet): `0xF63Bb14E7E9bD2882957129c3E3197E6D18933B4`
+* L1,L2: `0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5`
 
-Ruby Treasury (L2)  
-`0xfE3fd4C4bb91800347Cb4eE367332f417E70eb4a`
+Router
+* Router : `0x698EA133CBA3BACD4aA6405411d8e8c1726D5f61`
 
-Ruby Management (L2)  
-`0x60592CB8ceD45A2dc432CB1Fe49c2Fa1a6bfa423`
+Factory
+* factory : `0xc318a82CB7c2B0faf7e355BB8F285016956aBF55`
 
-RUBY Token
-* L1: `0x918D8F3670c67f14Ff3fEB025D46B9C165d12a23`
-* L2: `0x2B4e4899b53E8b7958c4591a6d02f9C0b5c50F8f`
 
 ## Quickstart
 
 * testing  
-  `$ npx hardhat test --network hardhat test/lottery/LotteryBurner.test.ts`
+  `$ npx hardhat test --network hardhat test/nfts/RubyNFT.test.ts`
 * interactive console  
   `$ npx hardhat console --network stagingv3`
 
 ## Useful Debugging and Maintenance Commands
 
 * `yarn rubyStatus --network europa`  
-  prints pools and farms etc
-* `npx hardhat addresses --network stagingv3`  
-  prints the addresses of important contracts and multisigs/EOAs
-* `npx hardhat balances --network stagingv3 --address 0x123`  
+  prints pools 
+
+* `npx hardhat balances --network europa --address 0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5`  
   prints the balances of native and a number of tokens of the supplied address
+
+
+
+
+# SKALE SWAP 
+
+
+
+## Aqua Dex 
+```nvm use v14.19.2```
+```yarn install```
+```yarn compile```
+```yarn initCodeHash --network stagingv3```
+```yarn initCodeHash --network europa```
+
+This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at line 33, where the "// init code hash" comment is set. (NOTE: without the `0x` symbol)
+
+```yarn deploy --network stagingv3 --tags UniswapV2Factory```
+```yarn deploy --network stagingv3 --tags UniswapV2Router02```
+
+- sends to Aqua Deployer
+```yarn deploy --network stagingv3 --tags SeedRubyProfileNFT```
+
+## Europa Mainnet 
+- ```yarn deploy --network europa --tags UniswapV2Factory```
+- ```yarn deploy --network europa --tags UniswapV2Router02```
+- ```yarn deploy --network europa --tags SeedAMM```
+- ```yarn deploy --network europa --tags SeedNFTAdmin```
+- ```yarn deploy --network europa --tags SeedProfileNFT```
+- ```yarn deploy --network europa --tags GoldSwapNFT```
+- ```yarn deploy --network europa --tags SilverSwapNFT```
+- ```yarn deploy --network europa --tags BronzeSwapNFT```
+
+- ```yarn deploy --network europa --tags SeedGoldNFT```
+- ```yarn deploy --network europa --tags SeedSilverNFT```
+- ```yarn deploy --network europa --tags SeedBronzeNFT```
+
+- ```yarn deploy --network europa --tags Multicall2```
+
+## Setup the NFT's in NFTAdmin
+GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze and Silver NFT Addresses 
+- ```yarn deploy --network europa --tags SetNFTs```
+
+- ```yarn deploy --network europa --tags MarketPlace-ETH```
+
+### more 
+
+
+- ```yarn aqua-dex --network europa```
+
+
+# setting up AMM pools 
+- only 18 decimal - no WBTC , no USDC, or USDT 
+- AQUA - USDP 
+- AQUA - DAI 
+- AQUA = 0.01 USD , 100 AQUA = $1.00 
+
+# forgot to change the pairs.sol contract name. Ruby LP ==> its fine, just shows that its a fork =) 
 

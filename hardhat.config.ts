@@ -12,8 +12,7 @@ import "hardhat-spdx-license-identifier";
 import "hardhat-watcher";
 import "solidity-coverage";
 import "@typechain/hardhat";
-import "./scripts/lottery/createLottery.ts"
-import "./scripts/lottery/drawLottery.ts"
+
 
 import "./scripts/debugging/getbalances.ts"
 import "./scripts/debugging/getaddresses.ts"
@@ -45,13 +44,13 @@ const config: HardhatUserConfig = {
     },
     treasury: {
       default: 0,
-      europa: "0xfE3fd4C4bb91800347Cb4eE367332f417E70eb4a",
-      stagingv3: "0xD244519000000000000000000000000000000000"
+      europa: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5",
+      stagingv3: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5"
     },
     management: {
       default: 0,
-      europa: "0x60592CB8ceD45A2dc432CB1Fe49c2Fa1a6bfa423",
-      stagingv3: "0xD244519000000000000000000000000000000000"
+      europa: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5",
+      stagingv3: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5"
     },
   },
   paths: {
@@ -85,11 +84,6 @@ const config: HardhatUserConfig = {
     },
     goerli: {
       url: "https://eth-goerli.gateway.pokt.network/v1/lb/f0c06ca797ece1fe09dcdf75",
-      accounts: [ADMIN_PKEY_TESTNET],
-      gasPrice: 50000000000,  // wei
-    },
-    rinkeby: {
-      url: "https://rinkeby.infura.io/v3/e0c8e6a9d33f42daafaac936d706c9d2",
       accounts: [ADMIN_PKEY_TESTNET],
       gasPrice: 50000000000,  // wei
     },

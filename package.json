@@ -80,9 +80,8 @@
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
     "initCodeHash": "hardhat run scripts/initCodeHash.ts",
     "rubyStatus": "hardhat run scripts/debugging/rubystatus.ts",
-    "createLottery": "hardhat createLottery",
-    "drawLottery": "hardhat drawLottery",
-    "burnLotteryRuby": "npx hardhat run scripts/lottery/burnBurnt.ts"
+    "aqua-dex": "hardhat run scripts/debugging/getpoolbalances.ts"
+   
   },
   "files": [
     "/contracts"
