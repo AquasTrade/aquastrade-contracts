@@ -7,10 +7,17 @@ Please check out the `docs` directory for more info.
 Deployer
 * L1,L2: `0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5`
 
+Router
+* Router : `0x698EA133CBA3BACD4aA6405411d8e8c1726D5f61`
+
+Factory
+* factory : `0xc318a82CB7c2B0faf7e355BB8F285016956aBF55`
+
+
 ## Quickstart
 
 * testing  
-  `$ npx hardhat test --network hardhat test/lottery/LotteryBurner.test.ts`
+  `$ npx hardhat test --network hardhat test/nfts/RubyNFT.test.ts`
 * interactive console  
   `$ npx hardhat console --network stagingv3`
 
@@ -19,7 +26,7 @@ Deployer
 * `yarn rubyStatus --network europa`  
   prints pools 
 
-* `npx hardhat balances --network stagingv3 --address 0x123`  
+* `npx hardhat balances --network europa --address 0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5`  
   prints the balances of native and a number of tokens of the supplied address
 
 
@@ -30,7 +37,7 @@ Deployer
 
 
 ## Aqua Dex 
-```nvm use v14.19.2 ```
+```nvm use v14.19.2```
 ```yarn install```
 ```yarn compile```
 ```yarn initCodeHash --network stagingv3```
@@ -58,9 +65,16 @@ This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at li
 - ```yarn deploy --network europa --tags SeedSilverNFT```
 - ```yarn deploy --network europa --tags SeedBronzeNFT```
 
+- ```yarn deploy --network europa --tags Multicall2```
+
 ## Setup the NFT's in NFTAdmin
 GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze and Silver NFT Addresses 
 - ```yarn deploy --network europa --tags SetNFTs```
+
+- ```yarn deploy --network europa --tags MarketPlace-ETH```
+
+### more 
+
 
 - ```yarn aqua-dex --network europa```
 
