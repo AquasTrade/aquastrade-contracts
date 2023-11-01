@@ -2,16 +2,14 @@
 pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "hardhat/console.sol";
 import "./Irng6.sol";
 
-contract coinflip6 {
+contract CoinFlip {
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
 
-    address public PayToken;
+    IERC20 public PayToken;
     IRandomNumberGenerator public RNG; // Instance of Random Number Generator.
 
     uint256 public constant minBet = 0.0001 ether;
@@ -25,9 +23,9 @@ contract coinflip6 {
     event gameWon(address player, uint256 amount);
     event gameLost(address player, uint256 amount);
 
-    constructor(address _payToken) public {
-        RNG = IRandomNumberGenerator(msg.sender);
-        PayToken = _payToken;
+    constructor(address _payToken, address _rng) public {
+        RNG = IRandomNumberGenerator(_rng);
+        PayToken = IERC20(_payToken);
     }
 
     function convertUint256ToUint(uint256 value) public pure returns (uint) {
@@ -39,27 +37,25 @@ contract coinflip6 {
     }
 
     function random() private view returns (uint) {
-        uint256[] memory winners = RNG.getRandomNumber(500, 1);
-
-        uint ok = convertUint256ToUint(winners[0]);
-
-        return ok;
+        return RNG.getRandomNumber();
     }
 
     function flipCoin(uint256 _betAmount) public {
         require(_betAmount >= minBet, "Increase your Bet Amount");
         require(_betAmount <= maxBet, "Decrease your Bet Amount");
-        uint256 allowance = IERC20(PayToken).allowance(msg.sender, address(this));
+        uint256 allowance = PayToken.allowance(msg.sender, address(this));
         require(allowance >= _betAmount, "Increase your AQUA token allowance");
-        require(IERC20(PayToken).balanceOf(msg.sender) >= _betAmount, "Increase your AQUA token balance");
+        require(PayToken.balanceOf(msg.sender) >= _betAmount, "Increase your AQUA token balance");
 
         // from , to , amount
-        IERC20(PayToken).transferFrom(msg.sender, address(this), _betAmount);
+        PayToken.transferFrom( msg.sender, address(this), _betAmount);
 
         uint256 bet = _betAmount;
         uint256 randomNumber = random();
         uint256 randomNumberFlipped = randomNumber % 2;
-        console.log("randomNumberFlipped: ", randomNumberFlipped);
+
+        console.log("randomNumberFlipped: ",randomNumberFlipped,  randomNumber);
+        
 
         if (randomNumberFlipped == 0) {
             balances[msg.sender] += bet * 2;
@@ -79,9 +75,10 @@ contract coinflip6 {
     function WithdrawAll() public {
         uint256 amount = balances[msg.sender];
         require(amount >= 0, " No user funds in CoinFlip");
-        require(IERC20(PayToken).balanceOf(address(this)) >= amount, " CoinFlip out of funds");
+        require(PayToken.balanceOf(address(this)) >= amount, " CoinFlip out of funds");
         // to user
-        IERC20(PayToken).transferFrom(address(this),msg.sender, amount);
+        PayToken.approve(msg.sender,amount);
+        PayToken.transferFrom(address(this),msg.sender, amount);
         //reset users stats
         // todo
         balances[msg.sender] = 0;

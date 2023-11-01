@@ -5,7 +5,7 @@ const network = hre.network;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const contracts: any = {
 
-marketplace: require(`../../deployments/${network.name}/coinflip6.json`),
+marketplace: require(`../../deployments/${network.name}/CoinFlip.json`),
 
 
  // multicall2: require(`../../deployments/${network.name}/Multicall2.json`),

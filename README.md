@@ -74,6 +74,8 @@ GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze an
 - ```yarn deploy --network europa --tags MarketPlace-ETH```
 
 ## Games 
+- ```npx hardhat test --network hardhat test/CoinFlip.test.ts```
+- ```yarn deploy --network europa --tags RNG```
 - ```yarn deploy --network europa --tags CoinFlip```
 
 ### more 
