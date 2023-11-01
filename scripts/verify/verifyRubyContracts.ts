@@ -4,12 +4,16 @@ const network = hre.network;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const contracts: any = {
+
+marketplace: require(`../../deployments/${network.name}/coinflip6.json`),
+
+
  // multicall2: require(`../../deployments/${network.name}/Multicall2.json`),
 //  uniswapFactory: require(`../../deployments/${network.name}/UniswapV2Factory.json`),
 
  // uniswapV2Router02_Implementation: require(`../../deployments/${network.name}/UniswapV2Router02_Implementation.json`),
-  uniswapV2Router02_Proxy: require(`../../deployments/${network.name}/UniswapV2Router02_Proxy.json`),
-  uniswapV2Router02: require(`../../deployments/${network.name}/UniswapV2Router02.json`),
+//  uniswapV2Router02_Proxy: require(`../../deployments/${network.name}/UniswapV2Router02_Proxy.json`),
+ // uniswapV2Router02: require(`../../deployments/${network.name}/UniswapV2Router02.json`),
 
   /*
 rubyFreeSwapNFT_Implementation: require(`../../deployments/${network.name}/RubyFreeSwapNFT_Implementation.json`),
