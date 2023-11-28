@@ -6,12 +6,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, getOrNull, get, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const RubyNFTAdmin = await getOrNull("NFTAdmin");
+  const nftAdmin = await getOrNull("NFTAdmin");
   const RubyFreeSwapNFT = await get("GoldSwapNFT");
-  const RubyProfileNFT = await get("ProfileNFT");
+  const ProfileNFT = await get("ProfileNFT");
 
-  if (RubyNFTAdmin) {
-    log(`reusing "NFTAdmin" at ${RubyNFTAdmin.address}`);
+  if (nftAdmin) {
+    log(`reusing "NFTAdmin" at ${nftAdmin.address}`);
   } else {
     await deploy("NFTAdmin", {
       from: deployer,
@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         proxyContract: "OpenZeppelinTransparentProxy",
         execute: {
           methodName: "initialize",
-          args: [deployer, RubyProfileNFT.address, RubyFreeSwapNFT.address],
+          args: [deployer, ProfileNFT.address, RubyFreeSwapNFT.address],
         },
       },
       skipIfAlreadyDeployed: true,

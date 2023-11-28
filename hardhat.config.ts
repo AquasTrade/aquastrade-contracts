@@ -1,7 +1,7 @@
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-ethers";
-import '@openzeppelin/hardhat-upgrades';
+import "@openzeppelin/hardhat-upgrades";
 
 import "hardhat-abi-exporter";
 
@@ -13,11 +13,10 @@ import "hardhat-watcher";
 import "solidity-coverage";
 import "@typechain/hardhat";
 
+import "./scripts/debugging/getbalances.ts";
+import "./scripts/debugging/getaddresses.ts";
 
-import "./scripts/debugging/getbalances.ts"
-import "./scripts/debugging/getaddresses.ts"
-
-import "./scripts/ownership/transferOwnershipOfOwnable.ts"
+import "./scripts/ownership/transferOwnershipOfOwnable.ts";
 
 import { resolve } from "path";
 import { config as dotenvConfig } from "dotenv";
@@ -45,12 +44,12 @@ const config: HardhatUserConfig = {
     treasury: {
       default: 0,
       europa: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5",
-      stagingv3: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5"
+      stagingv3: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5",
     },
     management: {
       default: 0,
       europa: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5",
-      stagingv3: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5"
+      stagingv3: "0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5",
     },
   },
   paths: {
@@ -85,7 +84,7 @@ const config: HardhatUserConfig = {
     goerli: {
       url: "https://eth-goerli.gateway.pokt.network/v1/lb/f0c06ca797ece1fe09dcdf75",
       accounts: [ADMIN_PKEY_TESTNET],
-      gasPrice: 50000000000,  // wei
+      gasPrice: 50000000000, // wei
     },
   },
   solidity: {
@@ -114,6 +113,11 @@ const config: HardhatUserConfig = {
         settings: {},
       },
       {
+        version: "0.7.6",
+        settings: {},
+      },
+
+      {
         version: "0.8.0",
         settings: {},
       },
@@ -139,7 +143,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       europa: "acb",
       rubyNewChain: "acb",
-      stagingv3: "abc"
+      stagingv3: "abc",
     },
     customChains: [
       {
@@ -147,25 +151,25 @@ const config: HardhatUserConfig = {
         chainId: 2046399126,
         urls: {
           apiURL: "https://elated-tan-skat.explorer.mainnet.skalenodes.com/api",
-          browserURL: "https://elated-tan-skat.explorer.mainnet.skalenodes.com"
-        }
+          browserURL: "https://elated-tan-skat.explorer.mainnet.skalenodes.com",
+        },
       },
       {
         network: "rubyNewChain",
         chainId: 2255010950618556,
         urls: {
           apiURL: "https://fancy-rasalhague.explorer.staging-v2.skalenodes.com/api",
-          browserURL: "https://fancy-rasalhague.explorer.staging-v2.skalenodes.com"
-        }
+          browserURL: "https://fancy-rasalhague.explorer.staging-v2.skalenodes.com",
+        },
       },
       {
         network: "stagingv3",
         chainId: 476158412,
         urls: {
           apiURL: "https://staging-legal-crazy-castor.explorer.staging-v3.skalenodes.com/api",
-          browserURL: "https://staging-legal-crazy-castor.explorer.staging-v3.skalenodes.com"
-        }
-      }
+          browserURL: "https://staging-legal-crazy-castor.explorer.staging-v3.skalenodes.com",
+        },
+      },
     ],
   },
   spdxLicenseIdentifier: {

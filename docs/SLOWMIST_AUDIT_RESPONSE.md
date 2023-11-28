@@ -38,7 +38,7 @@ Commit: https://github.com/RubyExchange/backend/pull/12/commits/976ce01f58ae6c3f
 https://github.com/RubyExchange/backend/pull/12/commits/b2711d87edd300b7f325e4bfdfdbfabe98c54e3a
 
 7. **[N7] [Low] Risk of excessive authority**
-Origin smart contracts: `contracts/RubyMaker.sol`, `contracts/RubyStaker.sol`, `contracts/RubyMasterChef.sol`, `contracts/RubyNFTAdmin.sol`, 
+Origin smart contracts: `contracts/RubyMaker.sol`, `contracts/RubyStaker.sol`, `contracts/RubyMasterChef.sol`, `contracts/NFTAdmin.sol`, 
 Status: Not fixed, acknowledged
 Comment: The excessive authority is necessary for black swan events scenarios. Additionally we plan the smart contracts owner to be a multisig with a certain threshold, where the signers would be different parties. Additionally we plan to put the contracts above, as well as some other contracts from our architecture behind a timelock contract with a reasonable delay period between proposals and execution.
 

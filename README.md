@@ -1,3 +1,6 @@
+If you are looking for a Uniswap v2 that is required for an EVM chain with native free gas (Native token has no value and does not require any wrapping or interaction with smart contracts besides being the gas used to execute transactions). Designed for Skale.Space : Skale Network (modular l2 side chains that are scaling ethereum).
+
+
 # README
 
 Please check out the `docs` directory for more info.
@@ -45,12 +48,6 @@ Factory
 
 This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at line 33, where the "// init code hash" comment is set. (NOTE: without the `0x` symbol)
 
-```yarn deploy --network stagingv3 --tags UniswapV2Factory```
-```yarn deploy --network stagingv3 --tags UniswapV2Router02```
-
-- sends to Aqua Deployer
-```yarn deploy --network stagingv3 --tags SeedRubyProfileNFT```
-
 ## Europa Mainnet 
 - ```yarn deploy --network europa --tags UniswapV2Factory```
 - ```yarn deploy --network europa --tags UniswapV2Router02```
@@ -67,6 +64,9 @@ This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at li
 
 - ```yarn deploy --network europa --tags Multicall2```
 
+- ```yarn deploy --network europa --tags AquasRouter```
+- ```yarn deploy --network europa --tags SeedAquasRouter```
+
 ## Setup the NFT's in NFTAdmin
 GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze and Silver NFT Addresses 
 - ```yarn deploy --network europa --tags SetNFTs```
@@ -80,15 +80,15 @@ GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze an
 
 ### more 
 
--  `npx hardhat run scripts/verify/verifyRubyContracts.ts --network europa`
+-  ```npx hardhat run scripts/verify/verifyRubyContracts.ts --network europa```
 - ```yarn aqua-dex --network europa```
 
 
-# setting up AMM pools 
-- only 18 decimal - no WBTC , no USDC, or USDT 
-- AQUA - USDP 
-- AQUA - DAI 
-- AQUA = 0.01 USD , 100 AQUA = $1.00 
+# todo before launch
+- test scripts should work 
 
-# forgot to change the pairs.sol contract name. Ruby LP ==> its fine, just shows that its a fork =) 
+## setting up the AquasRouter
+- rename RubyProxyAdmin 
+- func.tags = ["SeedNFTAdmin"];  // redo this script to give AquasRouter minting rights on NFTAdmin
 
+make enableStablePool script

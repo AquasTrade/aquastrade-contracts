@@ -233,7 +233,7 @@
     "name": "nftAdmin",
     "outputs": [
       {
-        "internalType": "contract IRubyNFTAdmin",
+        "internalType": "contract INFTAdmin",
         "name": "",
         "type": "address"
       }
@@ -414,7 +414,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IRubyNFTAdmin",
+        "internalType": "contract INFTAdmin",
         "name": "newNftAdmin",
         "type": "address"
       }

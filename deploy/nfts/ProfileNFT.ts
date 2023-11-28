@@ -8,15 +8,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, getOrNull, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const RubyProfileNFT = await getOrNull("ProfileNFT");
+  const ProfileNFT = await getOrNull("ProfileNFT");
   const name = "Profile NFT";
   const symbol = "PNFT";
 
   const description = JSON.stringify(PROFILE_NFT_DETAILS);
   const visualAppearance = JSON.stringify(PROFILE_NFT_APPEARANCE);
 
-  if (RubyProfileNFT) {
-    log(`reusing "ProfileNFT" at ${RubyProfileNFT.address}`);
+  if (ProfileNFT) {
+    log(`reusing "ProfileNFT" at ${ProfileNFT.address}`);
   } else {
     await deploy("ProfileNFT", {
       from: deployer,

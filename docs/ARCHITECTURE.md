@@ -16,7 +16,7 @@ The Ruby contract architecture is currently composed of few different components
 - Ruby staking (Elipsis finance staking/rewards implementation)
 - Ruby router (original implementation)
 - RubyToken (based on SushiToken implementation, changes made because of bridging)
-- RubyNFTAdmin and RUBY NFTs
+
 
 ## Components
 
@@ -102,7 +102,7 @@ The following changes have been made from The Elipsis finance's EpsStaker contra
 
 ### Ruby Router
 
-The Ruby Protocol enables swapping between different type of pools in a single transaction. Swaps between the AMM pools (Uniswap V2 pools) and the StablePools are enabled by using the `RubyRouter` contract. The RubyRouter contract receives a swap paramters which contain which swaps need to be executed and their order. All of the slippages for the swaps are calculated outside the contract, and the contract is just fed with the swap orders it needs to execute. The algorithm for the swaps that needs to be executed and their order, is calculated on our frontend. There are four different type of swaps enabled:
+The Ruby Protocol enables swapping between different type of pools in a single transaction. Swaps between the AMM pools (Uniswap V2 pools) and the StablePools are enabled by using the `RubyRouter` contract. The RubyRouter contract receives a swap parameters which contain which swaps need to be executed and their order. All of the slippages for the swaps are calculated outside the contract, and the contract is just fed with the swap orders it needs to execute. The algorithm for the swaps that needs to be executed and their order, is calculated on our frontend. There are four different type of swaps enabled:
 
 - AMM only, i.e ETH -> USDP (leveraging the UniswapV2Router only)
 - StablePool only, i.e USDC -> USDT (leveraging the StablePool only)
@@ -117,8 +117,8 @@ USDP -> USDC (StablePool)
 Execution order:
 [Amm, StablePool]
 
-Upon performing a swap (the `swap` function), the `RubyRouter.sol` contract calls the `mintProfileNFT` function of the `RubyNFTAdmin.sol` contract. This function mints a `RubyProfileNFT` to the transaction initiator (EOA - tx.origin), if the initiator does have balance of 0 `RubyProfileNFT`s.
-The `RubyRouter` contract should be set as minter for the `RubyNFTAdmin` contract.
+Upon performing a swap (the `swap` function), the `RubyRouter.sol` contract calls the `mintProfileNFT` function of the `NFTAdmin.sol` contract. This function mints a `ProfileNFT` to the transaction initiator (EOA - tx.origin), if the initiator does have balance of 0 `ProfileNFT`s.
+The `RubyRouter` contract should be set as minter for the `NFTAdmin` contract.
 
 ### Ruby Token (RUBY)
 
@@ -130,14 +130,14 @@ The implementation on the SChain is based on the SushiToken, but few things are 
 2. Only the IMA bridge can mint tokens and IMA Bridge and the RubyMaker contract can burn tokens.
 
 
-### RubyNFTAdmin and RUBY NFTs
+### NFTAdmin and RUBY NFTs
 
 Ruby implements a custom NFT architecture to offer a better UX and more benefits to the users. The NFTs could be "earned" in various different ways, and also NFTs could have different benefits - ranging from purely for PFP showcase purposes, to various utilities accross the platform (swap fee reductions, reward boosts, etc).
 
 Currently the NFT architecture involves three contracts:
 
-1. `RubyNFTAdmin.sol` - An admin contract that implements AMM trading fee deduction logic - if a user holds a RubyFreeSwapNFT, they're eligible for 0% fee AMM swaps. Additionally the RubyNFTAdmin contracts enables RubyProfileNFT minting (via implemented restricted minter logic). The `mintProfileNFT` function of the `RubyNFTAdmin.sol` contract is currently only being called from the `RubyRouter.sol` contract.
-2. `RubyProfileNFT.sol` - RubyProfileNFT, currently minted upon doing swaps/trading actions, minted from the `RubyRouter.sol` contract.
+1. `NFTAdmin.sol` - An admin contract that implements AMM trading fee deduction logic - if a user holds a RubyFreeSwapNFT, they're eligible for 0% fee AMM swaps. Additionally the NFTAdmin contracts enables ProfileNFT minting (via implemented restricted minter logic). The `mintProfileNFT` function of the `NFTAdmin.sol` contract is currently only being called from the `RubyRouter.sol` contract.
+2. `ProfileNFT.sol` - ProfileNFT, currently minted upon doing swaps/trading actions, minted from the `RubyRouter.sol` contract.
 3. `RubyFreeSwapNFT.sol` - RubyFreeSwapNFT - a utility NFT, used for providing fee free AMM swaps for it's holders.
 
 ## Upgradeability:
@@ -146,10 +146,10 @@ Some part of the Ruby contracts architecture is upgradeable. This is achieved by
 
 The following contracts are deployed to be upgradeable:
 - `UniswapV2Router02.sol`
-- `RubyNFTAdmin.sol`
+- `NFTAdmin.sol`
 - `RubyRouter.sol`
 - `RubyFreeSwapNFT.sol`
-- `RubyProfileNFT.sol`
+- `ProfileNFT.sol`
 - `RubyStaker.sol`
 - `RubyMaker.sol`
 - `RubyMasterChef.sol`

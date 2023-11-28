@@ -8,15 +8,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const nftAdmin = await ethers.getContract("NFTAdmin");
 
-  const tx = await nftAdmin.setMinter(deployer, true);
+  const router = await ethers.getContract("AquasRouter");
+
+  const addressRouter = router.address;
+  
+
+  const tx = await nftAdmin.setMinter(addressRouter, true);
   await tx.wait(1);
 
-  const isMinter = await nftAdmin.minters(deployer);
+  const isMinter = await nftAdmin.minters(addressRouter);
 
   console.log(`AquasRouter set as minter: ${isMinter}`)
 
 };
 export default func;
 
-func.dependencies = ["RubyProxyAdmin", "NFTAdmin",];
-func.tags = ["SeedNFTAdmin"];
+func.dependencies = ["RubyProxyAdmin", "NFTAdmin", "AquasRouter"];
+func.tags = ["SeedAquasRouter"];

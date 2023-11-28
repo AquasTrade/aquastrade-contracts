@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { deployNftsAndNftAdmin } from "./utilities/deployment";
 
-describe("RubyNFTAdmin", function () {
+describe("NFTAdmin", function () {
   beforeEach(async function () {
     this.signers = await ethers.getSigners();
     this.owner = this.signers[0];
@@ -18,7 +18,7 @@ describe("RubyNFTAdmin", function () {
     await this.rubyProfileNft.setMinter(this.nftAdmin.address, true)
   });
 
-  it("RubyNFTAdmin should be deployed correctly", async function () {
+  it("NFTAdmin should be deployed correctly", async function () {
     const profileNft = await this.nftAdmin.profileNFT();
     const freeSwapNft = await this.nftAdmin.freeSwapNFT();
 
@@ -28,7 +28,7 @@ describe("RubyNFTAdmin", function () {
 
   it("Minter should be added correctly", async function () {
   
-    await expect(this.nftAdmin.mintProfileNFT(this.owner.address)).to.be.revertedWith("RubyNFTAdmin: Minting not allowed");
+    await expect(this.nftAdmin.mintProfileNFT(this.owner.address)).to.be.revertedWith("NFTAdmin: Minting not allowed");
     expect(await this.nftAdmin.minters(this.owner.address)).to.be.eq(false);
     await expect(this.nftAdmin.setMinter(this.owner.address, true)).to.emit(this.nftAdmin, "MinterSet").withArgs(this.owner.address, true);
     

@@ -77,8 +77,7 @@ contract CoinFlip {
         require(amount >= 0, " No user funds in CoinFlip");
         require(PayToken.balanceOf(address(this)) >= amount, " CoinFlip out of funds");
         // to user
-        PayToken.approve(msg.sender,amount);
-        PayToken.transferFrom(address(this),msg.sender, amount);
+        PayToken.transfer(msg.sender, amount);
         //reset users stats
         // todo
         balances[msg.sender] = 0;

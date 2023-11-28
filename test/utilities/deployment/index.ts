@@ -15,9 +15,9 @@ import {
   Swap,
   LPToken,
   ERC20,
-  RubyRouter,
-  RubyNFTAdmin,
-  RubyProfileNFT,
+  AquasRouter,
+  NFTAdmin,
+  ProfileNFT,
   RubyFreeSwapNFT,
   RubyMaker,
   RubyStaker
@@ -33,10 +33,10 @@ export const deployRubyFreeSwapNFT = async (owner: string, name: string, symbol:
   return rubyFreeSwapNFT;
 }
 
-export const deployRubyProfileNFT = async (owner: string, name: string, symbol: string, description: string, visualAppearance: string) => {
-  let RubyProfile = await ethers.getContractFactory("RubyProfileNFT");
+export const deployProfileNFT = async (owner: string, name: string, symbol: string, description: string, visualAppearance: string) => {
+  let RubyProfile = await ethers.getContractFactory("ProfileNFT");
 
-  let rubyProfileNFT: RubyProfileNFT = await upgrades.deployProxy(RubyProfile, [owner, name, symbol, description, visualAppearance]);
+  let rubyProfileNFT: ProfileNFT = await upgrades.deployProxy(RubyProfile, [owner, name, symbol, description, visualAppearance]);
   await rubyProfileNFT.deployed();
 
   return rubyProfileNFT;
@@ -44,9 +44,9 @@ export const deployRubyProfileNFT = async (owner: string, name: string, symbol: 
 
 
 export const deployNFTAdmin = async (owner: string, rubyProfileNFT: string, rubyFreeSwapNFT: string) => {
-  let RubyNFTAdmin = await ethers.getContractFactory("RubyNFTAdmin");
+  let NFTAdmin = await ethers.getContractFactory("NFTAdmin");
 
-  let nftAdmin: RubyNFTAdmin = await upgrades.deployProxy(RubyNFTAdmin, [owner, rubyProfileNFT, rubyFreeSwapNFT])
+  let nftAdmin: NFTAdmin = await upgrades.deployProxy(NFTAdmin, [owner, rubyProfileNFT, rubyFreeSwapNFT])
   await nftAdmin.deployed();
 
   return nftAdmin;
@@ -190,15 +190,15 @@ export const deployRubyStablePool = async (tokens: Array<MockERC20>): Promise<Sw
 };
 
 
-export const deployRubyRouter = async (
+export const deployAquasRouter = async (
   owner: string,
   ammRouter: string,
   stablePool: string,
   nftAdmin: string,
   maxHops: number,
-): Promise<RubyRouter> => {
-  let Router = await ethers.getContractFactory("RubyRouter");
-  let rubyRouter: RubyRouter = await upgrades.deployProxy(Router, [owner, ammRouter, stablePool, nftAdmin, maxHops])
+): Promise<AquasRouter> => {
+  let Router = await ethers.getContractFactory("AquasRouter");
+  let rubyRouter: AquasRouter = await upgrades.deployProxy(Router, [owner, ammRouter, stablePool, nftAdmin, maxHops])
 
   await rubyRouter.deployed()
 
@@ -243,7 +243,7 @@ export const deployNftsAndNftAdmin = async (ownerAddress: string) => {
 
 
   let rubyFreeSwapNft = await deployRubyFreeSwapNFT(ownerAddress, "Ruby Free Swap NFT", "RFSNFT", description, visualAppearance)
-  let rubyProfileNft = await deployRubyProfileNFT(ownerAddress, "Ruby Profile NFT", "RPNFT", description, visualAppearance)
+  let rubyProfileNft = await deployProfileNFT(ownerAddress, "Ruby Profile NFT", "RPNFT", description, visualAppearance)
   let nftAdmin = await deployNFTAdmin(ownerAddress, rubyProfileNft.address, rubyFreeSwapNft.address);
 
   return {
@@ -259,7 +259,7 @@ export const deployRubyNFT = async (ownerAddress: string, name: string, symbol: 
     
   let RubyNFT = await ethers.getContractFactory("RubyNFT");
 
-  let rubyNft: RubyProfileNFT = await upgrades.deployProxy(RubyNFT, [ownerAddress, name, symbol, details, visualAppearance]);
+  let rubyNft: ProfileNFT = await upgrades.deployProxy(RubyNFT, [ownerAddress, name, symbol, details, visualAppearance]);
   await rubyNft.deployed();
 
   return rubyNft;

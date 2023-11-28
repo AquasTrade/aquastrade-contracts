@@ -7,7 +7,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { ethers, network } = hre;
 
   const rubyFreeSwapNFT = await ethers.getContract("RubyFreeSwapNFT");
-  const rubyProfileNft = await ethers.getContract("RubyProfileNFT");
+  const rubyProfileNft = await ethers.getContract("ProfileNFT");
   const rubyFreeDCANFT = await ethers.getContract("RubyFreeDCANFT");
 
   let tx, description, appearance;
@@ -38,10 +38,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await tx.wait(1);
   tx = await rubyProfileNft.setVisualAppearance(appearance)
   await tx.wait(1);
-  console.log("Set RubyProfileNFT description and appearance");
+  console.log("Set ProfileNFT description and appearance");
 
 };
 export default func;
 
-func.dependencies = ["RubyFreeSwapNFT", "RubyProfileNFT"];
+func.dependencies = ["RubyFreeSwapNFT", "ProfileNFT"];
 func.tags = ["SeedNFTAppearance"];

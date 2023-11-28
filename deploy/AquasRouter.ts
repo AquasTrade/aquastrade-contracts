@@ -6,16 +6,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, get, getOrNull, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const RubyRouter = await getOrNull("RubyRouter");
-  if (RubyRouter) {
-    log(`reusing "RubyRouter" at ${RubyRouter.address}`);
+  const AquasRouter = await getOrNull("AquasRouter");
+  if (AquasRouter) {
+    log(`reusing "AquasRouter" at ${AquasRouter.address}`);
   } else {
     const ammRouterAddress = (await get("UniswapV2Router02")).address;
-    const stablePoolAddress = (await get("RubyUSD4Pool")).address;
-    const nftAdminAddress = (await get("RubyNFTAdmin")).address;
+
+    const stablePoolAddress = "0x45c550dc634bcC271C092A20D36761d3Bb834e5D"; // aqua todo:
+
+    const nftAdminAddress = (await get("NFTAdmin")).address;
+
+    console.log("should be nft admin address ", nftAdminAddress);
+
     const maxSwapHops = 3;
 
-    await deploy("RubyRouter", {
+    await deploy("AquasRouter", {
       from: deployer,
       log: true,
       proxy: {
@@ -32,5 +37,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 
-func.dependencies = ["UniswapV2Router02", "RubyUSD4Pool", "RubyNFTAdmin"];
-func.tags = ["RubyRouter"];
+func.dependencies = ["UniswapV2Router02", "NFTAdmin"];
+func.tags = ["AquasRouter"];

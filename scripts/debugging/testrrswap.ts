@@ -7,9 +7,9 @@ import { BigNumber } from "ethers";
 
 import ERC20_ABI from "../../abi/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
 
-const RUBY_ROUTER_ADDR = require(`../../deployments/${network.name}/RubyRouter.json`).address;
+const RUBY_ROUTER_ADDR = require(`../../deployments/${network.name}/AquasRouter.json`).address;
 const UNI_ROUTER_ADDR = require(`../../deployments/${network.name}/UniswapV2Router02.json`).address;
-const NFT_ADMIN_ADDR = require(`../../deployments/${network.name}/RubyNFTAdmin.json`).address;
+const NFT_ADMIN_ADDR = require(`../../deployments/${network.name}/NFTAdmin.json`).address;
 const STABLE_SWAP_ADDR = require(`../../deployments/${network.name}/RubyUSD4Pool.json`).address;
 
 const USDP_ADDR = require(`../../deployments/${network.name}/RubyUSDP.json`).address;
@@ -17,9 +17,9 @@ const USDT_ADDR = require(`../../deployments/${network.name}/RubyUSDT.json`).add
 const RUBY_ADDR = require(`../../deployments/${network.name}/RubyToken.json`).address;
 const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
 
-const RUBY_ROUTER_ABI = require(`../../deployments/${network.name}/RubyRouter.json`).abi;
+const RUBY_ROUTER_ABI = require(`../../deployments/${network.name}/AquasRouter.json`).abi;
 const UNI_ROUTER_ABI = require(`../../deployments/${network.name}/UniswapV2Router02.json`).abi;
-const NFT_ADMIN_ABI = require(`../../deployments/${network.name}/RubyNFTAdmin.json`).abi;
+const NFT_ADMIN_ABI = require(`../../deployments/${network.name}/NFTAdmin.json`).abi;
 const STABLE_SWAP_ABI = require(`../../deployments/${network.name}/RubyUSD4Pool.json`).abi;
 
 
