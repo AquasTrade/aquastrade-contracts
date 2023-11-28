@@ -12,6 +12,7 @@ Deployer
 
 Router
 * Router : `0x698EA133CBA3BACD4aA6405411d8e8c1726D5f61`
+* AquasRouter : `0x18425939A31E35DB05358Ba4Bc85d1075ed015E5`
 
 Factory
 * factory : `0xc318a82CB7c2B0faf7e355BB8F285016956aBF55`
@@ -20,7 +21,7 @@ Factory
 ## Quickstart
 
 * testing  
-  `$ npx hardhat test --network hardhat test/nfts/RubyNFT.test.ts`
+  `$ npx hardhat test --network hardhat test/CoinFlip.test.ts`
 * interactive console  
   `$ npx hardhat console --network stagingv3`
 
