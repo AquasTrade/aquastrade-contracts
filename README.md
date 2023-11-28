@@ -27,20 +27,10 @@ Factory
 
 ## Useful Debugging and Maintenance Commands
 
-* `yarn rubyStatus --network europa`  
+* `yarn aquaStatus --network europa`  
   prints pools 
 
-* `npx hardhat balances --network europa --address 0xCDeb7F7974D89Fd71089487D65AA9731d7E846F5`  
-  prints the balances of native and a number of tokens of the supplied address
-
-
-
-
-# SKALE SWAP 
-
-
-
-## Aqua Dex 
+## Installation
 ```nvm use v14.19.2```
 ```yarn install```
 ```yarn compile```
@@ -87,9 +77,3 @@ GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze an
 
 # todo before launch
 - test scripts should work 
-
-## setting up the AquasRouter
-- rename RubyProxyAdmin 
-- func.tags = ["SeedNFTAdmin"];  // redo this script to give AquasRouter minting rights on NFTAdmin
-
-make enableStablePool script
