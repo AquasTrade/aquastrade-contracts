@@ -7,8 +7,8 @@ import "./libraries/SafeMath.sol";
 contract UniswapV2ERC20 {
     using SafeMathUniswap for uint256;
 
-    string public constant name = "Ruby LP Token";
-    string public constant symbol = "RLP";
+    string public constant name = "Aquas LP Token";
+    string public constant symbol = "ALP";
     uint8 public constant decimals = 18;
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
