@@ -28,7 +28,9 @@ Factory
 ## Useful Debugging and Maintenance Commands
 
 * `yarn aquaStatus --network europa`  
-  prints pools 
+  prints pool addresses in array 
+* `yarn aqua-dex --network europa`  
+  prints pools with deployer's balance
 
 ## Installation
 - ```nvm use v14.19.2```
@@ -76,17 +78,15 @@ GoldSwapNFT is initialized at deployment, therefore admin needs to set Bronze an
 
 
 # todo before launch
-- test scripts should work 
 - add : https://github.com/Vectorized/NFTStaker
-- rename LP token and relaunch the whole stack again. 
 
-# AQUA 
+
+# AQUA erc20 token 
 - 200 million 
 - deflationary from protocol fees : burn $AQUA 
-- 
-
-- all pools are linked to AQUA to concentrate liquidity
-## Concentrated liquidity without fragmentation via pooled with $AQUA 
+- all pools use AQUA as base_asset to concentrate liquidity
+## Concentrated liquidity without fragmentation
+``` bash 
 Pair addr (LP Token): 0xb557f7FefB85Da2534F299409e02795447d17158
 Pool ID: 0
 Token 0: USDP@0x73d22d8a2D1f59Bf5Bcf62cA382481a2073FAF58
@@ -101,7 +101,7 @@ Pair addr (LP Token): 0xe25cCE2CF839F944e0880d6A29CF15A0b87fe01d
 Pool ID: 2
 Token 0: EXD@0xCfEBA92BD362B2F76fC30a89C433DE50a1D62BcA
 Token 1: AQUA@0xE34A1fEF365876D4D0b55D281618768583ba4867
-
+## ETH-AQUA
 Pair addr (LP Token): 0x670eD7CB5C405b801a1325aa939498bA10F43DC8
 Pool ID: 3
 Token 0: ETHC@0xD2Aaa00700000000000000000000000000000000
@@ -151,3 +151,4 @@ Pair addr (LP Token): 0x4B39C70e47702f5CFACfF3FDE8166363B529cc45
 Pool ID: 12
 Token 0: RUBY@0x2B4e4899b53E8b7958c4591a6d02f9C0b5c50F8f
 Token 1: USDP@0x73d22d8a2D1f59Bf5Bcf62cA382481a2073FAF58
+```

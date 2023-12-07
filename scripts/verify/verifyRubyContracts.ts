@@ -4,9 +4,20 @@ const network = hre.network;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const contracts: any = {
+
+
+
+ // rubyFreeSwapNFT_Implementation: require(`../../deployments/${network.name}/BronzeSwapNFT_Implementation.json`),
+//  rubyFreeSwapNFT_Proxy: require(`../../deployments/${network.name}/BronzeSwapNFT_Proxy.json`),
+  rubyFreeSwapNFT: require(`../../deployments/${network.name}/SilverSwapNFT.json`),
+
+
+
+
+
   // rubyRouter_Implementation: require(`../../deployments/${network.name}/AquasRouter_Implementation.json`),
   //  rubyRouter_Proxy: require(`../../deployments/${network.name}/AquasRouter_Proxy.json`),
-  AquasRouter: require(`../../deployments/${network.name}/AquasRouter.json`),
+ // AquasRouter: require(`../../deployments/${network.name}/AquasRouter.json`),
 
   //marketplace: require(`../../deployments/${network.name}/CoinFlip.json`),
 
