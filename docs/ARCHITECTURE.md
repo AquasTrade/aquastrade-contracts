@@ -1,6 +1,6 @@
 # Aqua-Dex
 
-Aquas.Trade protcol is a fork of Ruby.Exchange without the DaoCreator AMM pairs management and with 3 NFT Tiers for swap discounts. 
+Aquas.Trade protcol is a fork of Ruby.Exchange without the DaoCreator AMM pairs management and with 3 NFT Tiers for swap discounts.
 
 # Architecture
 
@@ -17,7 +17,6 @@ The Ruby contract architecture is currently composed of few different components
 - Ruby router (original implementation)
 - RubyToken (based on SushiToken implementation, changes made because of bridging)
 
-
 ## Components
 
 ### Generic AMM exchange
@@ -29,7 +28,7 @@ Some slight changes have been made:
 
 2. Permisssions for creating Pools added. Only a previously whitelisted actors can create liquidity pools. Anyone can add liquidity to an already created pool.
 
-3. Swap functions `swapTokensForExactTokens`, `swapExactTokensForTokens`,`swapExactTokensForTokensSupportingFeeOnTransferTokens` in the `UniswapV2Router02.sol` contract have been changed to work with variable feeMultiplier. We've implemented a feature that allows for dynamic fee (0% or 0.30% currently) to be applied to the trades, based on the logic implemented in the NftAdmin contract (more on that below). 
+3. Swap functions `swapTokensForExactTokens`, `swapExactTokensForTokens`,`swapExactTokensForTokensSupportingFeeOnTransferTokens` in the `UniswapV2Router02.sol` contract have been changed to work with variable feeMultiplier. We've implemented a feature that allows for dynamic fee (0% or 0.30% currently) to be applied to the trades, based on the logic implemented in the NftAdmin contract (more on that below).
 
 As per the original Uniswap V2 design, a fixed fee was charged on each swap. The swap fee was set to be 0.30% of the swap amount (30 BIPS) - Currently 0 or 30 BIPS depending on the tx.origin. If a protocol fee is enabled and a 30 BIPS fee is charged (the `feeTo` address is set at the `UniswapV2Factory.sol` contract), 0.25% of the swap amount (83.3% of the total fee) goes to the liquidity providers, while 0.05% of the swap amount (16.7% of the total fee) goes to the `feeTo` address.
 In the Ruby protocol, the `feeTo` address is set to the address of the `RubyMaker` contract.
@@ -129,7 +128,6 @@ The implementation on the SChain is based on the SushiToken, but few things are 
 1. AccessControl is implemented instead of Ownable. `DEFAUL_ADMIN_ROLE` is set to the deployer, while `MINTER` and `BURNER` roles should be set to the IMA bridge contracts by the deployer. The `BURNER` role should be set to the RubyMaker too, so that fee tokens can be burned.
 2. Only the IMA bridge can mint tokens and IMA Bridge and the RubyMaker contract can burn tokens.
 
-
 ### NFTAdmin and RUBY NFTs
 
 Ruby implements a custom NFT architecture to offer a better UX and more benefits to the users. The NFTs could be "earned" in various different ways, and also NFTs could have different benefits - ranging from purely for PFP showcase purposes, to various utilities accross the platform (swap fee reductions, reward boosts, etc).
@@ -145,6 +143,7 @@ Currently the NFT architecture involves three contracts:
 Some part of the Ruby contracts architecture is upgradeable. This is achieved by using the `TransparentUpgradeableProxy.sol` proxy and the `RubyProxyAdmin.sol` contract. The upgradeability is not explicitly implemented in the contracts, but it's achieved automatically in the deployment scripts (by using the hardhat-deploy library).
 
 The following contracts are deployed to be upgradeable:
+
 - `UniswapV2Router02.sol`
 - `NFTAdmin.sol`
 - `RubyRouter.sol`

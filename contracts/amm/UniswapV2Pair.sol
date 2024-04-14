@@ -190,7 +190,7 @@ contract UniswapV2Pair is UniswapV2ERC20 {
 
         // if the msg.sender is not whitelisted swapper for fee dedductions
         // - apply the regular fee multiplier of 997 (30 bps)
-        if(!IUniswapV2Factory(factory).feeDeductionSwappers(msg.sender)) {
+        if (!IUniswapV2Factory(factory).feeDeductionSwappers(msg.sender)) {
             feeMultiplier = 997;
         }
 

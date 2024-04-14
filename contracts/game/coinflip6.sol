@@ -7,6 +7,7 @@ import "hardhat/console.sol";
 import "./Irng6.sol";
 
 contract CoinFlip {
+    address private admin;
     using SafeMath for uint256;
 
     IERC20 public PayToken;
@@ -26,17 +27,10 @@ contract CoinFlip {
     constructor(address _payToken, address _rng) public {
         RNG = IRandomNumberGenerator(_rng);
         PayToken = IERC20(_payToken);
+        admin = msg.sender;
     }
 
-    function convertUint256ToUint(uint256 value) public pure returns (uint) {
-        // Check if the value can safely fit within a uint
-        require(value <= type(uint).max, "Value exceeds uint bounds");
-
-        // Explicit type casting from uint256 to uint
-        return uint(value);
-    }
-
-    function random() private view returns (uint) {
+    function random() private view returns (uint256) {
         return RNG.getRandomNumber();
     }
 
@@ -48,14 +42,13 @@ contract CoinFlip {
         require(PayToken.balanceOf(msg.sender) >= _betAmount, "Increase your AQUA token balance");
 
         // from , to , amount
-        PayToken.transferFrom( msg.sender, address(this), _betAmount);
+        PayToken.transferFrom(msg.sender, address(this), _betAmount);
 
         uint256 bet = _betAmount;
         uint256 randomNumber = random();
         uint256 randomNumberFlipped = randomNumber % 2;
 
-        console.log("randomNumberFlipped: ",randomNumberFlipped,  randomNumber);
-        
+        console.log("randomNumberFlipped: ", randomNumberFlipped, randomNumber);
 
         if (randomNumberFlipped == 0) {
             balances[msg.sender] += bet * 2;
@@ -64,7 +57,15 @@ contract CoinFlip {
             emit gameWon(msg.sender, bet * 2);
         }
         if (randomNumberFlipped == 1) {
-            balances[msg.sender] -= bet;
+            // need some logic here
+            // do we want to allow negative numbers? if yes, change to int256 and not uint256
+            uint256 bal = balances[msg.sender];
+            if (bet > bal) {
+                balances[msg.sender] = 0;
+            } else {
+                balances[msg.sender] -= bet; // this will allow a user to compound wins
+            }
+
             totalLoss[msg.sender] += 1;
             console.log("You lost!");
             emit gameLost(msg.sender, bet);
@@ -80,22 +81,17 @@ contract CoinFlip {
         PayToken.transfer(msg.sender, amount);
         //reset users stats
         // todo
-        balances[msg.sender] = 0;
+        balances[msg.sender] = 0; // todo this could be the error that makes balance = 115792089237316195423570985008687907853269984665640564021420184007913129639936n
     }
 
-    function getBalance() public view returns (uint256) {
-        return balances[msg.sender];
-    }
+    function WithdrawPrize() public {
+        uint256 amount = PayToken.balanceOf(address(this));
+        require(amount >= 0, " No funds in CoinFlip");
+        require(msg.sender == admin, " Not admin");
 
-    function getTotalWins() public view returns (uint256) {
-        return totalWins[msg.sender];
-    }
-
-    function getTotalLosses() public view returns (uint256) {
-        return totalLoss[msg.sender];
-    }
-
-    function getTotalBets(address _player) public view returns (uint256) {
-        return totalBets[_player];
+        // to user
+        PayToken.transfer(msg.sender, amount);
+        //reset users stats
+        // todo
     }
 }

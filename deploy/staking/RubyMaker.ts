@@ -50,7 +50,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await res.wait(1);
     log(`granted RubyToken.BURNER_ROLE to RubyMaker@${RUBY_MAKER_ADDRESS}`);
   }
-
 };
 
 func.tags = ["RubyMaker", "Staking"];

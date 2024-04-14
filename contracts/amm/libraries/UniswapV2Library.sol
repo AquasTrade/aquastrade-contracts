@@ -59,10 +59,10 @@ library UniswapV2Library {
         amountB = amountA.mul(reserveB) / reserveA;
     }
 
-    // 1. Given an input amount of an asset, pair reserves and trading fee multiplier, 
+    // 1. Given an input amount of an asset, pair reserves and trading fee multiplier,
     //    returns the maximum output amount of the other asset
     // 2. The calculation takes in feeMultiplier argument, which is used to calculate amountOut based on
-    //    the trading fee used. 
+    //    the trading fee used.
     function getAmountOut(
         uint256 amountIn,
         uint256 reserveIn,
@@ -78,10 +78,10 @@ library UniswapV2Library {
         amountOut = numerator / denominator;
     }
 
-    // 1. Given an output amount of an asset, pair reserves and trading fee multiplier, 
+    // 1. Given an output amount of an asset, pair reserves and trading fee multiplier,
     //    returns a required input amount of the other asset
     // 2. The calculation takes in feeMultiplier argument, which is used to calculate amountIn based on
-    //    the trading fee used. 
+    //    the trading fee used.
     function getAmountIn(
         uint256 amountOut,
         uint256 reserveIn,

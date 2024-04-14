@@ -11,10 +11,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log(`reusing "UniswapV2Router" at ${UniswapV2Router.address}`);
   } else {
     const factoryAddress = (await ethers.getContract("UniswapV2Factory")).address;
-   // const factoryAddress = (await get("UniswapV2Factory")).address;
+    // const factoryAddress = (await get("UniswapV2Factory")).address;
     const nftAdminAddress = (await get("NFTAdmin")).address;
 
-    if(nftAdminAddress && factoryAddress){
+    if (nftAdminAddress && factoryAddress) {
       await deploy("UniswapV2Router02", {
         from: deployer,
         log: true,
@@ -28,11 +28,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         },
         skipIfAlreadyDeployed: true,
       });
-    }else{
+    } else {
       console.log("network error or contracts not deployed yet");
     }
-
-    
   }
 };
 

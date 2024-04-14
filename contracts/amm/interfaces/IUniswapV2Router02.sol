@@ -6,7 +6,6 @@ import "./IUniswapV2Router01.sol";
 import "../../interfaces/INFTAdmin.sol";
 
 interface IUniswapV2Router02 is IUniswapV2Router01 {
-
     event FactorySet(address indexed newFactory);
 
     event NFTAdminSet(address indexed newNftAdmin);

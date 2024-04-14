@@ -47,7 +47,6 @@ describe("CoinFl", function () {
       const tx = await this.coinFlipper.flipCoin(betAmount);
       await tx.wait(1);
     }
-    
   });
 
   it("should have correct win", async function () {

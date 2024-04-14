@@ -1,12 +1,19 @@
 /* eslint no-use-before-define: "warn" */
 import { ethers, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { UniswapV2Factory, UniswapV2Router02, MockERC20, RubyUSDP, RubyToken, RubyWBTC, RubySKL } from "../../typechain";
+import {
+  UniswapV2Factory,
+  UniswapV2Router02,
+  MockERC20,
+  RubyUSDP,
+  RubyToken,
+  RubyWBTC,
+  RubySKL,
+} from "../../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import fs from "fs";
 
 import { debugPairs } from "../utils";
-
 
 const ETHC_ADDR = "0xD2Aaa00700000000000000000000000000000000";
 
@@ -21,7 +28,6 @@ const addLiquidity = async (
   to: string,
   deadline: BigNumber,
 ) => {
-
   const router: UniswapV2Router02 = (await ethers.getContractAt("UniswapV2Router02", ROUTER_ADDR)) as UniswapV2Router02;
   const res = await router.addLiquidity(
     tokenA,
@@ -32,7 +38,7 @@ const addLiquidity = async (
     ethers.constants.Zero,
     to,
     deadline,
-  )
+  );
 
   //  console.log("res", res)
   const receipt = await res.wait(1);
@@ -43,7 +49,6 @@ const addLiquidity = async (
     console.log(`Could not add liquidity for tokens: ${tokenA}, ${tokenB}`);
   }
 };
-
 
 const approveTokens = async (tokens: any[], routerAddr: string, amount: BigNumber) => {
   for (const token of tokens) {
@@ -62,7 +67,7 @@ const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
 
   if (network.name !== "europa") {
-    throw new Error("Not Supported (anyway this is dangerous, you chould check the numbers here")
+    throw new Error("Not Supported (anyway this is dangerous, you chould check the numbers here");
   }
 
   const factory: UniswapV2Factory = (await ethers.getContractAt("UniswapV2Factory", FACTORY_ADDR)) as UniswapV2Factory;
@@ -73,7 +78,7 @@ const main = async () => {
   const wbtc = (await ethers.getContract("RubyWBTC")) as RubyWBTC;
   const skl = (await ethers.getContract("RubySKL")) as RubySKL;
 
-  const ethc = (await ethers.getContractAt("MockERC20", ETHC_ADDR)) as MockERC20;  // works for approve() ABI
+  const ethc = (await ethers.getContractAt("MockERC20", ETHC_ADDR)) as MockERC20; // works for approve() ABI
 
   const usdpDecimals = await usdp.decimals();
 

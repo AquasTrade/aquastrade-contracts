@@ -12,7 +12,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const USDP_TOKEN_ADDRESS = (await ethers.getContract("RubyUSDP")).address;
   const RUBY_STAKER_ADDRESS = (await ethers.getContract("RubyStaker")).address;
 
-  console.log("init args:", deployer, FACTORY_ADDRESS, ROUTER_ADDRESS, USDP_TOKEN_ADDRESS, RUBY_STAKER_ADDRESS)
+  console.log("init args:", deployer, FACTORY_ADDRESS, ROUTER_ADDRESS, USDP_TOKEN_ADDRESS, RUBY_STAKER_ADDRESS);
 
   await deploy("DAOPairCreator", {
     from: deployer,
@@ -20,7 +20,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
     deterministicDeployment: false,
   });
-
 };
 
 func.tags = ["DAOPairCreator"];

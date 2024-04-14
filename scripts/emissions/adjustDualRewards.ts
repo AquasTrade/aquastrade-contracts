@@ -7,52 +7,58 @@ import { getFarmInfoByLpToken, debugChefPool } from "../utils";
 const DRY_RUN = true;
 // WARNING: Assumes decimals=18, e.g. will not work for USDT, BTC, USDC (if we were to have dual rewards with this assets)
 const HUMAN_AMOUNT = "0";
-const INPUT_PAIR_NAME = 'usdpETHC';// usdpWBTC, usdpETHC, usdpRUBY, usdpSKL
+const INPUT_PAIR_NAME = "usdpETHC"; // usdpWBTC, usdpETHC, usdpRUBY, usdpSKL
 
 const getDualRewarder = async (address: string) => {
-  const rewarder: SimpleRewarderPerSec = (await ethers.getContractAt("SimpleRewarderPerSec", address)) as SimpleRewarderPerSec;
+  const rewarder: SimpleRewarderPerSec = (await ethers.getContractAt(
+    "SimpleRewarderPerSec",
+    address,
+  )) as SimpleRewarderPerSec;
   return rewarder;
-}
+};
 
 const main = async () => {
   const { masterChef, factory, ssAddr, pools } = await getDependents();
 
   const lpTokenAddr = pools[INPUT_PAIR_NAME];
-  if (typeof lpTokenAddr === 'undefined') {
-    console.error(`error: could not find lpTokenAddr for ${INPUT_PAIR_NAME}`)
+  if (typeof lpTokenAddr === "undefined") {
+    console.error(`error: could not find lpTokenAddr for ${INPUT_PAIR_NAME}`);
     return;
   }
 
-  console.log(`Updating farming configuration for AMM pool ${INPUT_PAIR_NAME}`)
+  console.log(`Updating farming configuration for AMM pool ${INPUT_PAIR_NAME}`);
 
-  const farmInfo = await getFarmInfoByLpToken(lpTokenAddr, masterChef, factory, ssAddr)
+  const farmInfo = await getFarmInfoByLpToken(lpTokenAddr, masterChef, factory, ssAddr);
   if (farmInfo === null) {
-    console.error(`error: could not find farm pool for AMM pair ${INPUT_PAIR_NAME}`)
+    console.error(`error: could not find farm pool for AMM pair ${INPUT_PAIR_NAME}`);
     return;
   }
 
   if (farmInfo.rewarderInfo === null) {
-    console.error(`error: could not find farm pool dual rewarder for AMM pair ${INPUT_PAIR_NAME}`)
+    console.error(`error: could not find farm pool dual rewarder for AMM pair ${INPUT_PAIR_NAME}`);
     return;
   }
 
   const amount = ethers.utils.parseUnits(HUMAN_AMOUNT, 18);
 
-  console.log(`Updating dual reward reward token ${farmInfo.rewarderTokenInfo?.symbol} to ${HUMAN_AMOUNT}/s (${amount.toString()} wei)`)
-  
+  console.log(
+    `Updating dual reward reward token ${
+      farmInfo.rewarderTokenInfo?.symbol
+    } to ${HUMAN_AMOUNT}/s (${amount.toString()} wei)`,
+  );
+
   const rewarder = await getDualRewarder(farmInfo.rewarder);
 
   if (!DRY_RUN) {
     const res = await rewarder.setRewardRate(amount);
     const tx = await res.wait(1);
-    console.log("Dual rewarder reward rate updated: ", tx.transactionHash)
+    console.log("Dual rewarder reward rate updated: ", tx.transactionHash);
   } else {
-    console.log("DRY RUN")
+    console.log("DRY RUN");
   }
 
   await debugChefPool(farmInfo, factory, ssAddr);
-
-}
+};
 
 main()
   .then(() => process.exit(0))

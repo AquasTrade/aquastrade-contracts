@@ -19,7 +19,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const chainId = await getChainId();
 
     if (chainId === CHAIN_ID.HARDHAT || chainId === CHAIN_ID.LOCALHOST) {
-      log('Using Mock Tokens');
+      log("Using Mock Tokens");
       TOKEN_ADDRESSES = [
         (await get("MockUSDP")).address,
         (await get("MockDAI")).address,
@@ -27,7 +27,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         (await get("MockUSDT")).address,
       ];
     } else {
-      log('Using RubyX Tokens on L2');
+      log("Using RubyX Tokens on L2");
       TOKEN_ADDRESSES = [
         (await get("RubyUSDP")).address,
         (await get("RubyDAI")).address,

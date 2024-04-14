@@ -1,11 +1,7 @@
 const { ethers } = require("hardhat");
 import { expect } from "chai";
 
-import {
-  ADDRESS_ZERO,
-  advanceTimeByTimestamp,
-  advanceTimeToTimestamp,
-} from "./utilities";
+import { ADDRESS_ZERO, advanceTimeByTimestamp, advanceTimeToTimestamp } from "./utilities";
 
 import { deployRubyStaker } from "./utilities/deployment";
 
@@ -29,7 +25,6 @@ describe("RubyStaker", function () {
     this.USDTtoken = await ethers.getContractFactory("MockUSDT");
     this.USDCtoken = await ethers.getContractFactory("MockUSDC");
     this.ETHtoken = await ethers.getContractFactory("MockETH");
-    
   });
 
   beforeEach(async function () {
@@ -110,11 +105,11 @@ describe("RubyStaker", function () {
   });
 
   it("adding reward should fail when maximum number of rewards are exceeded", async function () {
-    await this.staker.addReward(this.ruby.address, this.owner.address)
-    await this.staker.addReward(this.usdp.address, this.owner.address)
-    await this.staker.addReward(this.dai.address, this.owner.address)
-    await this.staker.addReward(this.usdc.address, this.owner.address)
-    await this.staker.addReward(this.usdt.address, this.owner.address)
+    await this.staker.addReward(this.ruby.address, this.owner.address);
+    await this.staker.addReward(this.usdp.address, this.owner.address);
+    await this.staker.addReward(this.dai.address, this.owner.address);
+    await this.staker.addReward(this.usdc.address, this.owner.address);
+    await this.staker.addReward(this.usdt.address, this.owner.address);
 
     let numRewards = await this.staker.numRewards();
     expect(numRewards).to.be.eq(6);
@@ -122,7 +117,6 @@ describe("RubyStaker", function () {
     await expect(this.staker.addReward(this.eth.address, this.owner.address)).to.be.revertedWith(
       "RubyStaker: Maximum number of rewards already registered.",
     );
-
   });
 
   it("reward distributor should be approved correctly", async function () {

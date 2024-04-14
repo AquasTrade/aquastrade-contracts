@@ -6,22 +6,21 @@ const main = async (hre: HardhatRuntimeEnvironment) => {
   let accounts = await hre.getNamedAccounts();
 
   if (network.name === "rubyNewChain" || network.name === "stagingv3") {
-    accounts['Faucet'] = require(`../../deployments/${network.name}/Faucet.json`).address;
+    accounts["Faucet"] = require(`../../deployments/${network.name}/Faucet.json`).address;
   } else if (network.name === "europa") {
-    accounts['FaucetRubyEuropa'] = require(`../../deployments/${network.name}/FaucetRubyEuropa.json`).address;
+    accounts["FaucetRubyEuropa"] = require(`../../deployments/${network.name}/FaucetRubyEuropa.json`).address;
   }
 
   if (network.name === "rubyNewChain" || network.name === "europa" || network.name === "stagingv3") {
-    accounts['RubyMasterChef'] = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
-    accounts['RubyMaker'] = require(`../../deployments/${network.name}/RubyMaker.json`).address;
-    accounts['RubyStaker'] = require(`../../deployments/${network.name}/RubyStaker.json`).address;
-    accounts['LotteryBurner'] = require(`../../deployments/${network.name}/LotteryBurner.json`).address;
+    accounts["RubyMasterChef"] = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
+    accounts["RubyMaker"] = require(`../../deployments/${network.name}/RubyMaker.json`).address;
+    accounts["RubyStaker"] = require(`../../deployments/${network.name}/RubyStaker.json`).address;
+    accounts["LotteryBurner"] = require(`../../deployments/${network.name}/LotteryBurner.json`).address;
   }
 
   console.log(accounts);
 };
 
-task("addresses", "Print account addresses")
-  .setAction(async (taskArgs, hre) => {
-    await main(hre);
-  });
+task("addresses", "Print account addresses").setAction(async (taskArgs, hre) => {
+  await main(hre);
+});

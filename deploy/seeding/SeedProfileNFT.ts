@@ -13,22 +13,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await tx.wait(1);
 
   const isMinter = await ProfileNFT.minters(RubyNFTAdminAddress);
-  console.log(`NFTAdmin set as minter: ${isMinter}`)
+  console.log(`NFTAdmin set as minter: ${isMinter}`);
 
   const tx2 = await ProfileNFT.setMinter(deployer, true);
   await tx2.wait(1);
 
   const isMinter2 = await ProfileNFT.minters(deployer);
-  console.log(`deployer ${deployer} set as minter: ${isMinter}`)
+  console.log(`deployer ${deployer} set as minter: ${isMinter}`);
 
   let mtx;
   console.log(`Minting 10 NFTs to treasury ${treasury}`);
   for (let i = 0; i < 10; i++) {
     mtx = await ProfileNFT.mint(treasury);
     await mtx.wait(1);
-    console.log('minted #', (await ProfileNFT.nftIds()).toNumber() - 1)
+    console.log("minted #", (await ProfileNFT.nftIds()).toNumber() - 1);
   }
-
 };
 export default func;
 

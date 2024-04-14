@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 interface INFT is IERC721Upgradeable {
-
     event MinterSet(address indexed minter, bool allowance);
 
     event DescriptionSet(string newDescription);

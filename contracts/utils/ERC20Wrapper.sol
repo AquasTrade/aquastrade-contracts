@@ -63,5 +63,3 @@ abstract contract ERC20Wrapper is ERC20 {
         return value;
     }
 }
-
-

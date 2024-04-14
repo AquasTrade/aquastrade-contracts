@@ -22,7 +22,7 @@ const main = async () => {
   const dai: RubyDAI = (await ethers.getContractAt("RubyDAI", daiAddr)) as RubyDAI;
 
   const transferAmount18 = ethers.utils.parseUnits("1000", 18);
-  const transferAmountEth = ethers.utils.parseUnits("100", 18);  // Gas = Eth = sFUEL
+  const transferAmountEth = ethers.utils.parseUnits("100", 18); // Gas = Eth = sFUEL
   const transferAmount6 = ethers.utils.parseUnits("1000", 6);
 
   let res = await ruby.transfer(faucetAddr, transferAmount18);

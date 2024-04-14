@@ -13,10 +13,10 @@ contract FaucetRubyEuropa is Ownable {
     fallback() external payable {}
 
     function mint(address payable receiver) external {
-      uint256 bal = receiver.balance;
-      if (bal < MINT_AMOUNT_ETH) {
-        receiver.transfer(MINT_AMOUNT_ETH - bal);
-      }
+        uint256 bal = receiver.balance;
+        if (bal < MINT_AMOUNT_ETH) {
+            receiver.transfer(MINT_AMOUNT_ETH - bal);
+        }
     }
 
     function withdraw() public onlyOwner {

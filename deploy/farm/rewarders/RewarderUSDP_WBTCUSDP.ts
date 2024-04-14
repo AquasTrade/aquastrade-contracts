@@ -1,7 +1,6 @@
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
 
-
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, network } = hre;
   const { deploy, get } = deployments;
@@ -15,16 +14,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   await deploy("RewarderUSDP_WBTCUSDP", {
     contract: "SimpleRewarderPerSec",
     from: deployer,
-    args: [
-      USDP_TOKEN_ADDRESS,
-      WBTCUSDP_POOL,
-      TOKEN_PER_SECOND,
-      CHEF_ADDRESS
-    ],
+    args: [USDP_TOKEN_ADDRESS, WBTCUSDP_POOL, TOKEN_PER_SECOND, CHEF_ADDRESS],
     log: true,
     deterministicDeployment: false,
   });
-
 };
 func.tags = ["RewarderUSDP_WBTCUSDP", "DualRewardRewarders"];
 func.dependencies = ["RubyMasterChef", "RubyUSDP"];

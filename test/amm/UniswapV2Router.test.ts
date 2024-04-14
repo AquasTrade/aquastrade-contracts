@@ -1,14 +1,21 @@
 import { expect } from "chai";
 
 import { ethers, network } from "hardhat";
-import { deployAMM, deployMockTokens, deployNFTAdmin, deployNftsAndNftAdmin, deployRubyFreeSwapNFT, deployRubyProfileNFT } from "../utilities/deployment";
+import {
+  deployAMM,
+  deployMockTokens,
+  deployNFTAdmin,
+  deployNftsAndNftAdmin,
+  deployRubyFreeSwapNFT,
+  deployRubyProfileNFT,
+} from "../utilities/deployment";
 import { addLiquidity } from "./utils";
 describe("UniswapV2Router", function () {
   beforeEach(async function () {
     this.signers = await ethers.getSigners();
     this.owner = this.signers[0];
 
-    let {rubyFreeSwapNft, rubyProfileNft, nftAdmin} = await deployNftsAndNftAdmin(this.owner.address)
+    let { rubyFreeSwapNft, rubyProfileNft, nftAdmin } = await deployNftsAndNftAdmin(this.owner.address);
 
     this.rubyProfileNft = rubyProfileNft;
     this.rubyFreeSwapNft = rubyFreeSwapNft;
@@ -20,7 +27,7 @@ describe("UniswapV2Router", function () {
     let { factory, ammRouter } = await deployAMM(this.owner.address, nftAdmin.address);
     this.factory = factory;
     this.router = ammRouter;
-    
+
     await this.factory.setFeeDeductionSwapper(this.router.address, true);
   });
 
@@ -93,12 +100,11 @@ describe("UniswapV2Router", function () {
   });
 
   it("Liquidity should be added successfully when the sender is a pair creator", async function () {
-    await addLiquidity(this.owner.address, this.router, this.factory)
+    await addLiquidity(this.owner.address, this.router, this.factory);
   });
 
   it("Swap fee should be applied correctly on swapExactTokensForTokens", async function () {
-
-    let {deadline, token1, token2} = await addLiquidity(this.owner.address, this.router, this.factory)
+    let { deadline, token1, token2 } = await addLiquidity(this.owner.address, this.router, this.factory);
 
     const amount = ethers.utils.parseUnits("1000");
     const path = [token1.address, token2.address];
@@ -112,7 +118,7 @@ describe("UniswapV2Router", function () {
 
     const amountsOutNoFee = (await this.router.getAmountsOut(amount, path, 1000))[1];
     const amountsOutWFee = (await this.router.getAmountsOut(amount, path, 997))[1];
-    expect(amountsOutNoFee.sub(amountsOutWFee)).to.be.gt(ethers.utils.parseUnits("2.99", 18))
+    expect(amountsOutNoFee.sub(amountsOutWFee)).to.be.gt(ethers.utils.parseUnits("2.99", 18));
 
     await this.router.swapExactTokensForTokens(amount, ethers.constants.Zero, path, to, deadline);
     const balanceToken2After = await token2.balanceOf(this.owner.address);
@@ -126,12 +132,10 @@ describe("UniswapV2Router", function () {
 
     const balanceAfterNoFeeSwap2 = await token2.balanceOf(this.owner.address);
     expect(balanceAfterNoFeeSwap2.sub(balanceToken2After)).to.be.gt(ethers.utils.parseUnits("999.99"));
-
   });
 
   it("Swap fee should be applied correctly on swapTokensForExactTokens", async function () {
-
-    let {deadline, token1, token2} = await addLiquidity(this.owner.address, this.router, this.factory)
+    let { deadline, token1, token2 } = await addLiquidity(this.owner.address, this.router, this.factory);
 
     const amount = ethers.utils.parseUnits("1000");
     const path = [token1.address, token2.address];
@@ -143,11 +147,11 @@ describe("UniswapV2Router", function () {
 
     expect(await this.rubyFreeSwapNft.balanceOf(this.owner.address)).to.be.eq(0);
 
-    let amountsInNoFee = (await this.router.getAmountsIn(amount, path, 1000))[0]
-    const amountsInWFee = (await this.router.getAmountsIn(amount, path, 997))[0]
+    let amountsInNoFee = (await this.router.getAmountsIn(amount, path, 1000))[0];
+    const amountsInWFee = (await this.router.getAmountsIn(amount, path, 997))[0];
 
-    expect(amountsInWFee.sub(amountsInNoFee)).to.be.gt(ethers.utils.parseUnits("3", 18))
-    expect(amountsInWFee.sub(amountsInNoFee)).to.be.lt(ethers.utils.parseUnits("3.1", 18))
+    expect(amountsInWFee.sub(amountsInNoFee)).to.be.gt(ethers.utils.parseUnits("3", 18));
+    expect(amountsInWFee.sub(amountsInNoFee)).to.be.lt(ethers.utils.parseUnits("3.1", 18));
 
     await this.router.swapTokensForExactTokens(amount, amountsInWFee, path, to, deadline);
     const balanceToken1After = await token1.balanceOf(this.owner.address);
@@ -158,16 +162,14 @@ describe("UniswapV2Router", function () {
     await this.rubyFreeSwapNft.mint(this.owner.address);
     expect(await this.rubyFreeSwapNft.balanceOf(this.owner.address)).to.be.eq(1);
 
-    amountsInNoFee = (await this.router.getAmountsIn(amount, path, 1000))[0]
+    amountsInNoFee = (await this.router.getAmountsIn(amount, path, 1000))[0];
 
     await this.router.swapTokensForExactTokens(amount, amountsInNoFee, path, to, deadline);
 
     const balanceAfterNoFeeSwap1 = await token1.balanceOf(this.owner.address);
     expect(balanceToken1After.sub(balanceAfterNoFeeSwap1)).to.be.gt(ethers.utils.parseUnits("1000"));
     expect(balanceToken1After.sub(balanceAfterNoFeeSwap1)).to.be.lt(ethers.utils.parseUnits("1000.01"));
-
   });
-
 
   this.afterEach(async function () {
     await network.provider.request({

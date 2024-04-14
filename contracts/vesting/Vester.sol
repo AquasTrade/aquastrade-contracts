@@ -9,7 +9,6 @@ import "./TokenVesting.sol";
  * @notice Generic ERC20 token vesting contract with support for beneficiary transfer
  */
 contract Vester is TokenVesting {
-
     /**
      * @notice Emitted when {beneficiary} transfers beneficiary to \`newBeneficiary\`
      */
@@ -25,8 +24,13 @@ contract Vester is TokenVesting {
      * @param duration duration in seconds of the period in which the tokens will vest
      * @param revocable whether the vesting is revocable or not
      */
-    constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable)
-    TokenVesting(beneficiary, start, cliffDuration, duration, revocable) public { }
+    constructor(
+        address beneficiary,
+        uint256 start,
+        uint256 cliffDuration,
+        uint256 duration,
+        bool revocable
+    ) public TokenVesting(beneficiary, start, cliffDuration, duration, revocable) {}
 
     /**
      * @notice Allows the current {beneficiary} to transfer beneficiary status to a new address
@@ -69,7 +73,7 @@ contract Vester is TokenVesting {
     /**
      * @notice Only beneficiary may call
      */
-    modifier onlyBeneficiary {
+    modifier onlyBeneficiary() {
         require(msg.sender == beneficiary(), "Vester: not beneficiary");
 
         _;

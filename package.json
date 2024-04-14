@@ -82,7 +82,6 @@
     "initCodeHash": "hardhat run scripts/initCodeHash.ts",
     "aquaStatus": "hardhat run scripts/debugging/ammstatus.ts",
     "aqua-dex": "hardhat run scripts/debugging/getpoolbalances.ts"
-   
   },
   "files": [
     "/contracts"
@@ -99,7 +98,6 @@
     ]
   },
   "engines": {
-    "node": "^14.19.2",
     "yarn": "1.22.19"
   },
   "dependencies": {

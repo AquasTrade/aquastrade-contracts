@@ -53,15 +53,14 @@ describe("RubyMasterChef", function () {
     const startTime = (await latest()).add(60);
 
     const chef = await upgrades.deployProxy(this.rubyMasterChef, [
-        this.owner.address,
-        this.ruby.address,
-        this.staker.address,
-        this.treasury.address,
-        "10",
-        startTime,
-        "100",// treasury percent max is 1000
-        ]
-      );
+      this.owner.address,
+      this.ruby.address,
+      this.staker.address,
+      this.treasury.address,
+      "10",
+      startTime,
+      "100", // treasury percent max is 1000
+    ]);
     await chef.deployed();
   });
 
@@ -76,9 +75,8 @@ describe("RubyMasterChef", function () {
         this.treasury.address,
         "10",
         startTime,
-        "1100",// treasury percent max is 1000
-        ]
-      ),
+        "1100", // treasury percent max is 1000
+      ]),
     ).to.be.revertedWith("RubyMasterChef: invalid treasury percent value.");
   });
 
@@ -93,8 +91,7 @@ describe("RubyMasterChef", function () {
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
-      ]
-    );
+    ]);
     await this.chef.deployed();
 
     const ruby = await this.chef.RUBY();
@@ -118,8 +115,7 @@ describe("RubyMasterChef", function () {
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
-      ]
-    );
+    ]);
     await this.chef.deployed();
 
     await expect(
@@ -140,8 +136,7 @@ describe("RubyMasterChef", function () {
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
-      ]
-    );
+    ]);
     await this.chef.deployed();
 
     await this.chef.setTreasuryPercent(100);
@@ -160,8 +155,7 @@ describe("RubyMasterChef", function () {
       this.rubyPerSec,
       startTime,
       this.treasuryPercent,
-      ]
-    );
+    ]);
     await this.chef.deployed();
     const ownerInitialBalance = await this.ruby.balanceOf(this.owner.address);
     const amountToChef = ethers.utils.parseUnits("1000", 18);
@@ -272,8 +266,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed();
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -313,8 +306,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed();
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -361,8 +353,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -414,8 +405,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -460,8 +450,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -571,8 +560,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -635,8 +623,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -688,8 +675,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -916,8 +902,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);
@@ -1034,8 +1019,7 @@ describe("RubyMasterChef", function () {
         this.rubyPerSec,
         startTime,
         this.treasuryPercent,
-        ]
-      );
+      ]);
       await this.chef.deployed(); // t-59
 
       const tx = await this.staker.setRewardMinter(this.chef.address);

@@ -18,8 +18,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   if (isMinter2 && BronzeNFT) {
     let mtx;
-    console.log(`Minting ${NFT_MINT_AMOUNT } NFTs to treasury ${treasury}`);
-    for (let i = 0; i < NFT_MINT_AMOUNT ; i++) {
+    console.log(`Minting ${NFT_MINT_AMOUNT} NFTs to treasury ${treasury}`);
+    for (let i = 0; i < NFT_MINT_AMOUNT; i++) {
       mtx = await BronzeNFT.mint(treasury);
       await mtx.wait(1);
       console.log("minted #", (await BronzeNFT.nftIds()).toNumber() - 1);

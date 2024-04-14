@@ -11,7 +11,7 @@ const main = async () => {
   const deployer: SignerWithAddress = (await hre.ethers.getSigners())[0];
   const { management } = await hre.getNamedAccounts();
 
-  const factory = (await ethers.getContractAt("UniswapV2Factory", factoryAddress));
+  const factory = await ethers.getContractAt("UniswapV2Factory", factoryAddress);
   const admin_address = await factory.admin();
 
   if (admin_address === deployer.address) {

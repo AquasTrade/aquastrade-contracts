@@ -1,4 +1,3 @@
-
 /* eslint no-use-before-define: "warn" */
 import { ethers } from "hardhat";
 import { bytecode } from "../artifacts/contracts/amm/UniswapV2Pair.sol/UniswapV2Pair.json";
