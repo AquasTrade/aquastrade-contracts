@@ -1,5 +1,5 @@
 {
-  "name": "aquastrade-contracts",
+  "name": "deployments",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -17,7 +17,6 @@
     "@nomiclabs/hardhat-etherscan": "^3.1.4",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "^3.1.0",
-    "@openzeppelinV2/contracts": "npm:@openzeppelin/contracts@4.3.3",
     "@openzeppelin/contracts-upgradeable": "^3.1.0",
     "@openzeppelin/hardhat-upgrades": "^1.14.0",
     "@tenderly/hardhat-tenderly": "^1.0.0",
@@ -80,8 +79,10 @@
     "pre-commit": "lint-staged",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
     "initCodeHash": "hardhat run scripts/initCodeHash.ts",
-    "aquaStatus": "hardhat run scripts/debugging/ammstatus.ts",
-    "aqua-dex": "hardhat run scripts/debugging/getpoolbalances.ts"
+    "rubyStatus": "hardhat run scripts/debugging/rubystatus.ts",
+    "createLottery": "hardhat createLottery",
+    "drawLottery": "hardhat drawLottery",
+    "burnLotteryRuby": "npx hardhat run scripts/lottery/burnBurnt.ts"
   },
   "files": [
     "/contracts"
@@ -98,6 +99,7 @@
     ]
   },
   "engines": {
+    "node": "^14.19.2",
     "yarn": "1.22.19"
   },
   "dependencies": {
