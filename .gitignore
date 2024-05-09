@@ -7,6 +7,7 @@
 !.yarn/sdks
 !.yarn/versions
 **/artifacts
+**/deployments/europa/solcInputs
 **/build
 **/cache
 **/coverage

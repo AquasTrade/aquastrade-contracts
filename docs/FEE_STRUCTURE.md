@@ -13,11 +13,5 @@ Dynamic swap fee - 30, 20, 10, or 0 BIPS, depending on the NFT tier of the swap 
 - SilverNFT : 10 BIPS
 - GoldNFT : 0 BIPS
 
-If fee is applied, 83% of the 30 BIPS of the trading fee goes to the liquidity providers, while 17% is sent to the RubyMaker contract as a protocol fee.
+If fee is applied, 83% of the 30 BIPS of the trading fee goes to the liquidity providers, while 17% is sent to the Dev Fund Treasury as a protocol fee.
 
-## Fee distribution
-
-1. NFTStaker
-
-The AMM trading fees are sent to the NFTStaker contract for fee distribution in the form of LP tokens (because of how the Uniswap architecture works).
-80% of these fees are distributed to the NFT stakers.

@@ -2,13 +2,13 @@ import { expect } from "chai";
 
 import { ethers, network } from "hardhat";
 
-describe("FaucetRubyEuropa", function () {
+describe("FaucetEuropa", function () {
   before(async function () {
     this.signers = await ethers.getSigners();
     this.owner = this.signers[0];
     this.user = this.signers[1];
     this.burn = this.signers[2];
-    this.Faucet = await ethers.getContractFactory("FaucetRubyEuropa");
+    this.Faucet = await ethers.getContractFactory("FaucetEuropa");
   });
 
   beforeEach(async function () {

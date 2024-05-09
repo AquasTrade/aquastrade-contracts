@@ -7,7 +7,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts();
 
   const nftAdmin = await getOrNull("NFTAdmin");
-  const RubyFreeSwapNFT = await get("GoldSwapNFT");
+  const freeSwapNFT = await get("GoldSwapNFT");
   const ProfileNFT = await get("ProfileNFT");
 
   if (nftAdmin) {
@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         proxyContract: "OpenZeppelinTransparentProxy",
         execute: {
           methodName: "initialize",
-          args: [deployer, ProfileNFT.address, RubyFreeSwapNFT.address],
+          args: [deployer, ProfileNFT.address, freeSwapNFT.address],
         },
       },
       skipIfAlreadyDeployed: true,

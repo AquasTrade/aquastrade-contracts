@@ -6,7 +6,7 @@ import {
   deployMockTokens,
   deployNFTAdmin,
   deployNftsAndNftAdmin,
-  deployRubyFreeSwapNFT,
+  deployfreeSwapNFT,
   deployRubyProfileNFT,
 } from "../utilities/deployment";
 import { addLiquidity } from "./utils";

@@ -8,15 +8,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, getOrNull, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const RubyFreeSwapNFT = await getOrNull("BronzeSwapNFT");
+  const freeSwapNFT = await getOrNull("BronzeSwapNFT");
   const name = "Bronze Swap NFT";
   const symbol = "BSNFT";
 
   const description = JSON.stringify(FREE_SWAP_NFT_DETAILS);
   const visualAppearance = JSON.stringify(FREE_SWAP_NFT_APPEARANCE);
 
-  if (RubyFreeSwapNFT) {
-    log(`reusing "BronzeSwapNFT" at ${RubyFreeSwapNFT.address}`);
+  if (freeSwapNFT) {
+    log(`reusing "BronzeSwapNFT" at ${freeSwapNFT.address}`);
   } else {
     await deploy("BronzeSwapNFT", {
       from: deployer,

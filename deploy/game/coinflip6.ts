@@ -1,8 +1,6 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-console.log(" running deploy_ CoinFlip6 ");
-
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { ethers, deployments, getNamedAccounts } = hre;
   const { deploy, getOrNull } = deployments;
@@ -41,6 +39,6 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
   // console.log(tx);
 };
 
-deployFunction.tags = ["CoinFlip", "RNG"]; // Set the tag for the deployment
+deployFunction.tags = ["CoinFlip", "RNG", "AQUA"]; // Set the tag for the deployment: if AQUA is redeployed, coinflip is redeployed
 
 export default deployFunction;

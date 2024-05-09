@@ -1,7 +1,6 @@
+// npx hardhat run scripts/verify/verifyRubyContracts.ts --network europa
 const hre = require("hardhat");
-
 const network = hre.network;
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const contracts: any = {
   // 2024 march recheck
@@ -22,12 +21,25 @@ const contracts: any = {
   rubyProfileNFT_Proxy: require(`../../deployments/${network.name}/ProfileNFT_Proxy.json`),
   */
 
-//  aqua: require(`../../deployments/${network.name}/AQUA.json`),
+  // aqua: require(`../../deployments/${network.name}/AQUA.json`),
 
-  flip: require(`../../deployments/${network.name}/CoinFlipSKL.json`),
+  //faucet: require(`../../deployments/${network.name}/FaucetEuropa.json`),
+  //dca: require(`../../deployments/${network.name}/AquasDCA.json`),
+  //dca: require(`../../deployments/${network.name}/AquasDCAMulti.json`),
 
+  presale: require(`../../deployments/${network.name}/AquasPresale.json`),
+
+  // oracle: require(`../../deployments/${network.name}/AquasOracle.json`),
+
+  //feed: require(`../../deployments/${network.name}/AquasFeed.json`),
+
+  // meme: require(`../../deployments/${network.name}/MemeCreator.json`),
+
+  //airdrop: require(`../../deployments/${network.name}/AquasTradeAirdrop.json`),
+  //aqua_flip: require(`../../deployments/${network.name}/CoinFlip.json`),
+  //rng: require(`../../deployments/${network.name}/RNG_CoinFlip.json`),
   /*
-
+ flip: require(`../../deployments/${network.name}/CoinFlipSKL.json`),
   rubyRouter_Proxy: require(`../../deployments/${network.name}/AquasRouter_Proxy.json`),
   SilverSwapNFT: require(`../../deployments/${network.name}/SilverSwapNFT.json`),
   AquasRouter: require(`../../deployments/${network.name}/AquasRouter.json`),

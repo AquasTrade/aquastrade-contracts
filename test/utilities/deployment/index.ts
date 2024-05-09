@@ -18,21 +18,21 @@ import {
   AquasRouter,
   NFTAdmin,
   ProfileNFT,
-  RubyFreeSwapNFT,
+  freeSwapNFT,
   RubyMaker,
   RubyStaker,
 } from "../../../typechain";
 
-export const deployRubyFreeSwapNFT = async (
+export const deployfreeSwapNFT = async (
   owner: string,
   name: string,
   symbol: string,
   description: string,
   visualAppearance: string,
 ) => {
-  let RubyFreeSwap = await ethers.getContractFactory("RubyFreeSwapNFT");
+  let RubyFreeSwap = await ethers.getContractFactory("freeSwapNFT");
 
-  let rubyFreeSwapNFT: RubyFreeSwapNFT = await upgrades.deployProxy(RubyFreeSwap, [
+  let rubyFreeSwapNFT: freeSwapNFT = await upgrades.deployProxy(RubyFreeSwap, [
     owner,
     name,
     symbol,
@@ -267,7 +267,7 @@ export const deployNftsAndNftAdmin = async (ownerAddress: string) => {
     att3: 3,
   });
 
-  let rubyFreeSwapNft = await deployRubyFreeSwapNFT(
+  let rubyFreeSwapNft = await deployfreeSwapNFT(
     ownerAddress,
     "Ruby Free Swap NFT",
     "RFSNFT",

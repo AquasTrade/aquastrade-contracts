@@ -21,7 +21,7 @@ contract AQUA is ERC20Capped, AccessControl {
     /// @notice The total amount of burned tokens
     uint256 public burnedAmount;
 
-    constructor() public ERC20("Aquas.Ttrade", "AQUA") ERC20Capped(MAX_SUPPLY) {
+    constructor() public ERC20("Aquas.Trade", "AQUA") ERC20Capped(MAX_SUPPLY) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         grantRole(MINTER_ROLE, msg.sender);

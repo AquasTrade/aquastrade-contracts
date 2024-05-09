@@ -8,7 +8,7 @@ const main = async (hre: HardhatRuntimeEnvironment) => {
   if (network.name === "rubyNewChain" || network.name === "stagingv3") {
     accounts["Faucet"] = require(`../../deployments/${network.name}/Faucet.json`).address;
   } else if (network.name === "europa") {
-    accounts["FaucetRubyEuropa"] = require(`../../deployments/${network.name}/FaucetRubyEuropa.json`).address;
+    accounts["FaucetEuropa"] = require(`../../deployments/${network.name}/FaucetEuropa.json`).address;
   }
 
   if (network.name === "rubyNewChain" || network.name === "europa" || network.name === "stagingv3") {

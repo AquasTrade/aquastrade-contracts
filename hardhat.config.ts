@@ -64,14 +64,6 @@ const config: HardhatUserConfig = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
-    stagingv3: {
-      url: "https://staging-v3.skalenodes.com/v1/staging-legal-crazy-castor",
-      accounts: [ADMIN_PKEY_TESTNET],
-    },
-    rubyNewChain: {
-      url: "http://staging-node0.skalenodes.com:10003",
-      accounts: [ADMIN_PKEY_TESTNET],
-    },
     europa: {
       url: "https://mainnet.skalenodes.com/v1/elated-tan-skat",
       accounts: [ADMIN_PKEY],

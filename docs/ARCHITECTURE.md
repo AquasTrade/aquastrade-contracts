@@ -134,9 +134,9 @@ Ruby implements a custom NFT architecture to offer a better UX and more benefits
 
 Currently the NFT architecture involves three contracts:
 
-1. `NFTAdmin.sol` - An admin contract that implements AMM trading fee deduction logic - if a user holds a RubyFreeSwapNFT, they're eligible for 0% fee AMM swaps. Additionally the NFTAdmin contracts enables ProfileNFT minting (via implemented restricted minter logic). The `mintProfileNFT` function of the `NFTAdmin.sol` contract is currently only being called from the `RubyRouter.sol` contract.
+1. `NFTAdmin.sol` - An admin contract that implements AMM trading fee deduction logic - if a user holds a freeSwapNFT, they're eligible for 0% fee AMM swaps. Additionally the NFTAdmin contracts enables ProfileNFT minting (via implemented restricted minter logic). The `mintProfileNFT` function of the `NFTAdmin.sol` contract is currently only being called from the `RubyRouter.sol` contract.
 2. `ProfileNFT.sol` - ProfileNFT, currently minted upon doing swaps/trading actions, minted from the `RubyRouter.sol` contract.
-3. `RubyFreeSwapNFT.sol` - RubyFreeSwapNFT - a utility NFT, used for providing fee free AMM swaps for it's holders.
+3. `freeSwapNFT.sol` - freeSwapNFT - a utility NFT, used for providing fee free AMM swaps for it's holders.
 
 ## Upgradeability:
 
@@ -147,7 +147,7 @@ The following contracts are deployed to be upgradeable:
 - `UniswapV2Router02.sol`
 - `NFTAdmin.sol`
 - `RubyRouter.sol`
-- `RubyFreeSwapNFT.sol`
+- `freeSwapNFT.sol`
 - `ProfileNFT.sol`
 - `RubyStaker.sol`
 - `RubyMaker.sol`

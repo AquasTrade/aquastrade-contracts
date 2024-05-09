@@ -7,12 +7,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployer } = await getNamedAccounts();
 
   if (network.name === "europa") {
-    await deploy("FaucetRubyEuropa", {
+    await deploy("FaucetEuropa", {
       from: deployer,
       log: true,
       deterministicDeployment: false,
     });
-  } else {
+  } else {// Dummy mocktokens for testnet
     const ruby = (await get("RubyToken")).address;
     const usdp = (await get("RubyUSDP")).address;
     const usdc = (await get("RubyUSDC")).address;

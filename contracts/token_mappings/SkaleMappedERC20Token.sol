@@ -9,6 +9,8 @@ contract SkaleMappedERC20Token is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
+       address public TokenManager = 0xD2aAA00500000000000000000000000000000000;
+
     constructor(
         string memory name,
         string memory symbol,
@@ -16,6 +18,10 @@ contract SkaleMappedERC20Token is ERC20, AccessControl {
     ) public ERC20(name, symbol) {
         _setupDecimals(decimals);
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+         _setupRole(MINTER_ROLE, msg.sender); 
+         // Register to Token Manager
+        _setupRole(MINTER_ROLE, TokenManager); 
+        _setupRole(BURNER_ROLE, TokenManager); 
     }
 
     function mint(address to, uint256 amount) public virtual {

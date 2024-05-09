@@ -21,7 +21,7 @@ Factory
 
 AQUA Token
 
-- AQUA : `0x74f63Fd5F06e2A8B19409e0b3959941276c66f8C`
+- AQUA :  double check
 
 Treasury
 
@@ -73,6 +73,16 @@ This code should be set at: `contracts/amm/libraries/UniswapV2Library.sol` at li
 
 - `yarn deploy --network europa --tags AquasRouter`
 - `yarn deploy --network europa --tags SeedAquasRouter`
+
+- `yarn deploy --network europa --tags Faucet`
+
+- `yarn deploy --network europa --tags Airdrop`
+
+- `yarn deploy --network europa --tags AquasFeed` 
+
+- `yarn deploy --network europa --tags AquasDCAMulti `
+
+- `yarn deploy --network europa --tags AquasPresale `
 
 ## Setup the NFT's in NFTAdmin
 
