@@ -5,7 +5,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 import { debugPairs } from "../utils";
 
-
 const main = async () => {
   const deployer: SignerWithAddress = (await ethers.getSigners())[0];
   const FACTORY_ADDR = require(`../../deployments/${network.name}/UniswapV2Factory.json`).address;

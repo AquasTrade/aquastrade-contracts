@@ -6,7 +6,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 require("dotenv").config();
 
-
 import { address as RubyMainnet } from "../../deployments/rinkeby/RubyTokenMainnet.json";
 import { address as RinkebyDAI } from "../../deployments/rinkeby/MockDAI.json";
 import { address as RinkebyUSDC } from "../../deployments/rinkeby/MockUSDC.json";
@@ -15,15 +14,14 @@ import { address as RinkebyUSDT } from "../../deployments/rinkeby/MockUSDT.json"
 
 const SCHAIN_NAME = "fancy-rasalhague";
 
-
 const bridgeEth = async (signer: SignerWithAddress) => {
   const depositBoxAddress = l1Artifacts.deposit_box_eth_address;
   const depositBoxABI = l1Artifacts.deposit_box_eth_abi;
   const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
-  const res = await depositBoxContract.deposit(SCHAIN_NAME, { value: "80000000000000000"});
+  const res = await depositBoxContract.deposit(SCHAIN_NAME, { value: "80000000000000000" });
   await res.wait(1);
-  console.log("eth bridged")
-}
+  console.log("eth bridged");
+};
 
 const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
   const depositBoxAddress = l1Artifacts.deposit_box_erc20_address;
@@ -126,7 +124,6 @@ const bridgeL1tokensToL2 = async (signer: SignerWithAddress) => {
       6,
     )}`,
   );
-
 };
 
 const main = async () => {

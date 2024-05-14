@@ -14,7 +14,7 @@ interface INFTAdmin {
     function goldSwapNFT() external view returns (address);
 
     function silverSwapNFT() external view returns (address);
-    
+
     function bronzeSwapNFT() external view returns (address);
 
     function minters(address minter) external view returns (bool);

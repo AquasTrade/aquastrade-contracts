@@ -8,10 +8,10 @@ abstract contract RNG is IRandomNumberGenerator {
         uint256[] memory randomness = new uint256[](count);
         uint256 value = uint256(getRandom());
         for (uint256 i = 0; value != 0 && i < count; ) {
-            randomness[i] = value % uint256(10) ** lotterySize;
+            randomness[i] = value % uint256(10)**lotterySize;
             uint256 j;
             for (j = 0; j < i; j++) if (randomness[j] == randomness[i]) break;
-            value = value / (uint256(10 ** lotterySize));
+            value = value / (uint256(10**lotterySize));
             if (j < i) continue;
             else i++;
         }
@@ -28,5 +28,4 @@ abstract contract RNG is IRandomNumberGenerator {
             addr := mload(freemem)
         }
     }
-
 }

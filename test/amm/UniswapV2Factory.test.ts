@@ -8,7 +8,7 @@ describe("UniswapV2Factory", function () {
     this.owner = this.signers[0];
     this.user2 = this.signers[1];
 
-    let { nftAdmin } = await deployNftsAndNftAdmin(this.owner.address)
+    let { nftAdmin } = await deployNftsAndNftAdmin(this.owner.address);
 
     // AMM
     let { factory, ammRouter } = await deployAMM(this.owner.address, nftAdmin.address);

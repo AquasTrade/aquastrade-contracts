@@ -5,7 +5,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 require("dotenv").config();
 
-
 const PARTNER_TOKEN_NAME = "BRAWL";
 const PARTNER_TOKEN_ORIGIN_ADDRESS = "0xE0A107a0010930Ac218ED0a50937b50D5633EB3e";
 const SCHAIN_NAME = "frayed-decent-antares";
@@ -17,14 +16,19 @@ const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
   const tokenManagerABI = l2Artifacts.token_manager_erc20_abi;
   const tokenManagerContract = new ethers.Contract(tokenManagerAddress, tokenManagerABI, signer);
 
-  if (typeof PartnerToken !== 'undefined') {
-    const res = await tokenManagerContract.addERC20TokenByOwner(SCHAIN_NAME, PARTNER_TOKEN_ORIGIN_ADDRESS, PartnerToken);
+  if (typeof PartnerToken !== "undefined") {
+    const res = await tokenManagerContract.addERC20TokenByOwner(
+      SCHAIN_NAME,
+      PARTNER_TOKEN_ORIGIN_ADDRESS,
+      PartnerToken,
+    );
     const receipt = await res.wait(1);
-    console.log(`Partner Token Address: ${PartnerToken} registered to IMA under Token Name: ${PARTNER_TOKEN_NAME}`, receipt);
+    console.log(
+      `Partner Token Address: ${PartnerToken} registered to IMA under Token Name: ${PARTNER_TOKEN_NAME}`,
+      receipt,
+    );
   }
-
 };
-
 
 const main = async () => {
   const signer: SignerWithAddress = (await ethers.getSigners())[0];

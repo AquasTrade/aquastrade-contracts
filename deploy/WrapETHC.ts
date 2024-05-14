@@ -17,16 +17,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   // decimals() falls back to underlying which is not valid on a test/hardhat networks
   // where 0xD2Aa... is not a valid address
-  if (network.name === "rubyNewChain" || network.name === 'europa' || network.name === 'stagingv3') {
+  if (network.name === "rubyNewChain" || network.name === "europa" || network.name === "stagingv3") {
     const decimals = await tokenContract.decimals();
     console.log("WETH decimals: ", decimals);
   } else {
-    console.error("WARNING: Predeployed ETH at '0xD2Aaa00700000000000000000000000000000000' is only valid on Skale")
+    console.error("WARNING: Predeployed ETH at '0xD2Aaa00700000000000000000000000000000000' is only valid on Skale");
   }
 
   const name = await tokenContract.name();
   console.log("WETH name: ", name);
-  
 };
 
 func.tags = ["WrapETHC", "WrapTokens"];

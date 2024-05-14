@@ -24,15 +24,9 @@ pragma solidity 0.6.12;
 import "./utils/ERC20Wrapper.sol";
 
 contract SkaleS2SERC20Wrapper is ERC20Wrapper {
-
     constructor(
         string memory contractName,
         string memory contractSymbol,
         IERC20 originToken
-    ) public 
-        ERC20Wrapper(originToken)
-        ERC20(contractName, contractSymbol)
-    {
-        
-    }
+    ) public ERC20Wrapper(originToken) ERC20(contractName, contractSymbol) {}
 }

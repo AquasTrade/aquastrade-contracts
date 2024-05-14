@@ -11,7 +11,7 @@ const main = async () => {
   console.log("Address:", signer.address);
 
   // cancel stuck tx
-  console.log(await ethers.provider.getTransactionCount(signer.address, 'pending'));
+  console.log(await ethers.provider.getTransactionCount(signer.address, "pending"));
 
   //// check this nonce is reasonable and is 1 higher than the one in etherscan
   ////const tx = {
@@ -21,11 +21,9 @@ const main = async () => {
   ////  gasPrice: 50000000000  // from gastracker gwei -> wei
   ////}; // costs 21000 gas
   ////await signer.sendTransaction(tx);
-  
-  let ethBalance = await ethers.provider.getBalance(signer.address);
-  console.log(
-    `ETH balance: ${ethers.utils.formatEther(ethBalance)}`)
 
+  let ethBalance = await ethers.provider.getBalance(signer.address);
+  console.log(`ETH balance: ${ethers.utils.formatEther(ethBalance)}`);
 };
 
 main()

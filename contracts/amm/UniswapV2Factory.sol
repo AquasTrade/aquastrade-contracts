@@ -30,7 +30,6 @@ contract UniswapV2Factory is IUniswapV2Factory {
     }
 
     function createPair(address tokenA, address tokenB) external override returns (address pair) {
-        
         require(tokenA != tokenB, "UniswapV2: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), "UniswapV2: ZERO_ADDRESS");
@@ -64,7 +63,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     function setAdmin(address newAdmin) external override {
         require(msg.sender == admin, "UniswapV2: FORBIDDEN");
         require(newAdmin != address(0), "UniswapV2: INVALID_INIT_ARG");
-        
+
         admin = newAdmin;
         emit AdminSet(newAdmin);
     }

@@ -5,8 +5,8 @@ import "./Irng6.sol";
 
 contract RNG_CoinFlip is IRandomNumberGenerator {
     constructor() public {}
-   
-    function getRandomNumber() public view override returns (uint) {
+
+    function getRandomNumber() public view override returns (uint256) {
         // Here we generate entropy by xoring together properties that
         // are hard / impossible to all manipulate at the same time
         // by a single actor
@@ -23,6 +23,6 @@ contract RNG_CoinFlip is IRandomNumberGenerator {
         bytes32 b = keccak256(abi.encode(blockhash(block.number - 1)));
         // Note: we can add more entropy by xoring the keccak256 hashes
         // of local variables in the state of the contract
-        return uint(a) ^ uint(b);
+        return uint256(a) ^ uint256(b);
     }
 }

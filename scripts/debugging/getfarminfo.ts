@@ -4,7 +4,6 @@ import { RubyMasterChef, UniswapV2Factory } from "../../typechain";
 
 import { debugChefPools } from "../utils";
 
-
 const main = async () => {
   const CHEF_ADDR = require(`../../deployments/${network.name}/RubyMasterChef.json`).address;
   const masterChef: RubyMasterChef = (await ethers.getContractAt("RubyMasterChef", CHEF_ADDR)) as RubyMasterChef;

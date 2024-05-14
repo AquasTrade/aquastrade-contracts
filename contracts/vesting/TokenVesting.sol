@@ -39,8 +39,8 @@ contract TokenVesting is Ownable {
 
     bool private _revocable;
 
-    mapping (address => uint256) internal _released;
-    mapping (address => bool) private _revoked;
+    mapping(address => uint256) internal _released;
+    mapping(address => bool) private _revoked;
 
     /**
      * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
@@ -52,7 +52,13 @@ contract TokenVesting is Ownable {
      * @param duration duration in seconds of the period in which the tokens will vest
      * @param revocable whether the vesting is revocable or not
      */
-    constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable) public {
+    constructor(
+        address beneficiary,
+        uint256 start,
+        uint256 cliffDuration,
+        uint256 duration,
+        bool revocable
+    ) public {
         require(beneficiary != address(0), "TokenVesting: beneficiary is the zero address");
         // solhint-disable-next-line max-line-length
         require(cliffDuration <= duration, "TokenVesting: cliff is longer than duration");

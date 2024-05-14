@@ -18,7 +18,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const RUBY_STAKER_ADDRESS = (await get("RubyStaker")).address;
 
-  const BLOCK_NOW = await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+  const BLOCK_NOW = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());
   const RUBY_PER_SECOND = ethers.utils.parseUnits("0.001", 18);
 
   if (RubyMasterChef) {
@@ -40,7 +40,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
             RUBY_PER_SECOND, // RUBY per sec
             BLOCK_NOW.timestamp,
             "100", // 10%
-          ]
+          ],
         },
       },
       skipIfAlreadyDeployed: true,
@@ -48,11 +48,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 
   const rubyMasterChef = await ethers.getContract("RubyMasterChef");
-  console.log("Chef creates",
-              ethers.utils.formatUnits(await rubyMasterChef.rubyPerSec(), 18),
-              "RUBY/s", "beginning ts=",
-              (await rubyMasterChef.startTimestamp()).toString());
-
+  console.log(
+    "Chef creates",
+    ethers.utils.formatUnits(await rubyMasterChef.rubyPerSec(), 18),
+    "RUBY/s",
+    "beginning ts=",
+    (await rubyMasterChef.startTimestamp()).toString(),
+  );
 };
 
 func.dependencies = ["RubyStaker", "RubyProxyAdmin"];

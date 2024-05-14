@@ -43,9 +43,7 @@ const registerL2TokensToIMA = async (signer: SignerWithAddress) => {
   await res.wait(1);
 
   console.log(`L2 tokens registered to IMA`);
-
 };
-
 
 const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
   const depositBoxAddress = l1Artifacts.deposit_box_erc20_address;
@@ -75,10 +73,9 @@ const registerL1TokensToIMA = async (signer: SignerWithAddress) => {
 };
 
 const main = async () => {
-
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
 
-  if (network.name === "rubyNewChain" ) {
+  if (network.name === "rubyNewChain") {
     await registerL2TokensToIMA(signer);
   } else if (network.name === "rinkeby") {
     await registerL1TokensToIMA(signer);
@@ -87,7 +84,7 @@ const main = async () => {
   } else if (network.name === "europa") {
     throw new Error("Europa chain is MS controlled. Use multisig-cli and Gnosis Safe");
   } else {
-    console.log("Network not supported")
+    console.log("Network not supported");
   }
 };
 

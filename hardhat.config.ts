@@ -64,14 +64,6 @@ const config: HardhatUserConfig = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
-    stagingv3: {
-      url: "https://staging-v3.skalenodes.com/v1/staging-legal-crazy-castor",
-      accounts: [ADMIN_PKEY_TESTNET],
-    },
-    rubyNewChain: {
-      url: "http://staging-node0.skalenodes.com:10003",
-      accounts: [ADMIN_PKEY_TESTNET],
-    },
     europa: {
       url: "https://mainnet.skalenodes.com/v1/elated-tan-skat",
       accounts: [ADMIN_PKEY],
@@ -90,25 +82,6 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.5.0",
-      },
-      {
-        version: "0.5.5",
-        settings: {},
-      },
-      {
-        version: "0.5.16",
-        settings: {},
-      },
-      {
-        version: "0.6.2",
-        settings: {},
-      },
-      {
-        version: "0.6.7",
-        settings: {},
-      },
-      {
         version: "0.6.12",
         settings: {},
       },
@@ -119,22 +92,6 @@ const config: HardhatUserConfig = {
 
       {
         version: "0.8.0",
-        settings: {},
-      },
-      {
-        version: "0.8.1",
-        settings: {},
-      },
-      {
-        version: "0.8.9",
-        settings: {},
-      },
-      {
-        version: "0.8.19",
-        settings: {},
-      },
-      {
-        version: "0.8.20",
         settings: {},
       },
     ],

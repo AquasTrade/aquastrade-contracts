@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract MarketPlace {
     using Counters for Counters.Counter;
 
-    Counters.Counter private _itemCounter;
+    Counters.Counter public _itemCounter;
 
     struct Item {
         bool listing;
@@ -25,24 +25,9 @@ contract MarketPlace {
     mapping(uint256 => Item) public items;
     IERC20 public immutable payToken;
 
-    event Listed(
-        address indexed nft,
-        uint256 indexed id,
-        address indexed seller,
-        uint256 price
-    );
-    event Canceled(
-        address indexed nft,
-        uint256 indexed id,
-        address indexed seller,
-        uint256 price
-    );
-    event Bought(
-        address indexed nft,
-        uint256 indexed id,
-        address indexed buyer,
-        uint256 price
-    );
+    event Listed(address indexed nft, uint256 indexed id, address indexed seller, uint256 price);
+    event Canceled(address indexed nft, uint256 indexed id, address indexed seller, uint256 price);
+    event Bought(address indexed nft, uint256 indexed id, address indexed buyer, uint256 price);
 
     constructor(IERC20 _paytoken) public {
         payToken = _paytoken;
@@ -56,13 +41,7 @@ contract MarketPlace {
         uint256 itemCounter = _itemCounter.current();
         _itemCounter.increment();
         IERC721(nft).transferFrom(msg.sender, address(this), id);
-        items[itemCounter] = Item({
-            listing: true,
-            nft: nft,
-            id: id,
-            price: price,
-            seller: msg.sender
-        });
+        items[itemCounter] = Item({ listing: true, nft: nft, id: id, price: price, seller: msg.sender });
         emit Listed(nft, id, msg.sender, price);
     }
 
@@ -89,7 +68,7 @@ contract MarketPlace {
     function getListedItems() public view returns (Item[] memory) {
         uint256 itemCounter = _itemCounter.current();
         Item[] memory _items = new Item[](itemCounter);
-        for (uint i = 0; i < itemCounter; i++) {
+        for (uint256 i = 0; i < itemCounter; i++) {
             Item memory item = items[i];
             if (item.listing) {
                 _items[i] = item;

@@ -48,7 +48,7 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
         uint256 amountBMin
     ) internal virtual returns (uint256 amountA, uint256 amountB) {
         // create the pair if it doesn't exist yet
-       
+
         if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
             IUniswapV2Factory(factory).createPair(tokenA, tokenB);
         }
@@ -169,7 +169,7 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
     ) external virtual override ensure(deadline) returns (uint256[] memory amounts) {
         uint256 feeMultiplier = nftAdmin.calculateAmmSwapFeeDeduction(tx.origin);
         amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path, feeMultiplier);
-        
+
         require(amounts[amounts.length - 1] >= amountOutMin, "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0],
@@ -198,7 +198,6 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
             amounts[0]
         );
         _swap(amounts, path, to, feeMultiplier);
-
     }
 
     // **** SWAP (supporting fee-on-transfer tokens) ****
@@ -218,12 +217,7 @@ contract UniswapV2Router02 is IUniswapV2Router02, OwnableUpgradeable {
                     ? (reserve0, reserve1)
                     : (reserve1, reserve0);
                 amountInput = IERC20Uniswap(input).balanceOf(address(pair)).sub(reserveInput);
-                amountOutput = UniswapV2Library.getAmountOut(
-                    amountInput,
-                    reserveInput,
-                    reserveOutput,
-                    feeMultiplier
-                );
+                amountOutput = UniswapV2Library.getAmountOut(amountInput, reserveInput, reserveOutput, feeMultiplier);
             }
             (uint256 amount0Out, uint256 amount1Out) = input == token0
                 ? (uint256(0), amountOutput)

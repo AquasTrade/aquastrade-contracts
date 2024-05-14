@@ -18,39 +18,61 @@ import {
   AquasRouter,
   NFTAdmin,
   ProfileNFT,
-  RubyFreeSwapNFT,
+  freeSwapNFT,
   RubyMaker,
-  RubyStaker
+  RubyStaker,
 } from "../../../typechain";
 
+export const deployfreeSwapNFT = async (
+  owner: string,
+  name: string,
+  symbol: string,
+  description: string,
+  visualAppearance: string,
+) => {
+  let RubyFreeSwap = await ethers.getContractFactory("freeSwapNFT");
 
-export const deployRubyFreeSwapNFT = async (owner: string, name: string, symbol: string, description: string, visualAppearance: string) => {
-  let RubyFreeSwap = await ethers.getContractFactory("RubyFreeSwapNFT");
-
-  let rubyFreeSwapNFT: RubyFreeSwapNFT = await upgrades.deployProxy(RubyFreeSwap, [owner, name, symbol, description, visualAppearance]);
+  let rubyFreeSwapNFT: freeSwapNFT = await upgrades.deployProxy(RubyFreeSwap, [
+    owner,
+    name,
+    symbol,
+    description,
+    visualAppearance,
+  ]);
   await rubyFreeSwapNFT.deployed();
 
   return rubyFreeSwapNFT;
-}
+};
 
-export const deployProfileNFT = async (owner: string, name: string, symbol: string, description: string, visualAppearance: string) => {
+export const deployProfileNFT = async (
+  owner: string,
+  name: string,
+  symbol: string,
+  description: string,
+  visualAppearance: string,
+) => {
   let RubyProfile = await ethers.getContractFactory("ProfileNFT");
 
-  let rubyProfileNFT: ProfileNFT = await upgrades.deployProxy(RubyProfile, [owner, name, symbol, description, visualAppearance]);
+  let rubyProfileNFT: ProfileNFT = await upgrades.deployProxy(RubyProfile, [
+    owner,
+    name,
+    symbol,
+    description,
+    visualAppearance,
+  ]);
   await rubyProfileNFT.deployed();
 
   return rubyProfileNFT;
-}
-
+};
 
 export const deployNFTAdmin = async (owner: string, rubyProfileNFT: string, rubyFreeSwapNFT: string) => {
   let NFTAdmin = await ethers.getContractFactory("NFTAdmin");
 
-  let nftAdmin: NFTAdmin = await upgrades.deployProxy(NFTAdmin, [owner, rubyProfileNFT, rubyFreeSwapNFT])
+  let nftAdmin: NFTAdmin = await upgrades.deployProxy(NFTAdmin, [owner, rubyProfileNFT, rubyFreeSwapNFT]);
   await nftAdmin.deployed();
 
   return nftAdmin;
-}
+};
 
 export const deployAMM = async (admin: string, nftAdmin: string) => {
   let UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
@@ -59,8 +81,8 @@ export const deployAMM = async (admin: string, nftAdmin: string) => {
   let factory: UniswapV2Factory = await UniswapV2Factory.deploy(admin);
   await factory.deployed();
 
-  let ammRouter: UniswapV2Router02 = await upgrades.deployProxy(UniswapV2Router, [admin, factory.address, nftAdmin]) 
-  await ammRouter.deployed()
+  let ammRouter: UniswapV2Router02 = await upgrades.deployProxy(UniswapV2Router, [admin, factory.address, nftAdmin]);
+  await ammRouter.deployed();
 
   return {
     factory,
@@ -80,7 +102,6 @@ export const deployMockTokens = async (tokenSupply: BigNumber): Promise<Array<Mo
 
   return mockTokens;
 };
-
 
 export const createMockLPs = async (
   ammRouter: UniswapV2Router02,
@@ -189,7 +210,6 @@ export const deployRubyStablePool = async (tokens: Array<MockERC20>): Promise<Sw
   return rubyStablePool;
 };
 
-
 export const deployAquasRouter = async (
   owner: string,
   ammRouter: string,
@@ -198,70 +218,89 @@ export const deployAquasRouter = async (
   maxHops: number,
 ): Promise<AquasRouter> => {
   let Router = await ethers.getContractFactory("AquasRouter");
-  let rubyRouter: AquasRouter = await upgrades.deployProxy(Router, [owner, ammRouter, stablePool, nftAdmin, maxHops])
+  let rubyRouter: AquasRouter = await upgrades.deployProxy(Router, [owner, ammRouter, stablePool, nftAdmin, maxHops]);
 
-  await rubyRouter.deployed()
+  await rubyRouter.deployed();
 
   return rubyRouter;
 };
 
-
-export const deployRubyMaker = async (owner: string, factory: string, staker: string, ruby: string, usdToken: string, burnPercent: number): Promise<RubyMaker> => {
-
+export const deployRubyMaker = async (
+  owner: string,
+  factory: string,
+  staker: string,
+  ruby: string,
+  usdToken: string,
+  burnPercent: number,
+): Promise<RubyMaker> => {
   let RubyMaker = await ethers.getContractFactory("RubyMaker");
-  const rubyMaker: RubyMaker = await upgrades.deployProxy(RubyMaker, [owner, factory, staker, ruby, usdToken, burnPercent]);
+  const rubyMaker: RubyMaker = await upgrades.deployProxy(RubyMaker, [
+    owner,
+    factory,
+    staker,
+    ruby,
+    usdToken,
+    burnPercent,
+  ]);
   await rubyMaker.deployed();
   return rubyMaker;
-
-}
-
+};
 
 export const deployRubyStaker = async (owner: string, ruby: string, maxNumRewards: number): Promise<RubyStaker> => {
-
   let RubyStaker = await ethers.getContractFactory("RubyStaker");
   const rubyStaker: RubyStaker = await upgrades.deployProxy(RubyStaker, [owner, ruby, maxNumRewards]);
   await rubyStaker.deployed();
   return rubyStaker;
-
-}
-
+};
 
 export const deployNftsAndNftAdmin = async (ownerAddress: string) => {
-
   const description = JSON.stringify({
-    "description": "swap fees",
-    "feeReduction": 1000, 
-    "lpFeeDeduction": 3,
-    "randomMetadata": {}
+    description: "swap fees",
+    feeReduction: 1000,
+    lpFeeDeduction: 3,
+    randomMetadata: {},
   });
 
   const visualAppearance = JSON.stringify({
-    "att1": 1,
-    "att2": 2, 
-    "att3": 3,
+    att1: 1,
+    att2: 2,
+    att3: 3,
   });
 
-
-  let rubyFreeSwapNft = await deployRubyFreeSwapNFT(ownerAddress, "Ruby Free Swap NFT", "RFSNFT", description, visualAppearance)
-  let rubyProfileNft = await deployProfileNFT(ownerAddress, "Ruby Profile NFT", "RPNFT", description, visualAppearance)
+  let rubyFreeSwapNft = await deployfreeSwapNFT(
+    ownerAddress,
+    "Ruby Free Swap NFT",
+    "RFSNFT",
+    description,
+    visualAppearance,
+  );
+  let rubyProfileNft = await deployProfileNFT(ownerAddress, "Ruby Profile NFT", "RPNFT", description, visualAppearance);
   let nftAdmin = await deployNFTAdmin(ownerAddress, rubyProfileNft.address, rubyFreeSwapNft.address);
 
   return {
     rubyFreeSwapNft,
     rubyProfileNft,
-    nftAdmin
-  }
+    nftAdmin,
+  };
+};
 
-}
-
-
-export const deployRubyNFT = async (ownerAddress: string, name: string, symbol: string, details: string, visualAppearance: string) => {
-    
+export const deployRubyNFT = async (
+  ownerAddress: string,
+  name: string,
+  symbol: string,
+  details: string,
+  visualAppearance: string,
+) => {
   let RubyNFT = await ethers.getContractFactory("RubyNFT");
 
-  let rubyNft: ProfileNFT = await upgrades.deployProxy(RubyNFT, [ownerAddress, name, symbol, details, visualAppearance]);
+  let rubyNft: ProfileNFT = await upgrades.deployProxy(RubyNFT, [
+    ownerAddress,
+    name,
+    symbol,
+    details,
+    visualAppearance,
+  ]);
   await rubyNft.deployed();
 
   return rubyNft;
-
-}
+};

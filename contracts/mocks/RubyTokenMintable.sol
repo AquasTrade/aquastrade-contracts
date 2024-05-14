@@ -27,13 +27,13 @@ contract RubyTokenMintable is ERC20Capped, AccessControl {
         _mint(msg.sender, MAX_SUPPLY);
     }
 
-        /// @notice Creates `amount` token to `to`. Must only be called by the IMA TokenManager contract
+    /// @notice Creates `amount` token to `to`. Must only be called by the IMA TokenManager contract
     function mint(address to, uint256 amount) public {
         require(hasRole(MINTER_ROLE, msg.sender), "RUBY::mint: Caller is not a minter");
         _mint(to, amount);
     }
 
-    /// @notice Destroys `amount` of RUBY tokens from the msg.sender. 
+    /// @notice Destroys `amount` of RUBY tokens from the msg.sender.
     /// Must only be called by the IMA TokenManager contract and the RubyMaker contract
     function burn(uint256 amount) public virtual {
         require(hasRole(BURNER_ROLE, msg.sender), "RUBY::burn: Caller is not a burner");

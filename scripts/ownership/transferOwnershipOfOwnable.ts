@@ -1,26 +1,25 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-
 interface Arguments {
-  address: string,
+  address: string;
 }
 
 const OWNABLE_ABI = [
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-]
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
 
 const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
   const ethers = hre.ethers;
@@ -30,7 +29,7 @@ const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
   let accounts = await hre.getNamedAccounts();
   console.log(`Transferring Ownership of Contract:${taskArgs.address} -> Address:${accounts.management}`);
 
-  const contract = new ethers.Contract(taskArgs.address, OWNABLE_ABI, ethers.provider)
+  const contract = new ethers.Contract(taskArgs.address, OWNABLE_ABI, ethers.provider);
 
   const res = await contract.connect(deployer).transferOwnership(accounts.management);
   const receipt = await res.wait();
@@ -40,7 +39,6 @@ const main = async (taskArgs: Arguments, hre: HardhatRuntimeEnvironment) => {
   } else {
     console.log(`Ownershop transfer failed (tx: ${receipt.transactionHash})`);
   }
-
 };
 
 task("transferOwnershipOfOwnable", "Transfers ownership of Ownable ABI contract to management address")

@@ -17,7 +17,7 @@ contract NFT is ERC721Upgradeable, OwnableUpgradeable, INFT {
     modifier onlyMinter() {
         require(minters[msg.sender], "NFT: Minting not allowed");
         _;
-    } 
+    }
 
     function initialize(
         address _owner,
@@ -49,7 +49,6 @@ contract NFT is ERC721Upgradeable, OwnableUpgradeable, INFT {
         minters[minter] = allowance;
         emit MinterSet(minter, allowance);
     }
-
 
     function setDescription(string memory _description) external virtual override onlyOwner {
         require(bytes(_description).length != 0, "NFT: Invalid description");

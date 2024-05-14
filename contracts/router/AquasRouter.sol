@@ -26,7 +26,6 @@ contract AquasRouter is OwnableUpgradeable {
     // Should be set to 3 with a single stable pool.
     // Set as a variable for future upgradeability
     uint256 private _maxSwapHops;
-    
 
     /*** EVENTS ***/
     event StablePoolEnabled(address stablePool);
@@ -41,7 +40,8 @@ contract AquasRouter is OwnableUpgradeable {
         uint256 amount1Out,
         address token0,
         address token1,
-        address indexed to);
+        address indexed to
+    );
 
     function initialize(
         address _owner,
@@ -98,8 +98,10 @@ contract AquasRouter is OwnableUpgradeable {
         emit Swap(msg.sender, amountIn, outputAmount, tokenInAddr, tokenOutAddr, tx.origin);
     }
 
-    function _handleInputToken(SwapDetails calldata swapDetails) private returns (address tokenInAddr, uint256 amountIn) {
-
+    function _handleInputToken(SwapDetails calldata swapDetails)
+        private
+        returns (address tokenInAddr, uint256 amountIn)
+    {
         if (swapDetails.order[0] == SwapType.AMM) {
             uint256[] memory amounts;
             if (swapDetails.ammSwaps[0].swapType == AMMSwapType.EXACT_TOKENS_FOR_TOKENS) {
@@ -132,8 +134,10 @@ contract AquasRouter is OwnableUpgradeable {
     }
 
     // Transfers the output token back to the user
-    function _handleOutputToken(SwapDetails calldata swapDetails, uint256 amountOut) private returns (address tokenOutAddr) {
-
+    function _handleOutputToken(SwapDetails calldata swapDetails, uint256 amountOut)
+        private
+        returns (address tokenOutAddr)
+    {
         uint256 lastHopIndex = swapDetails.order.length - 1;
         if (swapDetails.order[lastHopIndex] == SwapType.AMM) {
             uint256 lastAmmSwapIndex = swapDetails.ammSwaps.length - 1;

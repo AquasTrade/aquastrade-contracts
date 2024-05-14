@@ -13,34 +13,30 @@ import ERC20Abi from "../../abi/@openzeppelin/contracts/token/ERC20/ERC20.sol/ER
 
 const SCHAIN_NAME = "elated-tan-skat";
 
-
 interface IERC20Props {
   address: string;
-  decimals: number
+  decimals: number;
 }
 
 interface IERC20Database {
   [key: string]: IERC20Props;
 }
 
-
 const bridgeEth = async (signer: SignerWithAddress) => {
   const depositBoxAddress = l1Artifacts.deposit_box_eth_address;
   const depositBoxABI = l1Artifacts.deposit_box_eth_abi;
   const depositBoxContract = new ethers.Contract(depositBoxAddress, depositBoxABI, signer);
-  
+
   let balanceBefore = await ethers.provider.getBalance(signer.address);
-  console.log(
-    `ETH balance, before: ${ethers.utils.formatEther(balanceBefore)}`)
+  console.log(`ETH balance, before: ${ethers.utils.formatEther(balanceBefore)}`);
 
   // bridge 1/5
   const res = await depositBoxContract.deposit(SCHAIN_NAME, { value: balanceBefore.div(5) });
   await res.wait(1);
 
   let balanceAfter = await ethers.provider.getBalance(signer.address);
-  console.log(
-    `ETH balance, after: ${ethers.utils.formatEther(balanceAfter)}`)
-}
+  console.log(`ETH balance, after: ${ethers.utils.formatEther(balanceAfter)}`);
+};
 
 const bridgeL1RubyToL2 = async (signer: SignerWithAddress) => {
   const depositBoxAddress = l1Artifacts.deposit_box_erc20_address;
@@ -69,9 +65,7 @@ const bridgeL1RubyToL2 = async (signer: SignerWithAddress) => {
       18,
     )}`,
   );
-
 };
-
 
 const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string, fracAmount: number) => {
   const depositBoxAddress = l1Artifacts.deposit_box_erc20_address;
@@ -91,7 +85,6 @@ const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string, fra
   console.log(`${ERC20name} balance, before: ${ethers.utils.formatUnits(erc20Balance, ERC20decimals)}`);
 
   if (amountToTx.gt(0)) {
-
     // revoke
     // let res = await ERC20.connect(signer).revoke(depositBoxAddress);
     // await res.wait(1);
@@ -109,16 +102,13 @@ const bridgeL1TokensToL2 = async (signer: SignerWithAddress, symbol: string, fra
 
     let res = await depositBoxContract.depositERC20(SCHAIN_NAME, ERC20address, amountToTx);
     await res.wait(1);
-
   } else {
     console.log("skipping (0-balance)");
   }
 
   erc20Balance = await ERC20.balanceOf(signer.address);
   console.log(`${ERC20name} balance, after: ${ethers.utils.formatUnits(erc20Balance, ERC20decimals)}`);
-
 };
-
 
 const main = async () => {
   const signer: SignerWithAddress = (await ethers.getSigners())[0];
@@ -130,7 +120,7 @@ const main = async () => {
   console.log("Address:", signer.address);
 
   // await bridgeL1RubyToL2(signer);
-  
+
   // await bridgeL1TokensToL2(signer, 'USDP', 1 /* all of it */);
   // await bridgeL1TokensToL2(signer, 'USDT', 1 /* half of it */);
   // await bridgeL1TokensToL2(signer, 'USDC', 1 /* all of it */);
@@ -139,11 +129,9 @@ const main = async () => {
   // await bridgeL1TokensToL2(signer, 'WBTC', 1 /* all of it */);
 
   // await bridgeEth(signer);
-  
-  let ethBalance = await ethers.provider.getBalance(signer.address);
-  console.log(
-    `ETH balance: ${ethers.utils.formatEther(ethBalance)}`)
 
+  let ethBalance = await ethers.provider.getBalance(signer.address);
+  console.log(`ETH balance: ${ethers.utils.formatEther(ethBalance)}`);
 };
 
 main()

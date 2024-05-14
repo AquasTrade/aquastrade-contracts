@@ -21,7 +21,11 @@ contract NFTAdmin is INFTAdmin, OwnableUpgradeable {
         _;
     }
 
-    function initialize(address _owner, address _profileNFT, address _freeSwapNFT) public initializer {
+    function initialize(
+        address _owner,
+        address _profileNFT,
+        address _freeSwapNFT
+    ) public initializer {
         require(_owner != address(0), "NFTAdmin: Invalid owner address");
         require(_profileNFT != address(0), "NFTAdmin: Invalid  profile NFT");
         require(_freeSwapNFT != address(0), "NFTAdmin: Invalid  free swap NFT");
