@@ -17,11 +17,5 @@
   },
   "files": [
     "/contracts"
-  ],
-  "engines": {
-    "yarn": "1.22.19"
-  },
-  "dependencies": {
-    "yarn": "^1.22.19"
-  }
+  ]
 }
