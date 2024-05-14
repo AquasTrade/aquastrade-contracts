@@ -1,6 +1,6 @@
 # Aqua-Dex
 
-Aquas.Trade protcol is a fork of Ruby.Exchange without the DaoCreator AMM pairs management and with 3 NFT Tiers for swap discounts.
+Aquas.Trade protocol is a fork of Ruby.Exchange without the DaoCreator AMM pairs management and with an added 3 Tier NFT Collection for swap discounts.
 
 # Architecture
 

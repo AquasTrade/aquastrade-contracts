@@ -1,6 +1,6 @@
 # protocol fee structure, fee and reward distributions
 
-This document outlines various forms of fees present in the AquasTrade protocol.
+This document outlines various forms of fees present in the Aquas.Trade protocol.
 
 ## Fee structure
 

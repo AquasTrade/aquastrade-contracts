@@ -1,7 +1,7 @@
 # Contract differences
 
 This document outlines the differences from the forked contracts. This is a TL;DR version of the `ARCHITECTURE.md` document,
-for more details please check that document.
+for more details please check [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ## Forked contracts
 

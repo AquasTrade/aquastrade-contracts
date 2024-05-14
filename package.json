@@ -18,17 +18,6 @@
   "files": [
     "/contracts"
   ],
-  "lint-staged": {
-    "**/*.sol": [
-      "solhint --config ./.solhint.json --max-warnings 5 \"contracts/**/*.sol\""
-    ],
-    "**/*.{js,ts}": [
-      "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts ."
-    ],
-    "*.{js,json,md,sol,ts,yaml,yml}": [
-      "prettier --config ./.prettierrc.yaml --write"
-    ]
-  },
   "engines": {
     "yarn": "1.22.19"
   },
